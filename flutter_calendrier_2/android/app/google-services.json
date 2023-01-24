@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "445937197906",
+    "project_id": "guillaume-projet-calendrier",
+    "storage_bucket": "guillaume-projet-calendrier.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:445937197906:android:acd9e7cae889fb5b36108b",
+        "android_client_info": {
+          "package_name": "com.example.flutter_calendrier_2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "445937197906-apsuc0m62suarfsckq82ombkjn3pe6jj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8DUvCv4ZgUZOPujn4ertVuTt6aQNyyDA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "445937197906-apsuc0m62suarfsckq82ombkjn3pe6jj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
