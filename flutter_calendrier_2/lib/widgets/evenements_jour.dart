@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../res/values.dart';
+import '../utils/FileUtils.dart';
 
 
 class EvenementsJour extends StatefulWidget {
@@ -100,6 +102,13 @@ class _EvenementsJourState extends State<EvenementsJour> {
     }
   }
 
+  void tetsteste() async{
+    // TODO completer ca
+    var data = jsonDecode(await FileUtils.readFromFile());
+    print(data);
+    // TODO faire le switch de firebase a JSON pour ici
+  }
+
   @override
   Widget build(BuildContext context) {
     heightScreen = MediaQuery.of(context).size.height;
@@ -110,6 +119,8 @@ class _EvenementsJourState extends State<EvenementsJour> {
     documentID = '${year}_${month}_${day}';
     calendrier = FirebaseFirestore.instance.collection('Calendrier');
 
+
+  tetsteste();
     return eventSection();
   }
 }

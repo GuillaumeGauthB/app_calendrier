@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'widgets/calendar.dart';
 import 'res/values.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'widgets/refresh_data.dart';
+import '../utils/FileUtils.dart';
 
 
 /*Future<void> main() async {
@@ -18,12 +20,15 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   //const MyApp({super.key});
-
   final Future<FirebaseApp> _fbApp = Firebase.initializeApp();
 
+  void ReadThing() async {
+    print(await FileUtils.readFromFile());
+  }
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    ReadThing();
     return MaterialApp(
       title: 'Calendrier',
       theme: ThemeData(
@@ -52,8 +57,12 @@ class MyApp extends StatelessWidget {
                 title: Text(
                     'Calendrier',
                     style: TextStyle(color: colors["backgroundColor"],
-                        fontSize: 25)
+                        fontSize: 25),
                 ),
+                actions: [
+                  RefreshData(),
+                ],
+
                 backgroundColor: colors['mainColor'],
               ),
               body: const Calendar(),

@@ -121,9 +121,9 @@ class _AddEventState extends State<AddEvent> {
                     QuerySnapshot lengthCollection;
                     FirebaseFirestore.instance.runTransaction((transaction) async => {
                       lengthCollection = await ref.limit(1).get(),
-                      //print('length: '+lengthCollection.toString()),
+                      // TODO adapter ce code a la nouvelle maniere de faire
+                      // Si la collection est vide, creer un document
                       if(lengthCollection.docs.isEmpty){
-                        print('test'),
                         FirebaseFirestore.instance.collection('Calendrier').doc(documentID).set({})
                       },
                       await ref.add({
