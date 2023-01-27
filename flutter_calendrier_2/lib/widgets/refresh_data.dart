@@ -24,7 +24,7 @@ void getData() async{
     FileUtils.saveToFile(jsonEncode(result_3));
     //print(testste);
     //FileUtils.saveToFile(testste.toString());
-    String test = await FileUtils.readFromFile();
+    String test = await FileUtils.readFromFile;
     print(test);
     print(result_3.runtimeType);
   }

@@ -222,7 +222,7 @@ class _CalendarState extends State<Calendar> {
                        * Class that adds event
                        */
                       return AddEvent({
-                        "day": _dayClicked + 1,
+                        "day": (_dayClicked < 0 ? now.day : _dayClicked + 1),
                         "month": currentMonth,
                         "year": _currentYear,
                       });

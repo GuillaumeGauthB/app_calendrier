@@ -22,13 +22,9 @@ class MyApp extends StatelessWidget {
   //const MyApp({super.key});
   final Future<FirebaseApp> _fbApp = Firebase.initializeApp();
 
-  void ReadThing() async {
-    print(await FileUtils.readFromFile());
-  }
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    ReadThing();
     return MaterialApp(
       title: 'Calendrier',
       theme: ThemeData(
