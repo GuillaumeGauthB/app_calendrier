@@ -2,6 +2,8 @@ import 'dart:convert'; // pour convertir en JSON
 import 'dart:io'; // pour ecriture de fichiers
 import 'package:path_provider/path_provider.dart'; // pour trouver la location du dossier
 
+int testState = 0;
+
 // Classe servant a la lecture du fichier data.json de l'utilisateur
 class FileUtils {
   /// Getter servant a a prendre le path du fichier a modifier

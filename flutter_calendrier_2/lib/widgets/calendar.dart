@@ -3,6 +3,7 @@ import 'day.dart';
 import 'evenements_jour.dart';
 import '../res/values.dart';
 import 'add_event.dart';
+import '../utils/FileUtils.dart';
 
 class Calendar extends StatefulWidget {
   const Calendar({Key? key}) : super(key: key);
@@ -35,11 +36,10 @@ class _CalendarState extends State<Calendar> {
     return amtDays.day;
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     // TODO rendre la section suivante du code mieux
+    // Traitement du changement des mois, can wait
     if(_monthChange == -1) {
       currentMonth = now.month;
     }else if(_monthChange > 12) {
@@ -77,19 +77,10 @@ class _CalendarState extends State<Calendar> {
     //currentMonthInfo = DateTime(_currentYear, currentMonth, 31);
     weekdays = DateTime(_currentYear, currentMonth, 1).weekday;
 
-    // TODO Enlever le debugging
-    //print(_dayClicked);
-    // print("year called: " + _currentYear.toString());
-    //  print("Month called: " + currentMonth.toString());
-    // print("Day called: "+ DateTime.monday.toString());
-    // print("thing for now:" + (DateTime(_currentYear, nextMonth, 0).weekday).toString());
-    // print("weekdays: " + (7 - DateTime(_currentYear, nextMonth, 0).weekday).toString());
-    // print("la zigezonzinzon: " + DateTime(_currentYear, nextMonth, 0).weekday.toString());
-    // print((7 - DateTime(_currentYear, nextMonth, 0).weekday - 1 ));
 
     // building a flex equivalent that allows calendar days to appear and wrap around one another
     return Container(
-      color: colors["backgroundColor"],
+      color: Theme.of(context).backgroundColor,
       child: Column(
         children: [
           // ============================================================== GESTION DU MOIS
@@ -213,8 +204,7 @@ class _CalendarState extends State<Calendar> {
            */
           GestureDetector(
             onTap: () {
-              setState(() {
-                //_listEvents = false;
+              //setState(() {
                 showModalBottomSheet(
                     context: context,
                     builder: (context) {
@@ -224,11 +214,10 @@ class _CalendarState extends State<Calendar> {
                       return AddEvent({
                         "day": (_dayClicked < 0 ? now.day : _dayClicked + 1),
                         "month": currentMonth,
-                        "year": _currentYear,
+                        "year": _currentYear
                       });
                     }
-                );
-              });
+                ).whenComplete(() => setState(() {}));
             },
 
             child: Container(

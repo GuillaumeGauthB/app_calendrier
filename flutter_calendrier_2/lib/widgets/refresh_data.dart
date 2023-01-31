@@ -37,7 +37,12 @@ void getData() async{
           getData();
         },
       // TODO Customiser l'apparence du bouton
-      child: Text('Refresh'),
+      child: const Align(
+        alignment: Alignment.center,
+        child: Icon(
+            Icons.refresh,
+        ),
+      ),
     );
   }
 }

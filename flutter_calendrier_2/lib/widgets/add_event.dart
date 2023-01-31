@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart'; // firestore, pour les transactions avec la db
 import 'package:flutter/material.dart'; // flutter
 import 'package:datepicker_dropdown/datepicker_dropdown.dart'; // Pour les dropdowns de date
+ import 'package:flutter_calendrier_2/res/events.dart';
+// import '../services/local_notification_service.dart';
 import '../utils/FileUtils.dart';
 
 /// Classe qui ajoute un evenement
@@ -28,6 +30,15 @@ class _AddEventState extends State<AddEvent> {
     //"temps":
   };
   late Map<String, dynamic> _infoDate;
+
+  /*late final LocalNotificationService service;
+  @override
+  void initState(){
+    service = LocalNotificationService();
+    service.initialize();
+    // not working
+    super.initState();
+  }*/
 
   _AddEventState(this.parentParameters);
 /*
@@ -192,7 +203,6 @@ class _AddEventState extends State<AddEvent> {
 
                         // Lien a la collection Firebase
                         //CollectionReference ref = FirebaseFirestore.instance.collection('Calendrier').doc(documentID).collection('evenements');
-                        CollectionReference ref = FirebaseFirestore.instance.collection('Calendrier');
 
                         //QuerySnapshot lengthCollection;
                         Object eventToAdd = {
@@ -218,26 +228,41 @@ class _AddEventState extends State<AddEvent> {
                           };
                         }
 
-                        FirebaseFirestore.instance.runTransaction((transaction) async => {
-                          // lengthCollection = await ref.limit(1).get(),
-                          // TODO adapter ce code a la nouvelle maniere de faire
-                          // Si la collection est vide, creer un document
-                          //if(lengthCollection.docs.isEmpty){
-                          //  FirebaseFirestore.instance.collection('Calendrier').doc(documentID).set({})
-                          //},
+                        tableaux_evenements.add(eventToAdd);
+                        /*() async {
+                          await service.showNotification(id: 0, title: 'Notification Title', body: 'Some body');
+                        };*/
 
-                          // TODO ajouter une maniere de checker si des evenements ont ete ajoutees offline, pis les faire update quand on revient en ligne
-                          await ref.add(eventToAdd),
+                        final CollectionReference ref = FirebaseFirestore.instance.collection('Calendrier');
+                        try{
+                          FirebaseFirestore.instance.runTransaction((transaction) async => {
+                            // lengthCollection = await ref.limit(1).get(),
+                            // TODO adapter ce code a la nouvelle maniere de faire
+                            // Si la collection est vide, creer un document
+                            //if(lengthCollection.docs.isEmpty){
+                            //  FirebaseFirestore.instance.collection('Calendrier').doc(documentID).set({})
+                            //},
 
-                          await FileUtils.modifyFile(eventToAdd),
-                          //await addToFile()
-                        });
+                            await FileUtils.modifyFile(eventToAdd),
+
+                            print(transaction),
+
+                            // TODO ajouter une maniere de checker si des evenements ont ete ajoutees offline, pis les faire update quand on revient en ligne
+                            await ref.add(eventToAdd),
+                            //await addToFile()
+                          });
+                        } on Exception catch(e){
+                          print('error:  $e');
+                        }
+
                         // If the form is valid, display a snackbar. In the real world,
                         // you'd often call a server or save the information in a database.
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Processing Data')),
                         );
-                      }
+                      };
+                      testState = 1;
+                      Navigator.pop(context);
                     },
 
                     child: Text('Submit'),

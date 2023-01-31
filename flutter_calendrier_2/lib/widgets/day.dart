@@ -49,7 +49,7 @@ class day extends StatelessWidget {
       child: Center(
         child: Text(
           currentDay.toString(),
-          style: TextStyle(color: textColor),
+          style: !currentMonth ? TextStyle(color: textColor) : TextStyle(),
           textAlign: TextAlign.center,
         ),
       ) ,

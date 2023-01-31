@@ -1,8 +1,10 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import '../res/events.dart';
 import '../res/values.dart';
 import '../utils/FileUtils.dart';
 
@@ -27,84 +29,18 @@ class _EvenementsJourState extends State<EvenementsJour> {
   late List dataDay;
   late double heightScreen;
 
+  final Set<String> paramEvent = {
+    'Modifier', 'Supprimer'
+  };
+
   _EvenementsJourState(this.evenementsParameters);
-  /*
-  Future<List> getData() async {
-    // Get docs from collection reference
-    QuerySnapshot querySnapshot = await calendrier.doc(documentID).collection("evenements").get();
 
-    // Get data from docs and convert map to List
-    final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
-    return allData;
+  void handleClick(String value){
+    print(value);
   }
-
-  Widget eventSection(){
-    if (_listEvents == true){
-      return FutureBuilder<DocumentSnapshot>(
-              //Fetching data from the documentId specified of the student
-                future: calendrier.doc(documentID).get(),
-                builder:
-                    (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-
-
-                  //Error Handling conditions
-                  if (snapshot.hasError) {
-                    return Text("Something went wrong -- ${snapshot.error.toString()}");
-                  }
-
-                  if (snapshot.hasData && !snapshot.data!.exists) {
-                    return Text("Document does not exist");
-                  }
-
-                  //Data is output to the user
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-                    //return Text("Full Name: ${data['valeurTest']}");
-                    //getData().then((value) => dataDay = value);
-                    return Container(
-                        child:
-                          //Text("Date:"+data['valeurTest']),
-                        FutureBuilder(
-                            future: getData()/*.then((value) => dataDay = value)*/,
-                            builder: (BuildContext context, AsyncSnapshot<List> snapshot){
-                              //Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-                              if (snapshot.connectionState == ConnectionState.done) {
-                                dataDay = snapshot.data!;
-                                // TODO Allow scrolling here
-                                return SingleChildScrollView(
-                                    child: Column(
-                                      children: dataDay.map((obj) =>
-                                          Container(
-                                            child: Text(
-                                              obj['Titre'],
-                                              style: TextStyle(color: colors['mainColor']),
-                                            ),
-                                            // height: 93.2,
-                                            //height: double.minPositive,
-                                          )).toList(),
-                                  )
-                                );
-                              }
-                              else{
-                                return Text('Waiting for data...');
-                              }
-                            },
-                          )
-                    );
-                    //return ListEvents();
-                  }
-
-                  return Text("loading");
-                }
-            );
-    } else {
-      return Container();
-    }
-  }
-  */
   Future<Widget> tetsteste() async{
     // Lire les evenements
-    var data = jsonDecode(await FileUtils.readFromFile);
+    var data = tableaux_evenements;
     // Liste qui va etre utiliser pour imprimer les evenements de la journee
     var dataWhere = [];
     // Mettre les bons evenements dans la liste
@@ -124,9 +60,9 @@ class _EvenementsJourState extends State<EvenementsJour> {
               padding: const EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
               //width: MediaQuery.of(context).size.width,
               /*decoration: const BoxDecoration(
-            border: BorderDirectional(bottom: BorderSide(color: Colors.black, width: 0.7)),
-            color: Colors.grey
-          ),*/
+                border: BorderDirectional(bottom: BorderSide(color: Colors.black, width: 0.7)),
+                color: Colors.grey
+              ),*/
 
               child: Text(
                 o['Titre'],
@@ -135,11 +71,23 @@ class _EvenementsJourState extends State<EvenementsJour> {
             ),
             Row(
               children: [
+                // Texte de duree / heure de l'event
                 Text(
                     (
-                        (o['journee_entiere'].runtimeType.toString() == "bool" && o['journee_entiere']) ? 'Journée entière' : '${o['heure']}h${o['minute']}'
+                      (o['journee_entiere'].runtimeType.toString() == 'bool' && o['journee_entiere']) ? 'Journée entière' : '${o['heure']}h${o['minute']}'
                     )
-                )
+                ),
+                // Menu Pop up
+                PopupMenuButton<String>(
+                  onSelected: handleClick,
+                  itemBuilder: (BuildContext context) {
+                    return paramEvent.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+                    }).toList();
+                  }),
               ]
             )
           ],
@@ -162,39 +110,37 @@ class _EvenementsJourState extends State<EvenementsJour> {
   @override
   Widget build(BuildContext context) {
     heightScreen = MediaQuery.of(context).size.height;
-    //print("height of screen: " + heightScreen.toString());
+
+
+    // Les variables d'informations de journées
     day = widget.evenementsParameters['day'];
     month = widget.evenementsParameters['month'];
     year = widget.evenementsParameters['year'];
-    //documentID = '${year}_${month}_${day}';
-    //calendrier = FirebaseFirestore.instance.collection('Calendrier');
 
 
-    //return eventSection();
+    print('type de truc::: ${{'Logout', 'Settings'}.runtimeType}');
+
+    // FutureBuilder:: Widget qui traite la fonction AJAX de lecture
     return FutureBuilder(
         future: tetsteste(),
         builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+          // SI y'a une erreur dans le processus, Imprimer ce message
           if (snapshot.hasError) {
-            return Text("Something went wrong -- ${snapshot.error.toString()}");
+            return Text("Une erreur c'est produite -- ${snapshot.error.toString()}");
           }
 
+          // Si retourne rien, imprimer rien
           if (snapshot.hasData && snapshot.data!.runtimeType == 'Widget') {
-            return Text("Document does not exist");
+            return Text("");
           }
 
-          //Data is output to the user
+          // Si retourne du contenu, imprimer les evenements
           if (snapshot.connectionState == ConnectionState.done) {
             return snapshot.data!;
           }
 
-          return const Text("loading");
+          return const Text("En chargement...");
         },
     );
   }
 }
-/**
- * AppBar(
-    title: Text('test'),
-    backgroundColor: colors['mainColor'],
-    ),
- */
