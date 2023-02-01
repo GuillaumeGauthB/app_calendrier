@@ -15,10 +15,12 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar> {
-  late Map<String, dynamic> arguments;
+  Map<String, dynamic> arguments = {};
   int _dayClicked = -1;
   int _monthChange = -1;
   int _currentYear = 0;
+
+  int get dayClicked => _dayClicked;
 
   late int currentMonth,
           previousMonth,
@@ -32,11 +34,12 @@ class _CalendarState extends State<Calendar> {
   final DateTime now = DateTime.now();
   late DateTime currentMonthInfo;
 
+
   // final List<String> arrayDays =  'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche' ];
    final List<String> arrayDays = [ 'Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa' ];
    final List<String> arrayMonths = [ 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre' ];
 
-  int getAmountOfDays(){
+  int get getAmountOfDays {
     var amtDays = DateTime(_currentYear, currentMonth + 1, 0);
     return amtDays.day;
   }
@@ -99,7 +102,129 @@ class _CalendarState extends State<Calendar> {
     // building a flex equivalent that allows calendar days to appear and wrap around one another
     return Container(
       color: Theme.of(context).backgroundColor,
-      child: Column(
+      padding: const EdgeInsets.only(top: 25),
+      child: Stack(
+        children: [
+          // ============================================================== GESTION DU MOIS
+          Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(bottom: 15, top: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    GestureDetector(
+                      // Lorsqu'on clique, provoquer un changement de mois
+                      onTap: () {
+                        setState(() {
+                          _monthChange = currentMonth - 1;
+                          _dayClicked = -1;
+                        });
+                      },
+
+                      child: const Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.black,
+                        size: 25.0,
+                      ),
+                    ),
+                    Text(
+                        "${arrayMonths[currentMonth-1]} $_currentYear",
+                        style: const TextStyle(fontSize: 25)
+                    ),
+                    GestureDetector(
+                      // Lorsqu'on clique, provoquer un changement de mois
+                      onTap: () {
+                        setState(() {
+                          _monthChange = currentMonth + 1;
+                          _dayClicked = -1;
+                        });
+                      },
+                      child: const Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.black,
+                        size: 25.0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // ============================================================== JOURS DE LA SEMAINE
+              Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      for (var dayName in arrayDays)
+                        Container(child: Text(dayName, textAlign: TextAlign.center), width: MediaQuery.of(context).size.width / 7)
+                    ],
+                  )
+              ),
+              // ============================================================== CONTENEUR DES JOURS
+              SizedBox(
+                child: Wrap(
+                  alignment: WrapAlignment.start,
+                  // child: day(),
+                  children: [
+                    /**
+                     * JOURS DU MOIS
+                     *
+                     * DE LA MANIERE SUIVANTE
+                     *      JOURS DU MOIS D'AVANT
+                     *      JOURS DU MOIS PRESENT
+                     *      JOURS DU MOIS SUIVANT
+                     */
+                    if(weekdays != 7)
+                      for (var i = 0; i < weekdays; i++, totalAmountDays--)...[
+                        GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _monthChange = currentMonth - 1;
+                                _dayClicked = -1;
+                              });
+                            },
+                            child: day(
+                                DateTime(_currentYear, previousMonth, 0).day + i - weekdays, currentMonth, _currentYear, false, -1
+                            )
+                        ),
+                      ],
+
+                    for (var i = 0; i < getAmountOfDays; i++, totalAmountDays--)...[
+                      GestureDetector(
+                        onTap: () {
+                          setState(()=>{
+                            _dayClicked = i,
+                          });
+                        },
+                        child: day(i, currentMonth, _currentYear, true, _dayClicked),
+                      ),
+                    ],
+
+                    // Quand i est plus petit que le numero du premier jour du mois suivant
+                    //for (var i = 0; i < ( DateTime(nextYear, nextMonth, 0).weekday == 7 ? 6 : (7 - DateTime(nextYear, nextMonth, 0).weekday - 1 )); i++)...[
+                    for (var i = 0; i < totalAmountDays; i++)...[
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _monthChange = currentMonth + 1;
+                            _dayClicked = -1;
+                          });
+                        },
+                        child: day(i, currentMonth, (currentMonth == 12 ? _currentYear+1 : _currentYear), false, -1),
+                      ),
+                    ]
+                  ],
+                ),
+              ),
+            ],
+          ),
+          EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
+          /*Container(
+            height: MediaQuery.of(context).size.height * 0.80,
+            child: EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
+          ),*/
+        ],
+      ),
+      /*child: Column(
         children: [
           // ============================================================== GESTION DU MOIS
           Container(
@@ -216,18 +341,23 @@ class _CalendarState extends State<Calendar> {
             onTap: () {
               //setState(() {
                 showModalBottomSheet(
-                    context: context,
-                    builder: (context) {
-                      /**
-                       * Class that adds event
-                       */
-                      return AddEvent({
+                  enableDrag: true,
+                  isScrollControlled: true,
+                  context: context,
+                  builder: (context) {
+                    /**
+                     * Class that adds event
+                     */
+                    return Container(
+                      height: MediaQuery.of(context).size.height * 0.70,
+                      child:AddEvent({
                         "day": (_dayClicked < 0 ? now.day : _dayClicked + 1),
                         "month": currentMonth,
                         "year": _currentYear
-                      });
-                    }
-                ).whenComplete(() => setState(() {}));
+                      })
+                    );
+                  }
+              ).whenComplete(() => setState(() {}));
             },
 
             child: Container(
@@ -250,9 +380,13 @@ class _CalendarState extends State<Calendar> {
               ),
             ),
           ),
-          EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),})
+          EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
+          /*Container(
+            height: MediaQuery.of(context).size.height * 0.80,
+            child: EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
+          ),*/
         ],
-      ),
+      ),*/
     );
 
   }

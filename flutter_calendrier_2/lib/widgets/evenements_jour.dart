@@ -9,6 +9,8 @@ import '../res/values.dart';
 import '../utils/FileUtils.dart';
 import 'package:get/get.dart';
 
+import 'add_event.dart';
+
 
 class EvenementsJour extends StatefulWidget {
   //const EvenementsJour({Key? key}) : super(key: key);
@@ -22,6 +24,7 @@ class EvenementsJour extends StatefulWidget {
 
 class _EvenementsJourState extends State<EvenementsJour> {
   bool _listEvents = true;
+  GlobalKey _columnEventKey = GlobalKey();
 
   String documentID = '2022_12_31';
   late Map<String, dynamic> evenementsParameters;
@@ -59,69 +62,65 @@ class _EvenementsJourState extends State<EvenementsJour> {
       if(o['day'] == day && o['month'] == month && o['year'] == year)
         dataWhere.add(o),
     });
-    print('data: $dataWhere');
 
-    /*
-      List tableau_id = [];
-      tableaux_evenements.forEach((x) => {if(x['id'] != null) tableau_id.add(x['id'])});
-      int current_id = 0;
+    List widgetToSend = [const Text("Aucun évènement")];
 
-      print(tableau_id);
-      if(tableau_id.length > 0){
-        current_id = tableau_id.reduce((value, element) => value > element ? value : element);
-        current_id++;
-      }
-
-      print(current_id);
-     */
-    List<Widget> dataToPrint = [];
-    dataWhere.forEach((o) => {
-      print(o),
-      dataToPrint.add(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              padding: const EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
-              //width: MediaQuery.of(context).size.width,
-              /*decoration: const BoxDecoration(
+    if(dataWhere.isNotEmpty){
+      List<Widget> dataToPrint = [];
+      dataWhere.forEach((o) => {
+        //print(o),
+        dataToPrint.add(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
+                //width: MediaQuery.of(context).size.width,
+                /*decoration: const BoxDecoration(
                 border: BorderDirectional(bottom: BorderSide(color: Colors.black, width: 0.7)),
                 color: Colors.grey
               ),*/
 
-              child: Text(
-                o['title'],
-                style: TextStyle(color: colors['mainColor']),
-              ),
-            ),
-            Row(
-              children: [
-                // Texte de duree / heure de l'event
-                Text(
-                    (
-                      (o['entire_day'].runtimeType.toString() == 'bool' && o['entire_day']) ? 'Journée entière' : '${o['hour']}h${o['minute']}'
-                    )
+                child: Text(
+                  o['title'],
+                  style: TextStyle(color: colors['mainColor']),
                 ),
-                // Menu Pop up
-                PopupMenuButton<String>(
-                  onSelected: handleClick,
-                  itemBuilder: (BuildContext context) {
-                    return paramEvent.map((String choice) {
-                      return PopupMenuItem<String>(
-                        value: jsonEncode({'choice': '${choice}', 'id': o['id']}),
-                        child: Text(choice),
-                      );
-                    }).toList();
-                  }),
-              ]
-            )
-          ],
+              ),
+              Row(
+                  children: [
+                    // Texte de duree / heure de l'event
+                    Text(
+                        (
+                            (o['entire_day'].runtimeType.toString() == 'bool' && o['entire_day']) ? 'Journée entière' : '${o['hour']}h${o['minute']}'
+                        )
+                    ),
+                    // Menu Pop up
+                    PopupMenuButton<String>(
+                        onSelected: handleClick,
+                        itemBuilder: (BuildContext context) {
+                          return paramEvent.map((String choice) {
+                            return PopupMenuItem<String>(
+                              value: jsonEncode({'choice': '${choice}', 'id': o['id']}),
+                              child: Text(choice),
+                            );
+                          }).toList();
+                        }),
+                  ]
+              )
+            ],
+          ),
         ),
-      ),
-    });
+      });
+
+      widgetToSend = dataToPrint;
 
 
-    return Expanded(
+
+        /*SizedBox.expand(
+
+      );*/
+
+      /*Expanded(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -129,6 +128,81 @@ class _EvenementsJourState extends State<EvenementsJour> {
             children: dataToPrint,
           ),
         ),
+      );*/
+    }
+
+    return SizedBox.expand(
+        child: DraggableScrollableSheet(
+            maxChildSize: 0.75,
+            initialChildSize: 0.45,
+            minChildSize: 0.45,
+            builder: (context, scrollController) {
+              return SingleChildScrollView(
+                  controller: scrollController,
+                  child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).backgroundColor,
+                        //border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                      ),
+                      child: Column(
+                        key: _columnEventKey,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          /**
+                           * BUTTON TO ADD AN EVENT
+                           */
+                          GestureDetector(
+                            onTap: () {
+                              //setState(() {
+                              showModalBottomSheet(
+                                  enableDrag: true,
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (context) {
+                                    /**
+                                     * Class that adds event
+                                     */
+                                    return Container(
+                                        height: MediaQuery.of(context).size.height * 0.70,
+                                        child:AddEvent({
+                                          "day": day,
+                                          "month": month,
+                                          "year": year
+                                        })
+                                    );
+                                  }
+                              ).whenComplete(() => {setState(() {}), print('testtstsestestetestes')});
+                            },
+
+                            child: Container(
+                              padding: EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.black),
+                                borderRadius: BorderRadius.all(Radius.circular(35)),
+                              ),
+
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: const [
+                                    Text('Ajouter un évènement'),
+                                    Icon(
+                                      Icons.add,
+                                      color: Colors.black,
+                                      size: 25.0,
+                                    ),
+                                  ]
+                              ),
+                            ),
+                          ),
+                          ...widgetToSend
+                        ],
+                      )
+                  )
+              );
+            }
+        )
     );
   }
 
@@ -156,7 +230,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
 
           // Si retourne rien, imprimer rien
           if (snapshot.hasData && snapshot.data!.runtimeType == 'Widget') {
-            return Text("");
+            return Text("Aucun évènement");
           }
 
           // Si retourne du contenu, imprimer les evenements

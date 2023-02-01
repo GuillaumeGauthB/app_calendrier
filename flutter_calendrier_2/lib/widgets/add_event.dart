@@ -314,7 +314,7 @@ class _AddEventState extends State<AddEvent> {
                       }
                     },
 
-                    child: Text('Submit'),
+                    child: Text('Ajouter'),
                   )),
             ],
           ),
