@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../res/events.dart';
 import '../res/values.dart';
 import '../utils/FileUtils.dart';
+import 'package:get/get.dart';
 
 
 class EvenementsJour extends StatefulWidget {
@@ -36,7 +37,16 @@ class _EvenementsJourState extends State<EvenementsJour> {
   _EvenementsJourState(this.evenementsParameters);
 
   void handleClick(String value){
-    print(value);
+    final valueArray = jsonDecode(value);
+    if(paramEvent.contains(valueArray['choice'])){
+      if(valueArray['choice'] != 'Supprimer')
+        Get.toNamed("/calendrier/${valueArray['choice'].toLowerCase()}", arguments: valueArray['id']);
+      else{
+        tableaux_evenements.removeWhere((e) => e['id'] == valueArray['id']);
+        FileUtils.modifyFile({}, mode: 'supprimer', id: valueArray['id']);
+        setState(() {});
+      }
+    }
   }
   Future<Widget> tetsteste() async{
     // Lire les evenements
@@ -46,9 +56,24 @@ class _EvenementsJourState extends State<EvenementsJour> {
     // Mettre les bons evenements dans la liste
     data.forEach((o) => {
       //print(o['annee'].toString()+'=$year'),
-      if(o['jour'] == day && o['mois'] == month && o['annee'] == year)
+      if(o['day'] == day && o['month'] == month && o['year'] == year)
         dataWhere.add(o),
     });
+    print('data: $dataWhere');
+
+    /*
+      List tableau_id = [];
+      tableaux_evenements.forEach((x) => {if(x['id'] != null) tableau_id.add(x['id'])});
+      int current_id = 0;
+
+      print(tableau_id);
+      if(tableau_id.length > 0){
+        current_id = tableau_id.reduce((value, element) => value > element ? value : element);
+        current_id++;
+      }
+
+      print(current_id);
+     */
     List<Widget> dataToPrint = [];
     dataWhere.forEach((o) => {
       print(o),
@@ -65,7 +90,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
               ),*/
 
               child: Text(
-                o['Titre'],
+                o['title'],
                 style: TextStyle(color: colors['mainColor']),
               ),
             ),
@@ -74,7 +99,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
                 // Texte de duree / heure de l'event
                 Text(
                     (
-                      (o['journee_entiere'].runtimeType.toString() == 'bool' && o['journee_entiere']) ? 'Journée entière' : '${o['heure']}h${o['minute']}'
+                      (o['entire_day'].runtimeType.toString() == 'bool' && o['entire_day']) ? 'Journée entière' : '${o['hour']}h${o['minute']}'
                     )
                 ),
                 // Menu Pop up
@@ -83,7 +108,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
                   itemBuilder: (BuildContext context) {
                     return paramEvent.map((String choice) {
                       return PopupMenuItem<String>(
-                        value: choice,
+                        value: jsonEncode({'choice': '${choice}', 'id': o['id']}),
                         child: Text(choice),
                       );
                     }).toList();
@@ -118,7 +143,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
     year = widget.evenementsParameters['year'];
 
 
-    print('type de truc::: ${{'Logout', 'Settings'}.runtimeType}');
+    //print('type de truc::: ${{'Logout', 'Settings'}.runtimeType}');
 
     // FutureBuilder:: Widget qui traite la fonction AJAX de lecture
     return FutureBuilder(

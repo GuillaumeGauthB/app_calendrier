@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_calendrier_2/res/events.dart';
 import 'day.dart';
 import 'evenements_jour.dart';
 import '../res/values.dart';
 import 'add_event.dart';
+import 'package:get/get.dart';
 import '../utils/FileUtils.dart';
 
 class Calendar extends StatefulWidget {
@@ -13,6 +15,7 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar> {
+  late Map<String, dynamic> arguments;
   int _dayClicked = -1;
   int _monthChange = -1;
   int _currentYear = 0;
@@ -23,6 +26,8 @@ class _CalendarState extends State<Calendar> {
           previousYear,
           nextYear,
           weekdays;
+
+  late int totalAmountDays;
 
   final DateTime now = DateTime.now();
   late DateTime currentMonthInfo;
@@ -38,6 +43,8 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
+    totalAmountDays = 42;
+
     // TODO rendre la section suivante du code mieux
     // Traitement du changement des mois, can wait
     if(_monthChange == -1) {
@@ -70,13 +77,24 @@ class _CalendarState extends State<Calendar> {
       nextYear = _currentYear;
     }
 
-    if(_currentYear == 0)
-        _currentYear = now.year;
+    if(_currentYear == 0) {
+      _currentYear = now.year;
+    }
+
+    if(Get.arguments.runtimeType.toString() != 'Null') {
+      arguments= Get.arguments;
+
+      if(arguments.isNotEmpty && arguments['day'] != -1){
+        currentMonth = arguments['month'] as int;
+        _currentYear = arguments['year'] as int;
+        _dayClicked = arguments['day']! - 1;
+        Get.arguments['day'] = -1;
+      }
+    }
 
     // TODO jusqu'ici
     //currentMonthInfo = DateTime(_currentYear, currentMonth, 31);
     weekdays = DateTime(_currentYear, currentMonth, 1).weekday;
-
 
     // building a flex equivalent that allows calendar days to appear and wrap around one another
     return Container(
@@ -136,68 +154,60 @@ class _CalendarState extends State<Calendar> {
               )
           ),
           // ============================================================== CONTENEUR DES JOURS
-          GestureDetector(
-            // ======================================== DEBUGGING
-            // TODO Enlver le debugging
-            onTap: () {
-              setState(() {
-                print('day clicked: ${_dayClicked}');
-              });
-            },
-              child: SizedBox(
-                child: Wrap(
-                  alignment: WrapAlignment.start,
-                  // child: day(),
-                  children: [
-                    /**
-                     * JOURS DU MOIS
-                     *
-                     * DE LA MANIERE SUIVANTE
-                     *      JOURS DU MOIS D'AVANT
-                     *      JOURS DU MOIS PRESENT
-                     *      JOURS DU MOIS SUIVANT
-                     */
-                    if(weekdays != 7)
-                      for (var i = 0; i < weekdays; i++)...[
-                        GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _monthChange = currentMonth - 1;
-                                _dayClicked = -1;
-                              });
-                            },
-                            child: day(
-                                DateTime(_currentYear, previousMonth, 0).day + i - weekdays, currentMonth, _currentYear, false, -1
-                            )
-                        ),
-                      ],
-
-                    for (var i = 0; i < getAmountOfDays(); i++)...[
-                      GestureDetector(
-                          onTap: () {
-                            setState(()=>{
-                              _dayClicked = i
-                            });
-                          },
-                          child: day(i, currentMonth, _currentYear, true, _dayClicked),
-                      ),
-                    ],
-
-                    if(DateTime(nextYear, nextMonth, 0).weekday != 6)
-                      for (var i = 0; i < ( DateTime(nextYear, nextMonth, 0).weekday == 7 ? 6 : (7 - DateTime(nextYear, nextMonth, 0).weekday - 1 )); i++)...[
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _monthChange = currentMonth + 1;
-                              _dayClicked = -1;
-                            });
-                          },
-                          child: day(i, currentMonth, _currentYear, false, -1),
-                        ),
-                      ]
+          SizedBox(
+            child: Wrap(
+              alignment: WrapAlignment.start,
+              // child: day(),
+              children: [
+                /**
+                 * JOURS DU MOIS
+                 *
+                 * DE LA MANIERE SUIVANTE
+                 *      JOURS DU MOIS D'AVANT
+                 *      JOURS DU MOIS PRESENT
+                 *      JOURS DU MOIS SUIVANT
+                 */
+                if(weekdays != 7)
+                  for (var i = 0; i < weekdays; i++, totalAmountDays--)...[
+                    GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _monthChange = currentMonth - 1;
+                            _dayClicked = -1;
+                          });
+                        },
+                        child: day(
+                            DateTime(_currentYear, previousMonth, 0).day + i - weekdays, currentMonth, _currentYear, false, -1
+                        )
+                    ),
                   ],
-                ),
-              ),
+
+                for (var i = 0; i < getAmountOfDays(); i++, totalAmountDays--)...[
+                  GestureDetector(
+                      onTap: () {
+                        setState(()=>{
+                          _dayClicked = i,
+                        });
+                      },
+                      child: day(i, currentMonth, _currentYear, true, _dayClicked),
+                  ),
+                ],
+
+                // Quand i est plus petit que le numero du premier jour du mois suivant
+                //for (var i = 0; i < ( DateTime(nextYear, nextMonth, 0).weekday == 7 ? 6 : (7 - DateTime(nextYear, nextMonth, 0).weekday - 1 )); i++)...[
+                for (var i = 0; i < totalAmountDays; i++)...[
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _monthChange = currentMonth + 1;
+                        _dayClicked = -1;
+                      });
+                    },
+                    child: day(i, currentMonth, (currentMonth == 12 ? _currentYear+1 : _currentYear), false, -1),
+                  ),
+                ]
+              ],
+            ),
           ),
           /**
            * BUTTON TO ADD AN EVENT
@@ -240,8 +250,7 @@ class _CalendarState extends State<Calendar> {
               ),
             ),
           ),
-          if (_dayClicked != -1)
-            EvenementsJour({"year": _currentYear, "month": currentMonth,"day": _dayClicked+1,})
+          EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),})
         ],
       ),
     );

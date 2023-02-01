@@ -42,13 +42,18 @@ class FileUtils {
   }
 
   /// Fonction qui modifie le contenu du fichier de sauvegarde
-  static Future<File> modifyFile(Object eventToAdd, {String mode = "write"}) async{
+  static Future<File> modifyFile(Object eventToAdd, {String mode = "ajouter", id}) async{
     final file = await getFile;
     List json = jsonDecode(await FileUtils.readFromFile);
 
-    if(mode == "write"){
+    if(mode != 'ajouter') {
+      json.removeWhere((e) => e['id'] == id);
+    }
+
+    if(mode != 'supprimer') {
       json.add(eventToAdd);
     }
+
     return file.writeAsString(jsonEncode(json));
   }
 }

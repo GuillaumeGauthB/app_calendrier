@@ -4,7 +4,7 @@ import 'package:datepicker_dropdown/datepicker_dropdown.dart'; // Pour les dropd
  import 'package:flutter_calendrier_2/res/events.dart';
 // import '../services/local_notification_service.dart';
 import '../utils/FileUtils.dart';
-
+import 'package:get/get.dart';
 /// Classe qui ajoute un evenement
 class AddEvent extends StatefulWidget {
   //const AddEvent({Key? key}) : super(key: key);
@@ -18,6 +18,7 @@ class AddEvent extends StatefulWidget {
 
 class _AddEventState extends State<AddEvent> {
   late Map<String, dynamic> parentParameters; // Liste des parametres recues
+  Map<String, dynamic> eventParameters = {};
   // Create a global key that uniquely identifies the Form widget
   // and allows validation of the form.
   final _formKey = GlobalKey<FormState>();
@@ -30,6 +31,8 @@ class _AddEventState extends State<AddEvent> {
     //"temps":
   };
   late Map<String, dynamic> _infoDate;
+
+  String gestionClasse = 'ajouter';
 
   /*late final LocalNotificationService service;
   @override
@@ -53,16 +56,40 @@ class _AddEventState extends State<AddEvent> {
 
   @override
   Widget build(BuildContext context) {
-    _infoDate = {
-      "day": parentParameters["day"],
-      "month": parentParameters["month"],
-      "year": parentParameters["year"],
-    };
+    eventParameters = parentParameters;
 
-    _infosTemps = {
-      "heure": TimeOfDay.now().hour.toString(),
-      "minute": TimeOfDay.now().minute.toString(),
-    };
+    if(parentParameters['id'].runtimeType.toString() != 'Null'){
+      gestionClasse = 'modifier';
+      eventParameters = tableaux_evenements.singleWhere((e) => e['id'] == parentParameters['id']);
+    }
+
+    print('eventParameters: $eventParameters');
+
+    if(gestionClasse == 'ajouter'){
+      _infoDate = {
+        "day": eventParameters["day"],
+        "month": eventParameters["month"],
+        "year": eventParameters["year"],
+      };
+
+      _infosTemps = {
+        "hour": TimeOfDay.now().hour.toString(),
+        "minute": TimeOfDay.now().minute.toString(),
+      };
+    } else {
+      _infoDate = {
+        "day": eventParameters["day"],
+        "month": eventParameters["month"],
+        "year": eventParameters["year"],
+      };
+      _infosTemps = {
+        "hour": eventParameters['hour'].runtimeType.toString() != 'Null' ? eventParameters['hour'] : TimeOfDay.now().hour.toString(),
+        "minute": eventParameters['minute'].runtimeType.toString() != 'Null' ? eventParameters['minute'] : TimeOfDay.now().minute.toString(),
+      };
+
+      listControllers['title']?.text = eventParameters['title'];
+      listControllers['description']?.text = eventParameters['description'];
+    }
 
     return Form(
       key: _formKey,
@@ -115,9 +142,9 @@ class _AddEventState extends State<AddEvent> {
                * Choix de la date de l'evenement
                */
               DropdownDatePicker(
-                selectedYear: parentParameters["year"],
-                selectedMonth: parentParameters['month'],
-                selectedDay: parentParameters["day"],
+                selectedYear: eventParameters["year"],
+                selectedMonth: eventParameters['month'],
+                selectedDay: eventParameters["day"],
                 startYear: DateTime.now().year - 10,
                 endYear: DateTime.now().year + 20,
                 onChangedDay: (value) =>  _infoDate["day"] = value,
@@ -156,10 +183,10 @@ class _AddEventState extends State<AddEvent> {
                                 child: Text(i < 10 ? '0${i.toString()}' : i.toString()),
                               ),
                           ],
-                          value: _infosTemps["heure"],
+                          value: _infosTemps["hour"],
                           onChanged: (String? value) {
                             setState(() {
-                              _infosTemps["heure"] = value!;
+                              _infosTemps["hour"] = value!;
                             });
                           }
                       ),
@@ -204,35 +231,54 @@ class _AddEventState extends State<AddEvent> {
                         // Lien a la collection Firebase
                         //CollectionReference ref = FirebaseFirestore.instance.collection('Calendrier').doc(documentID).collection('evenements');
 
+                        List tableau_id = [];
+                        tableaux_evenements.forEach((x) => {if(x['id'] != null) tableau_id.add(x['id'])});
+                        int current_id = 0;
+
+                        print(tableau_id);
+                        if(tableau_id.length > 0){
+                          current_id = tableau_id.reduce((value, element) => value > element ? value : element);
+                          current_id++;
+                        }
+
                         //QuerySnapshot lengthCollection;
+                        // TODO trouver une meilleure maniere de faire ca
                         Object eventToAdd = {
-                          'Titre': listControllers["title"].text,
-                          'description': listControllers["description"].text,
-                          'jour': _infoDate["day"],
-                          'mois': _infoDate["month"],
-                          'annee': _infoDate["year"],
-                          'journee_entiere': _valueCheckbox,
+                          'id': (gestionClasse == 'modifier' ? parentParameters['id'] : current_id),
+                          'title': '${listControllers["title"]?.text}',
+                          'description': '${listControllers["description"]?.text}',
+                          'day': _infoDate["day"],
+                          'month': _infoDate["month"],
+                          'year': _infoDate["year"],
+                          'entire_day': _valueCheckbox,
                         };
 
                         if(!_valueCheckbox){
-                          // TODO trouver une meilleure maniere de faire ca
                           eventToAdd = {
-                            'Titre': listControllers["title"].text,
-                            'description': listControllers["description"].text,
-                            'jour': _infoDate["day"],
-                            'mois': _infoDate["month"],
-                            'annee': _infoDate["year"],
-                            'journee_entiere': _valueCheckbox,
-                            'heure': _infosTemps['heure'],
+                            'id': (gestionClasse == 'modifier' ? parentParameters['id'] : current_id),
+                            'title': listControllers["title"]?.text,
+                            'description': listControllers["description"]?.text,
+                            'day': _infoDate["day"],
+                            'month': _infoDate["month"],
+                            'year': _infoDate["year"],
+                            'entire_day': _valueCheckbox,
+                            'hour': _infosTemps['hour'],
                             'minute': _infosTemps['minute'],
                           };
                         }
 
+                        tableaux_evenements.removeWhere((e) => e['id'] == parentParameters['id']);
                         tableaux_evenements.add(eventToAdd);
+                        //tableaux_evenements.add(eventToAdd);
                         /*() async {
                           await service.showNotification(id: 0, title: 'Notification Title', body: 'Some body');
                         };*/
 
+                        FileUtils.modifyFile(eventToAdd, mode: gestionClasse, id: parentParameters['id']);
+
+
+                        // TODO fix le firebase fucker et faire fonctionner avec la modification
+                        /*
                         final CollectionReference ref = FirebaseFirestore.instance.collection('Calendrier');
                         try{
                           FirebaseFirestore.instance.runTransaction((transaction) async => {
@@ -243,8 +289,6 @@ class _AddEventState extends State<AddEvent> {
                             //  FirebaseFirestore.instance.collection('Calendrier').doc(documentID).set({})
                             //},
 
-                            await FileUtils.modifyFile(eventToAdd),
-
                             print(transaction),
 
                             // TODO ajouter une maniere de checker si des evenements ont ete ajoutees offline, pis les faire update quand on revient en ligne
@@ -254,7 +298,7 @@ class _AddEventState extends State<AddEvent> {
                         } on Exception catch(e){
                           print('error:  $e');
                         }
-
+                        */
                         // If the form is valid, display a snackbar. In the real world,
                         // you'd often call a server or save the information in a database.
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -262,7 +306,12 @@ class _AddEventState extends State<AddEvent> {
                         );
                       };
                       testState = 1;
-                      Navigator.pop(context);
+                      if(gestionClasse == 'ajouter'){
+                        Navigator.pop(context);
+                      } else{
+                        Get.offAllNamed('/calendrier', arguments: { 'day': eventParameters['day'], 'month': eventParameters['month'], 'year': eventParameters['year']});
+                        //Get.back();
+                      }
                     },
 
                     child: Text('Submit'),
