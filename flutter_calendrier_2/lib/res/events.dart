@@ -1,1 +1,1 @@
-var tableaux_evenements;
+var tableaux_evenements = [];

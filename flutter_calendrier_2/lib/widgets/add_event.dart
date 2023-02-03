@@ -232,7 +232,10 @@ class _AddEventState extends State<AddEvent> {
                         //CollectionReference ref = FirebaseFirestore.instance.collection('Calendrier').doc(documentID).collection('evenements');
 
                         List tableau_id = [];
-                        tableaux_evenements.forEach((x) => {if(x['id'] != null) tableau_id.add(x['id'])});
+                        if(tableaux_evenements.isNotEmpty){
+                          tableaux_evenements.forEach((x) => {if(x['id'] != null) tableau_id.add(x['id'])});
+                        }
+
                         int current_id = 0;
 
                         print(tableau_id);
@@ -266,8 +269,8 @@ class _AddEventState extends State<AddEvent> {
                             'minute': _infosTemps['minute'],
                           };
                         }
-
-                        tableaux_evenements.removeWhere((e) => e['id'] == parentParameters['id']);
+                        if(tableaux_evenements.isNotEmpty)
+                          tableaux_evenements.removeWhere((e) => e['id'] == parentParameters['id']);
                         tableaux_evenements.add(eventToAdd);
                         //tableaux_evenements.add(eventToAdd);
                         /*() async {
@@ -278,7 +281,7 @@ class _AddEventState extends State<AddEvent> {
 
 
                         // TODO fix le firebase fucker et faire fonctionner avec la modification
-                        /*
+
                         final CollectionReference ref = FirebaseFirestore.instance.collection('Calendrier');
                         try{
                           FirebaseFirestore.instance.runTransaction((transaction) async => {
@@ -298,7 +301,7 @@ class _AddEventState extends State<AddEvent> {
                         } on Exception catch(e){
                           print('error:  $e');
                         }
-                        */
+
                         // If the form is valid, display a snackbar. In the real world,
                         // you'd often call a server or save the information in a database.
                         ScaffoldMessenger.of(context).showSnackBar(

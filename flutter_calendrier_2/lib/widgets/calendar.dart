@@ -102,7 +102,7 @@ class _CalendarState extends State<Calendar> {
     // building a flex equivalent that allows calendar days to appear and wrap around one another
     return Container(
       color: Theme.of(context).backgroundColor,
-      padding: const EdgeInsets.only(top: 25),
+      //padding: const EdgeInsets.only(top: 25),
       child: Stack(
         children: [
           // ============================================================== GESTION DU MOIS
@@ -218,6 +218,50 @@ class _CalendarState extends State<Calendar> {
             ],
           ),
           EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
+          GestureDetector(
+            onTap: () {
+              //setState(() {
+              showModalBottomSheet(
+                  enableDrag: true,
+                  isScrollControlled: true,
+                  context: context,
+                  builder: (context) {
+                    /**
+                     * Class that adds event
+                     */
+                    return Container(
+                            height: MediaQuery.of(context).size.height * 0.70,
+                            child:AddEvent({
+                              "day": _dayClicked,
+                              "month": currentMonth,
+                              "year": _currentYear
+                            })
+                        );
+                  }
+              ).whenComplete(() => {setState(() {}), print('testtstsestestetestes')});
+            },
+
+            child: Container(
+              padding: EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.all(Radius.circular(35)),
+              ),
+
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text('Ajouter un évènement'),
+                    Icon(
+                      Icons.add,
+                      color: Colors.black,
+                      size: 25.0,
+                    ),
+                  ]
+              ),
+            ),
+          ),
+
           /*Container(
             height: MediaQuery.of(context).size.height * 0.80,
             child: EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),

@@ -35,7 +35,7 @@ class CalendarBase extends StatelessWidget {
     );
   }
 }
-/*
+
 class BoutonAjouterEvenement extends StatelessWidget {
   const BoutonAjouterEvenement({Key? key}) : super(key: key);
 
@@ -87,7 +87,7 @@ class BoutonAjouterEvenement extends StatelessWidget {
       ),
     );
   }
-}*/
+}
 
 
 class ModifyEventBase extends StatelessWidget {

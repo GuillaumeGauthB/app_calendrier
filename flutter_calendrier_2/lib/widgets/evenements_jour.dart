@@ -63,7 +63,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
         dataWhere.add(o),
     });
 
-    List widgetToSend = [const Text("Aucun évènement")];
+    List widgetToSend = [Text("Aucun évènement")];
 
     if(dataWhere.isNotEmpty){
       List<Widget> dataToPrint = [];
@@ -133,73 +133,35 @@ class _EvenementsJourState extends State<EvenementsJour> {
 
     return SizedBox.expand(
         child: DraggableScrollableSheet(
-            maxChildSize: 0.75,
+            maxChildSize: (widgetToSend.length > 5 ? 0.75 : 0.45),
             initialChildSize: 0.45,
             minChildSize: 0.45,
             builder: (context, scrollController) {
               return SingleChildScrollView(
                   controller: scrollController,
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).backgroundColor,
-                        //border: Border.all(color: Colors.black),
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                      ),
-                      child: Column(
-                        key: _columnEventKey,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          /**
-                           * BUTTON TO ADD AN EVENT
-                           */
-                          GestureDetector(
-                            onTap: () {
-                              //setState(() {
-                              showModalBottomSheet(
-                                  enableDrag: true,
-                                  isScrollControlled: true,
-                                  context: context,
-                                  builder: (context) {
-                                    /**
-                                     * Class that adds event
-                                     */
-                                    return Container(
-                                        height: MediaQuery.of(context).size.height * 0.70,
-                                        child:AddEvent({
-                                          "day": day,
-                                          "month": month,
-                                          "year": year
-                                        })
-                                    );
-                                  }
-                              ).whenComplete(() => {setState(() {}), print('testtstsestestetestes')});
-                            },
-
-                            child: Container(
-                              padding: EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.black),
-                                borderRadius: BorderRadius.all(Radius.circular(35)),
-                              ),
-
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: const [
-                                    Text('Ajouter un évènement'),
-                                    Icon(
-                                      Icons.add,
-                                      color: Colors.black,
-                                      size: 25.0,
-                                    ),
-                                  ]
-                              ),
-                            ),
-                          ),
-                          ...widgetToSend
-                        ],
-                      )
-                  )
+                    child: Container(
+                      /*
+                        constraints: BoxConstraints(
+                          minHeight:MediaQuery.of(context).size.height * 0.45,
+                        ),*/
+                        height:MediaQuery.of(context).size.height * 0.40,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).backgroundColor,
+                          //border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        ),
+                        child: Column(
+                          key: _columnEventKey,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            /**
+                             * BUTTON TO ADD AN EVENT
+                             */
+                            ...widgetToSend,
+                          ],
+                        )
+                    ),
               );
             }
         )
