@@ -104,49 +104,82 @@ class _EvenementsJourState extends State<EvenementsJour> {
       dataWhere.forEach((o) => {
         //print(o),
         dataToPrint.add(
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
-                //width: MediaQuery.of(context).size.width,
-                /*decoration: const BoxDecoration(
-                border: BorderDirectional(bottom: BorderSide(color: Colors.black, width: 0.7)),
-                color: Colors.grey
-              ),*/
+          TextButton(
+            style: const ButtonStyle(
+              overlayColor: MaterialStatePropertyAll<Color>(Colors.black),
+            ),
+            onPressed: () {
+              showModalBottomSheet(
+                enableDrag: true,
+                isScrollControlled: true,
+                context: context, builder: (context) {
+                  return Container(height: MediaQuery.of(context).size.height * 0.70, child: AddEvent({'id': o['id']}));
+                }
+              );
+              print('test');
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
+                  //width: MediaQuery.of(context).size.width,
+                  /*decoration: const BoxDecoration(
+                  border: BorderDirectional(bottom: BorderSide(color: Colors.black, width: 0.7)),
+                  color: Colors.grey
+                ),*/
 
-                child: Text(
-                  o['title'],
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ),
-              Row(
-                  children: [
-                    // Texte de duree / heure de l'event
-                    Text(
-                        (
-                            (o['entire_day'].runtimeType.toString() == 'bool' && o['entire_day']) ? 'Journée entière' : '${o['hour']}h${o['minute']}'
-                        ), style: Theme.of(context).textTheme.bodyLarge
+                  child: Text(
+                    o['title'],
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      decoration: TextDecoration.underline,
                     ),
-                    // Menu Pop up
-                    PopupMenuButton<String>(
-                        icon: Icon(
-                          Icons.more_vert,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                        onSelected: handleClick,
-                        itemBuilder: (BuildContext context) {
-                          return paramEvent.map((String choice) {
-                            return PopupMenuItem<String>(
-                              value: jsonEncode({'choice': choice, 'id': o['id']}),
-                              child: Text(choice),
-                            );
-                          }).toList();
-                        }),
-                  ]
-              )
-            ],
-          ),
+                  ),
+                ),
+                Row(
+                    children: [
+                      // Texte de duree / heure de l'event
+
+                      Text(
+                          (
+                              (o['entire_day'].runtimeType.toString() == 'bool' && o['entire_day']) ? 'Journée entière' : '${o['hour']}h${o['minute']}'
+                          ), style: Theme.of(context).textTheme.bodyLarge
+                      ),
+                      TextButton(
+                          onPressed: () {
+                            tableaux_evenements.removeWhere((e) => e['id'] == o['id']);
+                            FileUtils.modifyFile({}, mode: 'supprimer', id: o['id']);
+                            setState(() {});
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              border: Border.all(width: 1, color: Colors.white),
+                              borderRadius: BorderRadius.all(Radius.circular(100)),
+                            ),
+                            child: Icon(Icons.delete_forever, color: Colors.white,)
+                          ) 
+                      )
+                      // Menu Pop up
+                      /*PopupMenuButton<String>(
+                          icon: Icon(
+                            Icons.more_vert,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                          onSelected: handleClick,
+                          itemBuilder: (BuildContext context) {
+                            return paramEvent.map((String choice) {
+                              return PopupMenuItem<String>(
+                                value: jsonEncode({'choice': choice, 'id': o['id']}),
+                                child: Text(choice),
+                              );
+                            }).toList();
+                          }),*/
+                    ]
+                )
+              ],
+            ),
+          )
         ),
       });
 

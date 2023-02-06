@@ -245,9 +245,6 @@ class _AddEventState extends State<AddEvent> {
 
                         FileUtils.modifyFile(eventToAdd, mode: gestionClasse, id: parentParameters['id']);
 
-
-                        // TODO fix le firebase fucker et faire fonctionner avec la modification
-
                         // If the form is valid, display a snackbar. In the real world,
                         // you'd often call a server or save the information in a database.
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -263,7 +260,7 @@ class _AddEventState extends State<AddEvent> {
                       }
                     },
 
-                    child: Text('Ajouter'),
+                    child: Text( (gestionClasse == 'ajouter' ? 'Ajouter' : 'Modifier')),
                   )),
             ],
           ),

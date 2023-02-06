@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_calendrier_2/res/events.dart';
 import '../res/values.dart';
 
 // Single day component
@@ -11,6 +12,8 @@ class day extends StatelessWidget {
 
   late Color textColor,
         bgColor;
+
+  late int eventInDay;
 
   DateTime now = DateTime.now();
 
@@ -45,6 +48,10 @@ class day extends StatelessWidget {
     }
 
     currentDay++;
+
+    eventInDay = tableaux_evenements.where((o) => o['day'] == currentDay && o['month'] == currentMonthNum && o['year'] == currentYear && currentMonth).length;
+    print(currentMonthNum);
+
     return Container(
       width: widthDay,
       height: widthDay,
@@ -56,14 +63,29 @@ class day extends StatelessWidget {
       ),
 
       child: Center(
-        child: Text(
-          currentDay.toString(),
-          style: TextStyle(color: textColor),
-          textAlign: TextAlign.center,
-        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text(''),
+            Text(
+              currentDay.toString(),
+              style: TextStyle(color: textColor),
+              textAlign: TextAlign.center,
+            ),
+            if(eventInDay > 0)
+              Container(
+                width: widthDay / 5,
+                height: widthDay / 5,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: Colors.grey,
+                ),
+              )
+            else
+              Text(''),
+          ],
+        )
       ) ,
     );
   }
 }
-
-
