@@ -56,7 +56,18 @@ class _AppSettingsState extends State<AppSettings> {
                 ],
               ),
           ),
-        )
+        ),
+
+        const SettingsThemeMode(),
+          /*CheckboxListTile(
+            title: const Text("Journée entière", style: TextStyle(), textWidthBasis: TextWidthBasis.longestLine),
+            value: _valueCheckbox,
+            onChanged: (bool? value) {
+              setState(() {
+                _valueCheckbox = value!;
+              });
+            },
+          ),*/
         /*
         Row(
           children: [
@@ -84,3 +95,48 @@ class _AppSettingsState extends State<AppSettings> {
     );
   }
 }
+
+class SettingsThemeMode extends StatefulWidget {
+  const SettingsThemeMode({Key? key}) : super(key: key);
+
+  @override
+  State<SettingsThemeMode> createState() => _SettingsThemeModeState();
+}
+
+class _SettingsThemeModeState extends State<SettingsThemeMode> {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: DropdownButtonFormField(
+              hint: Text('theme'),
+
+              onChanged: (Object? objet) {
+                app_settings['theme_mode'] = objet;
+              },
+
+              decoration: const InputDecoration(
+                label: Text('Theme')
+              ),
+
+              value: (app_settings['theme_mode'].runtimeType != Null ? app_settings['theme_mode'] : 'phone_pref'),
+
+              items: const [
+                DropdownMenuItem(
+                  value: 'dark',
+                  child: Text('Sombre'),
+                ),
+                DropdownMenuItem(
+                  value: 'light',
+                  child: Text('Clair'),
+                ),
+                DropdownMenuItem(
+                  value: 'phone_pref',
+                  child: Text('Téléphone'),
+                )
+              ],
+            )
+        );
+  }
+}
+
