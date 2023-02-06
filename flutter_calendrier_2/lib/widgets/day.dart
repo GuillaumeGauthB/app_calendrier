@@ -40,19 +40,12 @@ class day extends StatelessWidget {
     }
 
     if(dayClicked == currentDay){
-      textColor = colors["presentDayText"];
-      bgColor = colors["clickedDay"];
+      textColor = Theme.of(context).colorScheme.onPrimary;
+      bgColor = Theme.of(context).colorScheme.primary;
     }
 
     currentDay++;
     return Container(
-      child: Center(
-        child: Text(
-          currentDay.toString(),
-          style: !currentMonth ? TextStyle(color: textColor) : TextStyle(),
-          textAlign: TextAlign.center,
-        ),
-      ) ,
       width: widthDay,
       height: widthDay,
       margin: const EdgeInsets.symmetric(vertical: 1, horizontal: 1),
@@ -61,6 +54,14 @@ class day extends StatelessWidget {
         color: bgColor,
         borderRadius: const BorderRadius.all(Radius.circular(100)),
       ),
+
+      child: Center(
+        child: Text(
+          currentDay.toString(),
+          style: TextStyle(color: textColor),
+          textAlign: TextAlign.center,
+        ),
+      ) ,
     );
   }
 }

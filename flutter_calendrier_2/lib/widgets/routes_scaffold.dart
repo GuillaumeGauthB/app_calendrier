@@ -25,13 +25,17 @@ class CalendarBase extends StatelessWidget {
         actions: const [
           RefreshData(),
         ],
-
         //backgroundColor: Theme.of(context).colorScheme.primary,
       ),
+
+      body: Calendar(),//Get.put<Calendar>(Calendar()),
+
       /*bottomNavigationBar: BottomAppBar(
-        child: BoutonAjouterEvenement(),
+        // style of text set in text element
+        child: Text('Bottom app bar')
+
+        //backgroundColor: Theme.of(context).colorScheme.primary,
       ),*/
-      body: Calendar()//Get.put<Calendar>(Calendar()),
     );
   }
 }

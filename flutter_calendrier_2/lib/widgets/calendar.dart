@@ -103,150 +103,161 @@ class _CalendarState extends State<Calendar> {
     return Container(
       color: Theme.of(context).backgroundColor,
       //padding: const EdgeInsets.only(top: 25),
-      child: Stack(
+      child: Column(
         children: [
-          // ============================================================== GESTION DU MOIS
-          Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.only(bottom: 15, top: 15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+          Expanded(
+            child: Stack(
+              children: [
+                // ============================================================== GESTION DU MOIS
+                Column(
                   children: [
-                    GestureDetector(
-                      // Lorsqu'on clique, provoquer un changement de mois
-                      onTap: () {
-                        setState(() {
-                          _monthChange = currentMonth - 1;
-                          _dayClicked = -1;
-                        });
-                      },
-
-                      child: const Icon(
-                        Icons.arrow_back_ios,
-                        color: Colors.black,
-                        size: 25.0,
-                      ),
-                    ),
-                    Text(
-                        "${arrayMonths[currentMonth-1]} $_currentYear",
-                        style: const TextStyle(fontSize: 25)
-                    ),
-                    GestureDetector(
-                      // Lorsqu'on clique, provoquer un changement de mois
-                      onTap: () {
-                        setState(() {
-                          _monthChange = currentMonth + 1;
-                          _dayClicked = -1;
-                        });
-                      },
-                      child: const Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.black,
-                        size: 25.0,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // ============================================================== JOURS DE LA SEMAINE
-              Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      for (var dayName in arrayDays)
-                        Container(child: Text(dayName, textAlign: TextAlign.center), width: MediaQuery.of(context).size.width / 7)
-                    ],
-                  )
-              ),
-              // ============================================================== CONTENEUR DES JOURS
-              SizedBox(
-                child: Wrap(
-                  alignment: WrapAlignment.start,
-                  // child: day(),
-                  children: [
-                    /**
-                     * JOURS DU MOIS
-                     *
-                     * DE LA MANIERE SUIVANTE
-                     *      JOURS DU MOIS D'AVANT
-                     *      JOURS DU MOIS PRESENT
-                     *      JOURS DU MOIS SUIVANT
-                     */
-                    if(weekdays != 7)
-                      for (var i = 0; i < weekdays; i++, totalAmountDays--)...[
-                        GestureDetector(
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 15, top: 15),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          GestureDetector(
+                            // Lorsqu'on clique, provoquer un changement de mois
                             onTap: () {
                               setState(() {
                                 _monthChange = currentMonth - 1;
                                 _dayClicked = -1;
                               });
                             },
-                            child: day(
-                                DateTime(_currentYear, previousMonth, 0).day + i - weekdays, currentMonth, _currentYear, false, -1
-                            )
-                        ),
-                      ],
 
-                    for (var i = 0; i < getAmountOfDays; i++, totalAmountDays--)...[
-                      GestureDetector(
-                        onTap: () {
-                          setState(()=>{
-                            _dayClicked = i,
-                          });
-                        },
-                        child: day(i, currentMonth, _currentYear, true, _dayClicked),
+                            child: const Icon(
+                              Icons.arrow_back_ios,
+                              color: Colors.black,
+                              size: 25.0,
+                            ),
+                          ),
+                          Text(
+                              "${arrayMonths[currentMonth-1]} $_currentYear",
+                              style: const TextStyle(fontSize: 25)
+                          ),
+                          GestureDetector(
+                            // Lorsqu'on clique, provoquer un changement de mois
+                            onTap: () {
+                              setState(() {
+                                _monthChange = currentMonth + 1;
+                                _dayClicked = -1;
+                              });
+                            },
+                            child: const Icon(
+                              Icons.arrow_forward_ios,
+                              color: Colors.black,
+                              size: 25.0,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
+                    // ============================================================== JOURS DE LA SEMAINE
+                    Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            for (var dayName in arrayDays)
+                              Container(child: Text(dayName, textAlign: TextAlign.center), width: MediaQuery.of(context).size.width / 7)
+                          ],
+                        )
+                    ),
+                    // ============================================================== CONTENEUR DES JOURS
+                    SizedBox(
+                      child: Wrap(
+                        alignment: WrapAlignment.start,
+                        // child: day(),
+                        children: [
+                          /**
+                           * JOURS DU MOIS
+                           *
+                           * DE LA MANIERE SUIVANTE
+                           *      JOURS DU MOIS D'AVANT
+                           *      JOURS DU MOIS PRESENT
+                           *      JOURS DU MOIS SUIVANT
+                           */
+                          if(weekdays != 7)
+                            for (var i = 0; i < weekdays; i++, totalAmountDays--)...[
+                              GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _monthChange = currentMonth - 1;
+                                      _dayClicked = -1;
+                                    });
+                                  },
+                                  child: day(
+                                      DateTime(_currentYear, previousMonth, 0).day + i - weekdays, currentMonth, _currentYear, false, -1
+                                  )
+                              ),
+                            ],
 
-                    // Quand i est plus petit que le numero du premier jour du mois suivant
-                    //for (var i = 0; i < ( DateTime(nextYear, nextMonth, 0).weekday == 7 ? 6 : (7 - DateTime(nextYear, nextMonth, 0).weekday - 1 )); i++)...[
-                    for (var i = 0; i < totalAmountDays; i++)...[
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _monthChange = currentMonth + 1;
-                            _dayClicked = -1;
-                          });
-                        },
-                        child: day(i, currentMonth, (currentMonth == 12 ? _currentYear+1 : _currentYear), false, -1),
+                          for (var i = 0; i < getAmountOfDays; i++, totalAmountDays--)...[
+                            GestureDetector(
+                              onTap: () {
+                                setState(()=>{
+                                  _dayClicked = i,
+                                });
+                              },
+                              child: day(i, currentMonth, _currentYear, true, _dayClicked),
+                            ),
+                          ],
+
+                          // Quand i est plus petit que le numero du premier jour du mois suivant
+                          //for (var i = 0; i < ( DateTime(nextYear, nextMonth, 0).weekday == 7 ? 6 : (7 - DateTime(nextYear, nextMonth, 0).weekday - 1 )); i++)...[
+                          for (var i = 0; i < totalAmountDays; i++)...[
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _monthChange = currentMonth + 1;
+                                  _dayClicked = -1;
+                                });
+                              },
+                              child: day(i, currentMonth, (currentMonth == 12 ? _currentYear+1 : _currentYear), false, -1),
+                            ),
+                          ]
+                        ],
                       ),
-                    ]
+                    ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
-          GestureDetector(
-            onTap: () {
-              //setState(() {
-              showModalBottomSheet(
-                  enableDrag: true,
-                  isScrollControlled: true,
-                  context: context,
-                  builder: (context) {
-                    /**
-                     * Class that adds event
-                     */
-                    return Container(
-                            height: MediaQuery.of(context).size.height * 0.70,
-                            child:AddEvent({
-                              "day": _dayClicked,
-                              "month": currentMonth,
-                              "year": _currentYear
-                            })
-                        );
-                  }
-              ).whenComplete(() => {setState(() {}), print('testtstsestestetestes')});
-            },
+                EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
 
-            child: Container(
-              padding: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
-                borderRadius: BorderRadius.all(Radius.circular(35)),
-              ),
+                /*Container(
+            height: MediaQuery.of(context).size.height * 0.80,
+            child: EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
+          ),*/
+              ],
+            ),
+          ),
+
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                //setState(() {
+                showModalBottomSheet(
+                    enableDrag: true,
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (context) {
+                      /**
+                       * Class that adds event
+                       */
+                      return Container(
+                          height: MediaQuery.of(context).size.height * 0.70,
+                          child:AddEvent({
+                            "day": _dayClicked + 1,
+                            "month": currentMonth,
+                            "year": _currentYear
+                          })
+                      );
+                    }
+                ).whenComplete(() => {setState(() {})});
+              },
+
+
 
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -254,20 +265,20 @@ class _CalendarState extends State<Calendar> {
                     Text('Ajouter un évènement'),
                     Icon(
                       Icons.add,
-                      color: Colors.black,
                       size: 25.0,
                     ),
                   ]
               ),
             ),
-          ),
+          )
+          //),
+          /*GestureDetector(
+            onTap:
 
-          /*Container(
-            height: MediaQuery.of(context).size.height * 0.80,
-            child: EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
+            child:
           ),*/
         ],
-      ),
+      )
       /*child: Column(
         children: [
           // ============================================================== GESTION DU MOIS

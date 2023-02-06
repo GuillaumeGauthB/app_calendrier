@@ -15,7 +15,7 @@ import 'add_event.dart';
 class EvenementsJour extends StatefulWidget {
   //const EvenementsJour({Key? key}) : super(key: key);
 
-  late Map<String, dynamic> evenementsParameters;
+  final Map<String, dynamic> evenementsParameters;
 
   EvenementsJour(this.evenementsParameters);
   @override
@@ -23,8 +23,7 @@ class EvenementsJour extends StatefulWidget {
 }
 
 class _EvenementsJourState extends State<EvenementsJour> {
-  bool _listEvents = true;
-  GlobalKey _columnEventKey = GlobalKey();
+  final GlobalKey _columnEventKey = GlobalKey();
 
   String documentID = '2022_12_31';
   late Map<String, dynamic> evenementsParameters;
@@ -42,8 +41,9 @@ class _EvenementsJourState extends State<EvenementsJour> {
   void handleClick(String value){
     final valueArray = jsonDecode(value);
     if(paramEvent.contains(valueArray['choice'])){
-      if(valueArray['choice'] != 'Supprimer')
+      if(valueArray['choice'] != 'Supprimer'){
         Get.toNamed("/calendrier/${valueArray['choice'].toLowerCase()}", arguments: valueArray['id']);
+      }
       else{
         tableaux_evenements.removeWhere((e) => e['id'] == valueArray['id']);
         FileUtils.modifyFile({}, mode: 'supprimer', id: valueArray['id']);
@@ -51,19 +51,53 @@ class _EvenementsJourState extends State<EvenementsJour> {
       }
     }
   }
-  Future<Widget> tetsteste() async{
+
+  Widget printData({List widgetToSend = const []}) {
+    return SizedBox.expand(
+        child: DraggableScrollableSheet(
+            maxChildSize: (widgetToSend.length > 5 ? 0.75 : 0.40),
+            initialChildSize: 0.40,
+            minChildSize: 0.40,
+            builder: (context, scrollController) {
+              return Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondary,
+                    //border: Border.all(color: Colors.black),
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+                  ),
+                  child: SingleChildScrollView(
+                      controller: scrollController,
+                      child: Column(
+                        key: _columnEventKey,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          /**
+                           * BUTTON TO ADD AN EVENT
+                           */
+                          ...widgetToSend,
+                        ],
+                      )
+                  )
+              );
+            }
+        )
+    );
+  }
+
+  Future<List> get getData async{
     // Lire les evenements
     var data = tableaux_evenements;
     // Liste qui va etre utiliser pour imprimer les evenements de la journee
     var dataWhere = [];
     // Mettre les bons evenements dans la liste
-    data.forEach((o) => {
-      //print(o['annee'].toString()+'=$year'),
-      if(o['day'] == day && o['month'] == month && o['year'] == year)
-        dataWhere.add(o),
-    });
+    for (var o in data) {
+      if(o['day'] == day && o['month'] == month && o['year'] == year){
+        dataWhere.add(o);
+      }
+    }
 
-    List widgetToSend = [Text("Aucun évènement")];
+    List arrayToSend = [Text("Aucun évènement", style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center,)];
 
     if(dataWhere.isNotEmpty){
       List<Widget> dataToPrint = [];
@@ -83,7 +117,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
 
                 child: Text(
                   o['title'],
-                  style: TextStyle(color: colors['mainColor']),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
               Row(
@@ -92,15 +126,19 @@ class _EvenementsJourState extends State<EvenementsJour> {
                     Text(
                         (
                             (o['entire_day'].runtimeType.toString() == 'bool' && o['entire_day']) ? 'Journée entière' : '${o['hour']}h${o['minute']}'
-                        )
+                        ), style: Theme.of(context).textTheme.bodyLarge
                     ),
                     // Menu Pop up
                     PopupMenuButton<String>(
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                         onSelected: handleClick,
                         itemBuilder: (BuildContext context) {
                           return paramEvent.map((String choice) {
                             return PopupMenuItem<String>(
-                              value: jsonEncode({'choice': '${choice}', 'id': o['id']}),
+                              value: jsonEncode({'choice': choice, 'id': o['id']}),
                               child: Text(choice),
                             );
                           }).toList();
@@ -112,60 +150,10 @@ class _EvenementsJourState extends State<EvenementsJour> {
         ),
       });
 
-      widgetToSend = dataToPrint;
-
-
-
-        /*SizedBox.expand(
-
-      );*/
-
-      /*Expanded(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: dataToPrint,
-          ),
-        ),
-      );*/
+      arrayToSend = dataToPrint;
     }
 
-    return SizedBox.expand(
-        child: DraggableScrollableSheet(
-            maxChildSize: (widgetToSend.length > 5 ? 0.75 : 0.45),
-            initialChildSize: 0.45,
-            minChildSize: 0.45,
-            builder: (context, scrollController) {
-              return SingleChildScrollView(
-                  controller: scrollController,
-                    child: Container(
-                      /*
-                        constraints: BoxConstraints(
-                          minHeight:MediaQuery.of(context).size.height * 0.45,
-                        ),*/
-                        height:MediaQuery.of(context).size.height * 0.40,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).backgroundColor,
-                          //border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.all(Radius.circular(20)),
-                        ),
-                        child: Column(
-                          key: _columnEventKey,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            /**
-                             * BUTTON TO ADD AN EVENT
-                             */
-                            ...widgetToSend,
-                          ],
-                        )
-                    ),
-              );
-            }
-        )
-    );
+    return arrayToSend;
   }
 
   @override
@@ -183,8 +171,8 @@ class _EvenementsJourState extends State<EvenementsJour> {
 
     // FutureBuilder:: Widget qui traite la fonction AJAX de lecture
     return FutureBuilder(
-        future: tetsteste(),
-        builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+        future: getData,
+        builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
           // SI y'a une erreur dans le processus, Imprimer ce message
           if (snapshot.hasError) {
             return Text("Une erreur c'est produite -- ${snapshot.error.toString()}");
@@ -192,15 +180,15 @@ class _EvenementsJourState extends State<EvenementsJour> {
 
           // Si retourne rien, imprimer rien
           if (snapshot.hasData && snapshot.data!.runtimeType == 'Widget') {
-            return Text("Aucun évènement");
+            return printData(widgetToSend: [const Text("Aucun évènement", textAlign: TextAlign.center,)]);
           }
 
           // Si retourne du contenu, imprimer les evenements
           if (snapshot.connectionState == ConnectionState.done) {
-            return snapshot.data!;
+            return printData(widgetToSend: snapshot.data!);
           }
 
-          return const Text("En chargement...");
+          return printData(widgetToSend: [Text("Aucun évènement",  style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center,)]);
         },
     );
   }

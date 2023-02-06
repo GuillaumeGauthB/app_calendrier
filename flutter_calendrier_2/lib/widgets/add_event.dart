@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart'; // firestore, pour les transactions avec la db
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'; // flutter
 import 'package:datepicker_dropdown/datepicker_dropdown.dart'; // Pour les dropdowns de date
  import 'package:flutter_calendrier_2/res/events.dart';
@@ -118,11 +119,14 @@ class _AddEventState extends State<AddEvent> {
               // ============================================= NOM DE L'EVENEMENT
               TextFormField(
                 decoration: const InputDecoration(
-                  icon: const Icon(Icons.person),
+                  icon: Icon(Icons.person),
                   hintText: 'Nom',
                   labelText: 'Nom de l\'évènement',
                 ),
                 controller: listControllers["title"],
+                // style: Theme.of(context).,
+                // style: Theme.of(context).textTheme.labelMedium,
+
                 validator: (value) {
                   if(value == null || value.isEmpty){
                     return 'Veuillez saisir un titre';
@@ -148,7 +152,7 @@ class _AddEventState extends State<AddEvent> {
                 startYear: DateTime.now().year - 10,
                 endYear: DateTime.now().year + 20,
                 onChangedDay: (value) =>  _infoDate["day"] = value,
-                onChangedMonth: (value) => {_infoDate["month"] = value, print('month: '+_infoDate["month"].toString())},
+                onChangedMonth: (value) => {_infoDate["month"] = value},
                 onChangedYear: (value) => _infoDate["year"] = value,
               ),
 
@@ -167,52 +171,14 @@ class _AddEventState extends State<AddEvent> {
               ),
 
               if(!_valueCheckbox)
-                Row(
-                  //mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // TODO Temps ne s'update plus quand on le change
-                    const Text('Heure: '),
-                    Container(
-                      margin: const EdgeInsets.only(right: 35),
-                      child: DropdownButton<String>(
-                          items: [
-                            for(int i = 0; i <= 24; i++)
-                              DropdownMenuItem<String>(
-                                value: i < 10 ? '0${i.toString()}' : i.toString(),
-                                child: Text(i < 10 ? '0${i.toString()}' : i.toString()),
-                              ),
-                          ],
-                          value: _infosTemps["hour"],
-                          onChanged: (String? value) {
-                            setState(() {
-                              _infosTemps["hour"] = value!;
-                            });
-                          }
-                      ),
-                    ),
-                    const Text('Minute: '),
-                    DropdownButton<String>(
-                        items: [
-                          for(int i = 0; i <= 60; i++)
-                            DropdownMenuItem<String>(
-                              value: i < 10 ? '0${i.toString()}' : i.toString(),
-                              child: Text(i < 10 ? '0${i.toString()}' : i.toString()),
-                            ),
-                        ],
-                        value: _infosTemps["minute"],
-                        onChanged: (String? value) {
-                          setState(() {
-                            _infosTemps["minute"] = value!;
-                          });
-                        }
-                    ),
-                  ],
+                CupertinoTimerPicker(
+                  onTimerDurationChanged: (Duration value) {
+                    _infosTemps["hour"] = value.inHours.toString();
+                    _infosTemps["minute"] = (value.inMinutes - (value.inHours * 60)).toString();
+                  },
+                  mode: CupertinoTimerPickerMode.hm,
+                  initialTimerDuration: Duration(hours: int.parse(_infosTemps["hour"]!), minutes: int.parse(_infosTemps["minute"]!)),
                 ),
-                /*TimePickerDialog(
-                  initialTime: TimeOfDay.now(),
-                  initialEntryMode: TimePickerEntryMode.input,
-                ),*/
               Container(
                   padding: const EdgeInsets.only(left: 150.0, top: 40.0),
                   child: ElevatedButton(
@@ -282,26 +248,6 @@ class _AddEventState extends State<AddEvent> {
 
                         // TODO fix le firebase fucker et faire fonctionner avec la modification
 
-                        final CollectionReference ref = FirebaseFirestore.instance.collection('Calendrier');
-                        try{
-                          FirebaseFirestore.instance.runTransaction((transaction) async => {
-                            // lengthCollection = await ref.limit(1).get(),
-                            // TODO adapter ce code a la nouvelle maniere de faire
-                            // Si la collection est vide, creer un document
-                            //if(lengthCollection.docs.isEmpty){
-                            //  FirebaseFirestore.instance.collection('Calendrier').doc(documentID).set({})
-                            //},
-
-                            print(transaction),
-
-                            // TODO ajouter une maniere de checker si des evenements ont ete ajoutees offline, pis les faire update quand on revient en ligne
-                            await ref.add(eventToAdd),
-                            //await addToFile()
-                          });
-                        } on Exception catch(e){
-                          print('error:  $e');
-                        }
-
                         // If the form is valid, display a snackbar. In the real world,
                         // you'd often call a server or save the information in a database.
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -325,6 +271,54 @@ class _AddEventState extends State<AddEvent> {
     );
   }
 }
+
+// Vieille maniere de traiter l'info
+/*Row(
+                  //mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // TODO Temps ne s'update plus quand on le change
+                    const Text('Heure: '),
+                    Container(
+                      margin: const EdgeInsets.only(right: 35),
+                      child: DropdownButton<String>(
+                          items: [
+                            for(int i = 0; i <= 24; i++)
+                              DropdownMenuItem<String>(
+                                value: i < 10 ? '0${i.toString()}' : i.toString(),
+                                child: Text(i < 10 ? '0${i.toString()}' : i.toString()),
+                              ),
+                          ],
+                          value: _infosTemps["hour"],
+                          onChanged: (String? value) {
+                            setState(() {
+                              _infosTemps["hour"] = value!;
+                            });
+                          }
+                      ),
+                    ),
+                    const Text('Minute: '),
+                    DropdownButton<String>(
+                        items: [
+                          for(int i = 0; i <= 60; i++)
+                            DropdownMenuItem<String>(
+                              value: i < 10 ? '0${i.toString()}' : i.toString(),
+                              child: Text(i < 10 ? '0${i.toString()}' : i.toString()),
+                            ),
+                        ],
+                        value: _infosTemps["minute"],
+                        onChanged: (String? value) {
+                          setState(() {
+                            _infosTemps["minute"] = value!;
+                          });
+                        }
+                    ),
+                  ],
+                ),*/
+/*TimePickerDialog(
+                  initialTime: TimeOfDay.now(),
+                  initialEntryMode: TimePickerEntryMode.input,
+                ),*/
 
 class TimeDate extends StatefulWidget {
   const TimeDate({Key? key}) : super(key: key);

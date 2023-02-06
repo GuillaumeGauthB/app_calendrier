@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
+import '../res/theme_data.dart';
 import './modify_event.dart';
 import './routes_scaffold.dart';
 
@@ -14,34 +15,7 @@ class MyApp extends StatelessWidget {
     //print('dark mode: ${isDarkTheme}');
     return GetMaterialApp(
         title: 'Calendrier',
-        theme: ThemeData(
-          // This is the theme of your application.
-          //
-          // Try running your application with "flutter run". You'll see the
-          // application has a blue toolbar. Then, without quitting the app, try
-          // changing the primarySwatch below to Colors.green and then invoke
-          // "hot reload" (press "r" in the console where you ran "flutter run",
-          // or simply save your changes to "hot reload" in a Flutter IDE).
-          // Notice that the counter didn't reset back to zero; the application
-          // is not restarted.
-          //primarySwatch: isDarkTheme == true ? Colors.pink : Colors.red,
-
-          appBarTheme: const AppBarTheme(
-            color: Color(0xFF1D3557),
-          ),
-
-          /*colorScheme: ColorScheme(
-          primary: Colors.black,
-        ),*/
-
-          brightness: Brightness.light,
-
-          /*textTheme: const TextTheme(
-          bodyMedium: Colors.black,
-        ),*/
-
-          backgroundColor: const Color(0xFFEAF0F8),
-        ),
+        theme: AppTheme.getLightMode,
         // darkTheme: ThemeData(
         //   primarySwatch: Colors.blueGrey,
         // ),

@@ -25,6 +25,7 @@ Future<void> main() async {
   isDarkTheme = await SharedPreferencesValues().getTheme;
   // tableau des evenements
   //await FileUtils.saveToFile('{\'hihiha\': \'hihiha\'}');
+
   tableaux_evenements = jsonDecode(await FileUtils.readFromFile);
   //print(tableaux_evenements.runtimeType);
   //testJSON.runtimeType = tableaux_evenements.runtimeType;
