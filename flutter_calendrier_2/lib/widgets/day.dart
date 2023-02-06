@@ -10,12 +10,12 @@ class day extends StatelessWidget {
       currentYear; // le jour a imprimer
   bool currentMonth; // le mois a imprimer
 
-  late Color textColor,
-        bgColor;
+  late Color textColor, // la couleur du texte
+        bgColor;  // la couleur du background
 
-  late int eventInDay;
+  late int eventInDay; // nombre d'evenements sur la journee present
 
-  DateTime now = DateTime.now();
+  DateTime now = DateTime.now(); // informations de la journee presente
 
   //const day({Key? key, required int currentDay}) : super(key: key);
   day(this.currentDay, this.currentMonthNum, this.currentYear, this.currentMonth, this.dayClicked);
@@ -27,10 +27,11 @@ class day extends StatelessWidget {
     double widthDay = (widthScreen / 7) - 2;
 
     textColor = colors["pastMonth"];
-    bgColor = colors["backgroundColor"];
+    bgColor = Theme.of(context).backgroundColor;
 
     if(currentMonth == true){
-      textColor = colors["currentMonth"];
+      // textColor = colors["currentMonth"];
+      textColor = Theme.of(context).colorScheme.onBackground;
 
       if(now.day - 1 == currentDay &&
           currentMonthNum == now.month &&

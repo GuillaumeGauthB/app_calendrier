@@ -25,33 +25,12 @@ class EvenementsJour extends StatefulWidget {
 class _EvenementsJourState extends State<EvenementsJour> {
   final GlobalKey _columnEventKey = GlobalKey();
 
-  String documentID = '2022_12_31';
-  late Map<String, dynamic> evenementsParameters;
-  late int day, month, year;
-  late CollectionReference calendrier;
-  late List dataDay;
-  late double heightScreen;
-
-  final Set<String> paramEvent = {
-    'Modifier', 'Supprimer'
-  };
+  late Map<String, dynamic> evenementsParameters; // parametres envoyees du parent
+  late int day, month, year; // informations de la date lue
 
   _EvenementsJourState(this.evenementsParameters);
 
-  void handleClick(String value){
-    final valueArray = jsonDecode(value);
-    if(paramEvent.contains(valueArray['choice'])){
-      if(valueArray['choice'] != 'Supprimer'){
-        Get.toNamed("/calendrier/${valueArray['choice'].toLowerCase()}", arguments: valueArray['id']);
-      }
-      else{
-        tableaux_evenements.removeWhere((e) => e['id'] == valueArray['id']);
-        FileUtils.modifyFile({}, mode: 'supprimer', id: valueArray['id']);
-        setState(() {});
-      }
-    }
-  }
-
+  /// fonction qui imprime les donnees a envoyer
   Widget printData({List widgetToSend = const []}) {
     return SizedBox.expand(
         child: DraggableScrollableSheet(
@@ -85,6 +64,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
     );
   }
 
+  /// fonction qui trouve les informations de tous les evenements de la journees choisie
   Future<List> get getData async{
     // Lire les evenements
     var data = tableaux_evenements;
@@ -97,110 +77,85 @@ class _EvenementsJourState extends State<EvenementsJour> {
       }
     }
 
+    // envoyer de base cet element
     List arrayToSend = [Text("Aucun évènement", style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center,)];
 
+    // mais si la liste avec ce qu'il y a a imprimer n'est pas vide, remplacer le contenu de arrayToSend par le contenu de dataWhere
     if(dataWhere.isNotEmpty){
       List<Widget> dataToPrint = [];
-      dataWhere.forEach((o) => {
-        //print(o),
+      for (var o in dataWhere) {
         dataToPrint.add(
-          TextButton(
-            style: const ButtonStyle(
-              overlayColor: MaterialStatePropertyAll<Color>(Colors.black),
-            ),
-            onPressed: () {
-              showModalBottomSheet(
-                enableDrag: true,
-                isScrollControlled: true,
-                context: context, builder: (context) {
-                  return Container(height: MediaQuery.of(context).size.height * 0.70, child: AddEvent({'id': o['id']}));
-                }
-              );
-              print('test');
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
-                  //width: MediaQuery.of(context).size.width,
-                  /*decoration: const BoxDecoration(
-                  border: BorderDirectional(bottom: BorderSide(color: Colors.black, width: 0.7)),
-                  color: Colors.grey
-                ),*/
+            TextButton(
+              style: const ButtonStyle(
+                overlayColor: MaterialStatePropertyAll<Color>(Colors.black),
+              ),
+              onPressed: () {
+                showModalBottomSheet(
+                    enableDrag: true,
+                    isScrollControlled: true,
+                    context: context, builder: (context) {
+                      return Container(height: MediaQuery.of(context).size.height * 0.70, child: AddEvent({'id': o['id']}));
+                    }
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
 
-                  child: Text(
-                    o['title'],
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      decoration: TextDecoration.underline,
+                    child: Text(
+                      o['title'],
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
                   ),
-                ),
-                Row(
-                    children: [
-                      // Texte de duree / heure de l'event
+                  Row(
+                      children: [
+                        // Texte de duree / heure de l'event
 
-                      Text(
-                          (
-                              (o['entire_day'].runtimeType.toString() == 'bool' && o['entire_day']) ? 'Journée entière' : '${o['hour']}h${o['minute']}'
-                          ), style: Theme.of(context).textTheme.bodyLarge
-                      ),
-                      TextButton(
-                          onPressed: () {
-                            tableaux_evenements.removeWhere((e) => e['id'] == o['id']);
-                            FileUtils.modifyFile({}, mode: 'supprimer', id: o['id']);
-                            setState(() {});
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              border: Border.all(width: 1, color: Colors.white),
-                              borderRadius: BorderRadius.all(Radius.circular(100)),
-                            ),
-                            child: Icon(Icons.delete_forever, color: Colors.white,)
-                          ) 
-                      )
-                      // Menu Pop up
-                      /*PopupMenuButton<String>(
-                          icon: Icon(
-                            Icons.more_vert,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                          onSelected: handleClick,
-                          itemBuilder: (BuildContext context) {
-                            return paramEvent.map((String choice) {
-                              return PopupMenuItem<String>(
-                                value: jsonEncode({'choice': choice, 'id': o['id']}),
-                                child: Text(choice),
-                              );
-                            }).toList();
-                          }),*/
-                    ]
-                )
-              ],
-            ),
-          )
-        ),
-      });
+                        Text(
+                            (
+                                (o['entire_day'].runtimeType.toString() == 'bool' && o['entire_day']) ? 'Journée entière' : '${o['hour']}h${o['minute']}'
+                            ), style: Theme.of(context).textTheme.bodyLarge
+                        ),
+                        TextButton(
+                            onPressed: () {
+                              tableaux_evenements.removeWhere((e) => e['id'] == o['id']);
+                              FileUtils.modifyFile({}, mode: 'supprimer', id: o['id']);
+                              setState(() {});
+                            },
+                            child: Container(
+                                padding: EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  border: Border.all(width: 1, color: Colors.white),
+                                  borderRadius: BorderRadius.all(Radius.circular(100)),
+                                ),
+                                child: Icon(Icons.delete_forever, color: Colors.white,)
+                            )
+                        )
+                      ]
+                  )
+                ],
+              ),
+            )
+        );
+      }
 
       arrayToSend = dataToPrint;
     }
 
+    // retourner les informations
     return arrayToSend;
   }
 
   @override
   Widget build(BuildContext context) {
-    heightScreen = MediaQuery.of(context).size.height;
-
-
     // Les variables d'informations de journées
     day = widget.evenementsParameters['day'];
     month = widget.evenementsParameters['month'];
     year = widget.evenementsParameters['year'];
-
-
-    //print('type de truc::: ${{'Logout', 'Settings'}.runtimeType}');
 
     // FutureBuilder:: Widget qui traite la fonction AJAX de lecture
     return FutureBuilder(

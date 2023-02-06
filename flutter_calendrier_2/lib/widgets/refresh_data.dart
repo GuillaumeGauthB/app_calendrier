@@ -25,11 +25,6 @@ void getData() async{
 
     FileUtils.saveToFile(data: jsonEncode(result_3));
     tableaux_evenements = jsonDecode(await FileUtils.readFromFile());
-    //print(testste);
-    //FileUtils.saveToFile(testste.toString());
-    //String test = await FileUtils.readFromFile;
-    //print(test);
-    //print(result_3.runtimeType);
   }
 
   @override

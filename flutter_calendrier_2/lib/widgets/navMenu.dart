@@ -4,18 +4,19 @@ import 'package:get/get.dart';
 class NavMenu extends StatelessWidget {
   //const NavMenu({Key? key}) : super(key: key);
 
+  // liste contenant les liens du site
   final List<String> listLiens = [
     'calendrier',
     'settings'
   ];
-  int index = 0;
-  Map getParam = {};
+  int index = 0; // position dans les liens
+  Map getParam = {}; // donnees GET de la page
 
   @override
   Widget build(BuildContext context) {
+    // si nous avons des valeurs GET et que celles si contiennent l'index de la page, le choisir
     if(Get.arguments.runtimeType != Null){
       getParam = Get.arguments;
-      print(getParam['pageIndex']);
       if(getParam['pageIndex'].runtimeType == int){
         index = getParam['pageIndex'];
       }
@@ -23,9 +24,7 @@ class NavMenu extends StatelessWidget {
 
     return BottomNavigationBar(
       onTap: (int pos) {
-        //print(listLiens[pos]);
         Get.offAndToNamed('/${listLiens[pos]}', arguments: { 'pageIndex': pos });
-        //Get.toNamed("/calendrier");
       },
       currentIndex: index,
       items: const [

@@ -15,13 +15,12 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar> {
-  Map<String, dynamic> arguments = {};
-  int _dayClicked = -1;
-  int _monthChange = -1;
-  int _currentYear = 0;
+  // Les infos de journees
+  int _dayClicked = -1,
+      _monthChange = -1,
+      _currentYear = 0;
 
-  int get dayClicked => _dayClicked;
-
+  // autres infos de mois
   late int currentMonth,
           previousMonth,
           nextMonth,
@@ -29,21 +28,25 @@ class _CalendarState extends State<Calendar> {
           nextYear,
           weekdays;
 
+  // nombre total de jours qui vont etre imprimer
   late int totalAmountDays;
 
+  // Information pour aujourd'hui
   final DateTime now = DateTime.now();
+  // Informations du mois present
   late DateTime currentMonthInfo;
 
+  // Listes des jours et des mois a imprimer
+  final List<String> arrayDays = [ 'Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa' ];
+  final List<String> arrayMonths = [ 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre' ];
 
-  // final List<String> arrayDays =  'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche' ];
-   final List<String> arrayDays = [ 'Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa' ];
-   final List<String> arrayMonths = [ 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre' ];
-
+  /// avoir le nombre total de jours dans le mois
   int get getAmountOfDays {
     var amtDays = DateTime(_currentYear, currentMonth + 1, 0);
     return amtDays.day;
   }
 
+  /// imprimer le calendrier en mode Landscape (pas encore fait)
   Widget get printCalendarLandscape {
     return Row(
       children: [
@@ -53,6 +56,7 @@ class _CalendarState extends State<Calendar> {
     );
   }
 
+  /// Imprimer le calendrier en mode portrait (original)
   Widget get printCalendarPortrait {
     return Column(
       children: [
@@ -66,16 +70,11 @@ class _CalendarState extends State<Calendar> {
         ),
 
         printAddEvent,
-        //),
-        /*GestureDetector(
-            onTap:
-
-            child:
-          ),*/
       ],
     );
   }
 
+  /// Imprimer le core du calendrier
   Widget get printCalendarBase {
     return // ============================================================== GESTION DU MOIS
       Column(
@@ -135,7 +134,7 @@ class _CalendarState extends State<Calendar> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   for (var dayName in arrayDays)
-                    Container(child: Text(dayName, textAlign: TextAlign.center), width: MediaQuery.of(context).size.width / 7)
+                    SizedBox(width: MediaQuery.of(context).size.width / 7, child: Text(dayName, textAlign: TextAlign.center),)
                 ],
               )
           ),
@@ -199,6 +198,7 @@ class _CalendarState extends State<Calendar> {
       );
   }
 
+  /// Imprimer le bouton d'ajout d'evenements
   Widget get printAddEvent {
     return Container(
       decoration: BoxDecoration(
@@ -226,8 +226,6 @@ class _CalendarState extends State<Calendar> {
               }
           ).whenComplete(() => {setState(() {})});
         },
-
-
 
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -283,21 +281,8 @@ class _CalendarState extends State<Calendar> {
       _currentYear = now.year;
     }
 
-    if(Get.arguments.runtimeType.toString() != 'Null') {
-      arguments= Get.arguments;
-
-      if(arguments.isNotEmpty && arguments['day'].runtimeType != Null){
-        if(arguments['day'] != -1){
-          currentMonth = arguments['month'] as int;
-          _currentYear = arguments['year'] as int;
-          _dayClicked = arguments['day']! - 1;
-          Get.arguments['day'] = -1;
-        }
-      }
-    }
-
     // TODO jusqu'ici
-    //currentMonthInfo = DateTime(_currentYear, currentMonth, 31);
+
     weekdays = DateTime(_currentYear, currentMonth, 1).weekday;
 
     // building a flex equivalent that allows calendar days to appear and wrap around one another
@@ -306,6 +291,7 @@ class _CalendarState extends State<Calendar> {
       //padding: const EdgeInsets.only(top: 25),
       child: OrientationBuilder(
         builder: (BuildContext context, Orientation orientation) {
+          // charger le bon mode dependamment de l'orientation du telephone
           if(orientation == Orientation.portrait){
             return printCalendarPortrait;
           } else {

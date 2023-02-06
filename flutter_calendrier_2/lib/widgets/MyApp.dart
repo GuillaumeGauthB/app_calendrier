@@ -2,29 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import '../res/theme_data.dart';
-import './modify_event.dart';
+import '../res/settings.dart';
 import './routes_scaffold.dart';
 
 class MyApp extends StatelessWidget {
-  //const MyApp({super.key});
-  final Future<FirebaseApp> _fbApp = Firebase.initializeApp();
+  late ThemeMode currentThemeMode; // le theme present de l'application
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    //print('dark mode: ${isDarkTheme}');
+    // Set up du theme
+    if(app_settings['theme_mode'] == 'dark'){
+      currentThemeMode = ThemeMode.dark;
+    } else if (app_settings['theme_mode'] == 'light'){
+      currentThemeMode = ThemeMode.light;
+    } else {
+      currentThemeMode = ThemeMode.system;
+    }
+
     return GetMaterialApp(
         title: 'Calendrier',
         theme: AppTheme.getLightMode,
-        // darkTheme: ThemeData(
-        //   primarySwatch: Colors.blueGrey,
-        // ),
-        // themeMode: ThemeMode.dark,
+        darkTheme: AppTheme.getDarkMode,
+        themeMode: currentThemeMode,
 
         initialRoute: '/calendrier',
         getPages: [
           GetPage(name: '/calendrier', page: () => const CalendarBase()),
-          GetPage(name: '/calendrier/modifier', page: () => const ModifyEventBase()),
+          //GetPage(name: '/calendrier/modifier', page: () => const ModifyEventBase()),
           GetPage(name: '/settings', page: () => const AppSettingsBase()),
         ],
 

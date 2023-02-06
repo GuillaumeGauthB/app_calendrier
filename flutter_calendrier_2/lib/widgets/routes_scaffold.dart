@@ -32,13 +32,6 @@ class CalendarBase extends StatelessWidget {
 
       body: Calendar(),//Get.put<Calendar>(Calendar()),
       bottomNavigationBar: NavMenu(),
-
-      /*bottomNavigationBar: BottomAppBar(
-        // style of text set in text element
-        child: Text('Bottom app bar')
-
-        //backgroundColor: Theme.of(context).colorScheme.primary,
-      ),*/
     );
   }
 }
@@ -49,19 +42,6 @@ class AppSettingsBase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /*appBar: AppBar(
-        // style of text set in text element
-        title: Text(
-          'Settings',
-          style: TextStyle(color: colors["backgroundColor"],
-              fontSize: 25),
-        ),
-        actions: const [
-          RefreshData(),
-        ],
-        //backgroundColor: Theme.of(context).colorScheme.primary,
-      ),*/
-
       body: AppSettings(),
       bottomNavigationBar: NavMenu(),
     );

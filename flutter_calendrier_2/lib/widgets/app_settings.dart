@@ -3,6 +3,7 @@ import 'package:flutter_calendrier_2/utils/FileUtils.dart';
 import 'package:flutter_calendrier_2/widgets/refresh_data.dart';
 
 import '../res/settings.dart';
+import 'MyApp.dart';
 
 class AppSettings extends StatefulWidget {
   const AppSettings({Key? key}) : super(key: key);
@@ -14,8 +15,6 @@ class AppSettings extends StatefulWidget {
 class _AppSettingsState extends State<AppSettings> {
   @override
   Widget build(BuildContext context) {
-
-    //print(app_settings);
     return Column(
       children: [
         SizedBox(
@@ -26,11 +25,16 @@ class _AppSettingsState extends State<AppSettings> {
             ),
           ),
         ),
+        /**
+         * Debut des settings
+         */
         Container(
           decoration: const BoxDecoration(
             border: Border(bottom: BorderSide(color: Colors.black, width: 1)),
           ),
-
+          /**
+           * Bouton permettant de synchroniser la DB
+           */
           child: TextButton(
               style: const ButtonStyle(
                 overlayColor: MaterialStatePropertyAll<Color>(Colors.black),
@@ -57,45 +61,16 @@ class _AppSettingsState extends State<AppSettings> {
               ),
           ),
         ),
-
+        /**
+         * In put permettant de choisir le theme
+         */
         const SettingsThemeMode(),
-          /*CheckboxListTile(
-            title: const Text("Journée entière", style: TextStyle(), textWidthBasis: TextWidthBasis.longestLine),
-            value: _valueCheckbox,
-            onChanged: (bool? value) {
-              setState(() {
-                _valueCheckbox = value!;
-              });
-            },
-          ),*/
-        /*
-        Row(
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child:CheckboxListTile(
-                title: Row(
-                  children: const [
-                    Text('Mettre à jour les évènements'),
-                    RefreshData(),
-                  ],
-                ),
-                // const Text("Journée entière", style: TextStyle(), textWidthBasis: TextWidthBasis.longestLine),
-                value: _valueCheckbox,
-                onChanged: (bool? value) {
-                  setState(() {
-                    _valueCheckbox = value!;
-                  });
-                },
-              ),
-            ),
-          ]
-        )*/
       ],//RefreshData(),
     );
   }
 }
 
+/// La classe du theme
 class SettingsThemeMode extends StatefulWidget {
   const SettingsThemeMode({Key? key}) : super(key: key);
 
@@ -104,39 +79,40 @@ class SettingsThemeMode extends StatefulWidget {
 }
 
 class _SettingsThemeModeState extends State<SettingsThemeMode> {
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: DropdownButtonFormField(
-              hint: Text('theme'),
+          width: MediaQuery.of(context).size.width,
+          child: DropdownButtonFormField(
+            onChanged: (Object? objet) async {
+              app_settings['theme_mode'] = objet;
+              await FileUtils.modifyFile(app_settings, fileName: 'settings.json', mode: 'settings');
+              runApp(MyApp());
+            },
 
-              onChanged: (Object? objet) {
-                app_settings['theme_mode'] = objet;
-              },
+            decoration: const InputDecoration(
+              label: Text('Theme')
+            ),
 
-              decoration: const InputDecoration(
-                label: Text('Theme')
+            value: (app_settings['theme_mode'].runtimeType != Null ? app_settings['theme_mode'] : 'phone_pref'),
+
+            items: const [
+              DropdownMenuItem(
+                value: 'dark',
+                child: Text('Sombre'),
               ),
-
-              value: (app_settings['theme_mode'].runtimeType != Null ? app_settings['theme_mode'] : 'phone_pref'),
-
-              items: const [
-                DropdownMenuItem(
-                  value: 'dark',
-                  child: Text('Sombre'),
-                ),
-                DropdownMenuItem(
-                  value: 'light',
-                  child: Text('Clair'),
-                ),
-                DropdownMenuItem(
-                  value: 'phone_pref',
-                  child: Text('Téléphone'),
-                )
-              ],
-            )
-        );
+              DropdownMenuItem(
+                value: 'light',
+                child: Text('Clair'),
+              ),
+              DropdownMenuItem(
+                value: 'phone_pref',
+                child: Text('Téléphone'),
+              )
+            ],
+          )
+      );
   }
 }
 

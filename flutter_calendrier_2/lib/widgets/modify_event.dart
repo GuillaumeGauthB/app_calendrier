@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import '../res/events.dart';
 import 'add_event.dart';
 
+/**
+ *
+ * REMANT D'UN VIEU MORCEAU DE CODE
+ *
+ * NE SAIS PAS ENCORE SI DOIT DELETE
+ *
+ */
+
 class ModifyEvent extends StatefulWidget {
   //const ModifyEvent({Key? key}) : super(key: key);
   late int id;

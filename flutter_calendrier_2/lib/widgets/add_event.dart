@@ -19,30 +19,32 @@ class AddEvent extends StatefulWidget {
 
 class _AddEventState extends State<AddEvent> {
   late Map<String, dynamic> parentParameters; // Liste des parametres recues
+
+  // parameters de l'evenement existant deja
   Map<String, dynamic> eventParameters = {};
-  // Create a global key that uniquely identifies the Form widget
-  // and allows validation of the form.
+
+  // equivalent de l'id du formulaire
   final _formKey = GlobalKey<FormState>();
+
+  // etat du checkbox de journee entiere
   bool _valueCheckbox = true;
+
+  // les infos a propos du temps de l'evenement
   Map<String, String> _infosTemps = {};
+
+  // une liste contenant tous les controllers (input)
   final Map<String?, dynamic> listControllers = {
     "title": TextEditingController(),
     "description": TextEditingController(),
     //"temps_type": ,
     //"temps":
   };
+
+  // Les informations de la date
   late Map<String, dynamic> _infoDate;
 
+  // le mode de la classe, peut etre ajouter ou modifier
   String gestionClasse = 'ajouter';
-
-  /*late final LocalNotificationService service;
-  @override
-  void initState(){
-    service = LocalNotificationService();
-    service.initialize();
-    // not working
-    super.initState();
-  }*/
 
   _AddEventState(this.parentParameters);
 /*
@@ -57,15 +59,16 @@ class _AddEventState extends State<AddEvent> {
 
   @override
   Widget build(BuildContext context) {
+    // copier les parametres du parent pour les parametres de l'evenement
     eventParameters = parentParameters;
 
+    // si le param id existe, mettre en mode modification et prendre les informations de cet evenement
     if(parentParameters['id'].runtimeType.toString() != 'Null'){
       gestionClasse = 'modifier';
       eventParameters = tableaux_evenements.singleWhere((e) => e['id'] == parentParameters['id']);
     }
 
-    print('eventParameters: $eventParameters');
-
+    // si la classe est toujours en mode ajouter, mettre les informations envoyees
     if(gestionClasse == 'ajouter'){
       _infoDate = {
         "day": eventParameters["day"],
@@ -78,6 +81,7 @@ class _AddEventState extends State<AddEvent> {
         "minute": TimeOfDay.now().minute.toString(),
       };
     } else {
+      // Sinon, mettre les informations de l'evenement
       _infoDate = {
         "day": eventParameters["day"],
         "month": eventParameters["month"],
@@ -128,6 +132,7 @@ class _AddEventState extends State<AddEvent> {
                 // style: Theme.of(context).textTheme.labelMedium,
 
                 validator: (value) {
+                  // Empecher de sauvegarder un evenement sans titre
                   if(value == null || value.isEmpty){
                     return 'Veuillez saisir un titre';
                   }
@@ -170,6 +175,7 @@ class _AddEventState extends State<AddEvent> {
                 ),
               ),
 
+              // ================================================= Pas journee entiere
               if(!_valueCheckbox)
                 CupertinoTimerPicker(
                   onTimerDurationChanged: (Duration value) {
@@ -183,37 +189,26 @@ class _AddEventState extends State<AddEvent> {
                   padding: const EdgeInsets.only(left: 150.0, top: 40.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      // Validate returns true if the form is valid, or false otherwise.
+                      // Si le formulaire est valider...
                       if (_formKey.currentState!.validate()) {
-                        // TODO remove test prints
-                        // print("month: "+infoDate["month"].toString());
-                        // print(listControllers["description"].text);
-                        // print(infoDate);
 
-                        // TODO essayer de faire moins d'operations
-                        // L'ID du document qui va etre utiliser
-                        //String documentID = '${infoDate["year"]}_${infoDate["month"]}_${infoDate["day"]}';
-
-                        // Lien a la collection Firebase
-                        //CollectionReference ref = FirebaseFirestore.instance.collection('Calendrier').doc(documentID).collection('evenements');
-
+                        // Si le tableau n'est pas vide, incrementer l'id le plus elever de 1, sinon, mettre 0
                         List tableau_id = [];
                         if(tableaux_evenements.isNotEmpty){
                           tableaux_evenements.forEach((x) => {if(x['id'] != null) tableau_id.add(x['id'])});
                         }
 
-                        int current_id = 0;
+                        int currentId = 0;
 
-                        print(tableau_id);
                         if(tableau_id.length > 0){
-                          current_id = tableau_id.reduce((value, element) => value > element ? value : element);
-                          current_id++;
+                          currentId = tableau_id.reduce((value, element) => value > element ? value : element);
+                          currentId++;
                         }
 
-                        //QuerySnapshot lengthCollection;
+                        // Initialisation de l'objet a envoyer
                         // TODO trouver une meilleure maniere de faire ca
                         Object eventToAdd = {
-                          'id': (gestionClasse == 'modifier' ? parentParameters['id'] : current_id),
+                          'id': (gestionClasse == 'modifier' ? parentParameters['id'] : currentId),
                           'title': '${listControllers["title"]?.text}',
                           'description': '${listControllers["description"]?.text}',
                           'day': _infoDate["day"],
@@ -224,7 +219,7 @@ class _AddEventState extends State<AddEvent> {
 
                         if(!_valueCheckbox){
                           eventToAdd = {
-                            'id': (gestionClasse == 'modifier' ? parentParameters['id'] : current_id),
+                            'id': (gestionClasse == 'modifier' ? parentParameters['id'] : currentId),
                             'title': listControllers["title"]?.text,
                             'description': listControllers["description"]?.text,
                             'day': _infoDate["day"],
@@ -235,29 +230,29 @@ class _AddEventState extends State<AddEvent> {
                             'minute': _infosTemps['minute'],
                           };
                         }
-                        if(tableaux_evenements.isNotEmpty)
+                        // Si nous sommes en modification, supprimer du tableau deja loader l'evenement avec notre item present
+                        if(tableaux_evenements.isNotEmpty && gestionClasse != 'ajouter'){
                           tableaux_evenements.removeWhere((e) => e['id'] == parentParameters['id']);
-                        tableaux_evenements.add(eventToAdd);
-                        //tableaux_evenements.add(eventToAdd);
-                        /*() async {
-                          await service.showNotification(id: 0, title: 'Notification Title', body: 'Some body');
-                        };*/
+                        }
 
+                        // Ajouter le nouvel evenement au tableau local
+                        tableaux_evenements.add(eventToAdd);
+
+                        // Appeler la methode de la classe static pour envoyer nos modifications dans le fichier local json et dans la base de donnee
                         FileUtils.modifyFile(eventToAdd, mode: gestionClasse, id: parentParameters['id']);
 
-                        // If the form is valid, display a snackbar. In the real world,
-                        // you'd often call a server or save the information in a database.
+                        // Faire apparaitre un snackbar pour dire que le tout a fonctionner
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Processing Data')),
+                          const SnackBar(content: Text('Ajout de l\'évènement')),
                         );
                       };
-                      testState = 1;
-                      if(gestionClasse == 'ajouter'){
+                      //if(gestionClasse == 'ajouter'){
+                        // fermer la boite modale
                         Navigator.pop(context);
-                      } else{
+                      /*} else{
                         Get.offAllNamed('/calendrier', arguments: { 'day': eventParameters['day'], 'month': eventParameters['month'], 'year': eventParameters['year']});
                         //Get.back();
-                      }
+                      }*/
                     },
 
                     child: Text( (gestionClasse == 'ajouter' ? 'Ajouter' : 'Modifier')),
@@ -268,77 +263,4 @@ class _AddEventState extends State<AddEvent> {
     );
   }
 }
-
-// Vieille maniere de traiter l'info
-/*Row(
-                  //mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // TODO Temps ne s'update plus quand on le change
-                    const Text('Heure: '),
-                    Container(
-                      margin: const EdgeInsets.only(right: 35),
-                      child: DropdownButton<String>(
-                          items: [
-                            for(int i = 0; i <= 24; i++)
-                              DropdownMenuItem<String>(
-                                value: i < 10 ? '0${i.toString()}' : i.toString(),
-                                child: Text(i < 10 ? '0${i.toString()}' : i.toString()),
-                              ),
-                          ],
-                          value: _infosTemps["hour"],
-                          onChanged: (String? value) {
-                            setState(() {
-                              _infosTemps["hour"] = value!;
-                            });
-                          }
-                      ),
-                    ),
-                    const Text('Minute: '),
-                    DropdownButton<String>(
-                        items: [
-                          for(int i = 0; i <= 60; i++)
-                            DropdownMenuItem<String>(
-                              value: i < 10 ? '0${i.toString()}' : i.toString(),
-                              child: Text(i < 10 ? '0${i.toString()}' : i.toString()),
-                            ),
-                        ],
-                        value: _infosTemps["minute"],
-                        onChanged: (String? value) {
-                          setState(() {
-                            _infosTemps["minute"] = value!;
-                          });
-                        }
-                    ),
-                  ],
-                ),*/
-/*TimePickerDialog(
-                  initialTime: TimeOfDay.now(),
-                  initialEntryMode: TimePickerEntryMode.input,
-                ),*/
-
-class TimeDate extends StatefulWidget {
-  const TimeDate({Key? key}) : super(key: key);
-
-  @override
-  State<TimeDate> createState() => _TimeDateState();
-}
-
-class _TimeDateState extends State<TimeDate> {
-  bool _valueCheckbox = false;
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        /*CheckboxListTile(
-          title: const Text("Journée entière"), //    <-- label
-          value: _valueCheckbox, onChanged: (bool? value) {  },
-        ),*/
-
-
-      ],
-    );
-  }
-}
-
 
