@@ -8,6 +8,33 @@ int testState = 0;
 
 // Classe servant a la lecture du fichier data.json de l'utilisateur
 class FileUtils {
+  static Future<String> get init async{
+    List directoryContents = await getDirectoryContent;
+    Iterable directoryContentsFile = directoryContents.whereType<File>();
+    String stringToReturn = '';
+    if(directoryContentsFile.where((element) => element.path.contains('data.json')).isEmpty){
+      await saveToFile(data: jsonEncode(
+          [
+            {
+              'emptySettingsTemplate': 'Empty Settings'
+            }
+          ]
+      ));
+      stringToReturn += 'oui';
+    }
+
+    if(directoryContentsFile.where((element) => element.path.contains('settings.json')).isEmpty){
+      await saveToFile(data: jsonEncode(
+        {
+          'emptySettingsTemplate': 'Empty Settings'
+        }
+      ), fileName: 'settings.json');
+      stringToReturn += 'oui';
+    }
+    return stringToReturn;
+    //return directoryContents.whereType<File>().where((element) => element.path.contains('data.json'));
+  }
+
   /// Getter servant a a prendre le path du fichier a modifier
   static Future<String> get getFilePath async {
     final directory = await getApplicationDocumentsDirectory();
@@ -15,27 +42,27 @@ class FileUtils {
   }
 
   /// Getter a selectionner le fichier a modifier
-  static Future<File> get getFile async{
+  static Future<File> getFile({required String file}) async{
     final path = await getFilePath;
-    return File('$path/data.json');
+    return File('$path/$file');
   }
 
   /// Setter servant a modifier le fichier data.json
-  static Future<File> saveToFile(String data) async{
-    final file = await getFile;
+  static Future<File> saveToFile({required String data, String fileName = 'data.json'}) async{
+    final file = await getFile(file: fileName);
     return file.writeAsString(data);
   }
 
   /// fonction de test servant a lire le contenu des dossiers locaux
   static Future<List<FileSystemEntity>> get getDirectoryContent async{
-    final dir = Directory(await getFilePath + "/flutter_assets");
+    final dir = Directory(await getFilePath);
     return await dir.list().toList();
   }
 
   /// Fonction servant a lire le contenu du fichier modifier
-  static Future<String> get readFromFile async{
+  static Future<String> readFromFile({String fileName = 'data.json'}) async{
     try{
-      final file = await getFile;
+      final file = await getFile(file: fileName);
       String fileContents = await file.readAsString();
       return fileContents.toString();
     }catch(e){
@@ -71,43 +98,32 @@ class FileUtils {
   }
 
   /// Fonction qui modifie le contenu du fichier de sauvegarde
-  static Future<File> modifyFile(Object eventToAdd, {String mode = "ajouter", id}) async{
-    final file = await getFile;
-    late DocumentReference docRef;
-    List json = jsonDecode(await FileUtils.readFromFile);
-    
-    if(mode != 'ajouter') {
-      json.removeWhere((e) => e['id'] == id);
+  static Future<File> modifyFile(Object eventToAdd, {String mode = "ajouter", id, String fileName = 'data.json'}) async{
+    final file = await getFile(file: fileName);
+
+    if(mode != 'settings'){
+      List json = jsonDecode(await FileUtils.readFromFile(fileName: fileName));
+
+      if(mode != 'ajouter') {
+        json.removeWhere((e) => e['id'] == id);
+      }
+
+      if(mode != 'supprimer') {
+        json.add(eventToAdd);
+
+        if(mode == 'modifier'){
+          modifyDB(collection: 'Calendrier', mode: mode, eventToAdd: eventToAdd, id: (id.runtimeType.toString() != 'Null' ? id : -1));
+        }
+      }
+
+      return file.writeAsString(jsonEncode(json));
+    } else{
+      return file.writeAsString(jsonEncode(eventToAdd));
     }
-
-    if(mode != 'supprimer') {
-      json.add(eventToAdd);
-    }
-
-    modifyDB(collection: 'Calendrier', mode: mode, eventToAdd: eventToAdd, id: (id.runtimeType.toString() != 'Null' ? id : -1));
-
-    /*final CollectionReference ref = FirebaseFirestore.instance.collection('Calendrier');
-    try{
-      FirebaseFirestore.instance.runTransaction((transaction) async => {
-        // lengthCollection = await ref.limit(1).get(),
-        // TODO adapter ce code a la nouvelle maniere de faire
-        // Si la collection est vide, creer un document
-        //if(lengthCollection.docs.isEmpty){
-        //  FirebaseFirestore.instance.collection('Calendrier').doc(documentID).set({})
-        //},
-
-        print(transaction),
-
-        // TODO ajouter une maniere de checker si des evenements ont ete ajoutees offline, pis les faire update quand on revient en ligne
-        await ref.add(eventToAdd),
-        //await addToFile()
-      });
-    } on Exception catch(e){
-      print('error:  $e');
-    }*/
-
-    return file.writeAsString(jsonEncode(json));
   }
+
+  /// Modification des settings
+
 
   // static modifyEvents(Object event)
 }

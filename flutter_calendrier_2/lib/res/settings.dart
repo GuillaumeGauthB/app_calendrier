@@ -1,0 +1,1 @@
+Map<String, dynamic> app_settings = {};

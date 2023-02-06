@@ -80,6 +80,14 @@ class _CalendarState extends State<Calendar> {
     return // ============================================================== GESTION DU MOIS
       Column(
         children: [
+          SizedBox(
+            height: 40,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+          ),
           Container(
             margin: const EdgeInsets.only(bottom: 15, top: 15),
             child: Row(
@@ -210,7 +218,7 @@ class _CalendarState extends State<Calendar> {
                 return Container(
                     height: MediaQuery.of(context).size.height * 0.70,
                     child:AddEvent({
-                      "day": _dayClicked + 1,
+                      "day": _dayClicked != -1 ? _dayClicked + 1 : now.day,
                       "month": currentMonth,
                       "year": _currentYear
                     })
@@ -278,11 +286,13 @@ class _CalendarState extends State<Calendar> {
     if(Get.arguments.runtimeType.toString() != 'Null') {
       arguments= Get.arguments;
 
-      if(arguments.isNotEmpty && arguments['day'] != -1){
-        currentMonth = arguments['month'] as int;
-        _currentYear = arguments['year'] as int;
-        _dayClicked = arguments['day']! - 1;
-        Get.arguments['day'] = -1;
+      if(arguments.isNotEmpty && arguments['day'].runtimeType != Null){
+        if(arguments['day'] != -1){
+          currentMonth = arguments['month'] as int;
+          _currentYear = arguments['year'] as int;
+          _dayClicked = arguments['day']! - 1;
+          Get.arguments['day'] = -1;
+        }
       }
     }
 

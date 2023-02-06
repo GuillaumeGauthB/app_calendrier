@@ -23,8 +23,8 @@ void getData() async{
 
     print(result_3.length);
 
-    FileUtils.saveToFile(jsonEncode(result_3));
-    tableaux_evenements = jsonDecode(await FileUtils.readFromFile);
+    FileUtils.saveToFile(data: jsonEncode(result_3));
+    tableaux_evenements = jsonDecode(await FileUtils.readFromFile());
     //print(testste);
     //FileUtils.saveToFile(testste.toString());
     //String test = await FileUtils.readFromFile;

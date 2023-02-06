@@ -50,7 +50,6 @@ class day extends StatelessWidget {
     currentDay++;
 
     eventInDay = tableaux_evenements.where((o) => o['day'] == currentDay && o['month'] == currentMonthNum && o['year'] == currentYear && currentMonth).length;
-    print(currentMonthNum);
 
     return Container(
       width: widthDay,
