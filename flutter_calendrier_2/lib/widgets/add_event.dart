@@ -19,6 +19,7 @@ class AddEvent extends StatefulWidget {
 
 class _AddEventState extends State<AddEvent> {
   late Map<String, dynamic> parentParameters; // Liste des parametres recues
+  int firstState = 0;
 
   // parameters de l'evenement existant deja
   Map<String, dynamic> eventParameters = {};
@@ -28,12 +29,14 @@ class _AddEventState extends State<AddEvent> {
 
   // etat du checkbox de journee entiere
   bool _valueCheckbox = true;
+  int _valuePeriodeTemps = 0;
 
   // les infos a propos du temps de l'evenement
   Map<String, String> _infosTemps = {};
+  Map<String, String> _infosTempsDebut = {};
 
   // une liste contenant tous les controllers (input)
-  final Map<String?, dynamic> listControllers = {
+  Map<String?, dynamic> listControllers = {
     "title": TextEditingController(),
     "description": TextEditingController(),
     //"temps_type": ,
@@ -57,6 +60,85 @@ class _AddEventState extends State<AddEvent> {
   }
 */
 
+  List<Widget> get optionsTempsJournee {
+    List<Widget> optionsTempsJournee = [];
+
+    optionsTempsJournee.add(
+      RadioListTile(
+        title: const Text('Moment'),
+        value: 0,
+        groupValue: _valuePeriodeTemps,
+        onChanged: (int? value) {
+          setState(() {
+            _valuePeriodeTemps = value!;
+          });
+        },
+      ),
+    );
+
+    optionsTempsJournee.add(
+      RadioListTile(
+        title: const Text('Période'),
+        value: 1,
+        groupValue: _valuePeriodeTemps,
+        onChanged: (int? value) {
+          setState(() {
+            _valuePeriodeTemps = value!;
+          });
+        },
+      ),
+    );
+
+    if(_valuePeriodeTemps == 1) {
+      optionsTempsJournee.add(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text('De:'),
+              SizedBox(
+                //width: MediaQuery.of(context).size.width * 0.80,
+                  height: 120,
+                  child: CupertinoTimerPicker(
+                    alignment: Alignment.centerRight,
+                    onTimerDurationChanged: (Duration value) {
+                      _infosTempsDebut["hour"] = value.inHours.toString();
+                      _infosTempsDebut["minute"] =
+                          (value.inMinutes - (value.inHours * 60)).toString();
+                    },
+                    mode: CupertinoTimerPickerMode.hm,
+                    initialTimerDuration: Duration(
+                        hours: int.parse(_infosTempsDebut["hour"]!),
+                        minutes: int.parse(_infosTempsDebut["minute"]!)),
+                  )
+              )
+            ],
+          )
+      );
+    }
+    optionsTempsJournee.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text('À:'),
+            SizedBox(
+              //width: MediaQuery.of(context).size.width * 0.80,
+                height: 120,
+                child: CupertinoTimerPicker(
+                  alignment: Alignment.centerRight,
+                  onTimerDurationChanged: (Duration value) {
+                    _infosTemps["hour"] = value.inHours.toString();
+                    _infosTemps["minute"] = (value.inMinutes - (value.inHours * 60)).toString();
+                  },
+                  mode: CupertinoTimerPickerMode.hm,
+                  initialTimerDuration: Duration(hours: int.parse(_infosTemps["hour"]!), minutes: int.parse(_infosTemps["minute"]!)),
+                )
+            )
+          ],
+        )
+);
+    return optionsTempsJournee;
+  }
+
   @override
   Widget build(BuildContext context) {
     // copier les parametres du parent pour les parametres de l'evenement
@@ -69,31 +151,31 @@ class _AddEventState extends State<AddEvent> {
     }
 
     // si la classe est toujours en mode ajouter, mettre les informations envoyees
-    if(gestionClasse == 'ajouter'){
-      _infoDate = {
-        "day": eventParameters["day"],
-        "month": eventParameters["month"],
-        "year": eventParameters["year"],
-      };
+    if(firstState == 0){
+        _infoDate = {
+          "day": eventParameters["day"],
+          "month": eventParameters["month"],
+          "year": eventParameters["year"],
+        };
 
-      _infosTemps = {
-        "hour": TimeOfDay.now().hour.toString(),
-        "minute": TimeOfDay.now().minute.toString(),
-      };
-    } else {
-      // Sinon, mettre les informations de l'evenement
-      _infoDate = {
-        "day": eventParameters["day"],
-        "month": eventParameters["month"],
-        "year": eventParameters["year"],
-      };
-      _infosTemps = {
-        "hour": eventParameters['hour'].runtimeType.toString() != 'Null' ? eventParameters['hour'] : TimeOfDay.now().hour.toString(),
-        "minute": eventParameters['minute'].runtimeType.toString() != 'Null' ? eventParameters['minute'] : TimeOfDay.now().minute.toString(),
-      };
+        _infosTemps = {
+          "hour": eventParameters['hour'] ?? TimeOfDay.now().hour.toString(),
+          "minute": eventParameters['minute'] ?? TimeOfDay.now().minute.toString(),
+        };
 
-      listControllers['title']?.text = eventParameters['title'];
-      listControllers['description']?.text = eventParameters['description'];
+        _valueCheckbox = eventParameters['entire_day'] ?? true;
+
+        _valuePeriodeTemps = eventParameters['periode_de_temps'] ?? 0;
+
+        _infosTempsDebut = {
+          "hour": eventParameters['hourBeginning'] ?? TimeOfDay.now().hour.toString(),
+          "minute": eventParameters['minuteBeginning'] ?? TimeOfDay.now().minute.toString(),
+        };
+
+        listControllers['title']?.text = eventParameters['title'] ?? '';
+        listControllers['description']?.text = eventParameters['description'] ?? '';
+
+      firstState++;
     }
 
     return Form(
@@ -177,14 +259,7 @@ class _AddEventState extends State<AddEvent> {
 
               // ================================================= Pas journee entiere
               if(!_valueCheckbox)
-                CupertinoTimerPicker(
-                  onTimerDurationChanged: (Duration value) {
-                    _infosTemps["hour"] = value.inHours.toString();
-                    _infosTemps["minute"] = (value.inMinutes - (value.inHours * 60)).toString();
-                  },
-                  mode: CupertinoTimerPickerMode.hm,
-                  initialTimerDuration: Duration(hours: int.parse(_infosTemps["hour"]!), minutes: int.parse(_infosTemps["minute"]!)),
-                ),
+                ...optionsTempsJournee,
               Container(
                   padding: const EdgeInsets.only(left: 150.0, top: 40.0),
                   child: ElevatedButton(
@@ -207,7 +282,17 @@ class _AddEventState extends State<AddEvent> {
 
                         // Initialisation de l'objet a envoyer
                         // TODO trouver une meilleure maniere de faire ca
-                        Object eventToAdd = {
+                        /*Object eventToAdd = {
+                          'id': (gestionClasse == 'modifier' ? parentParameters['id'] : currentId),
+                          'title': '${listControllers["title"]?.text}',
+                          'description': '${listControllers["description"]?.text}',
+                          'day': _infoDate["day"],
+                          'month': _infoDate["month"],
+                          'year': _infoDate["year"],
+                          'entire_day': _valueCheckbox,
+                        };*/
+
+                        Map<String, dynamic> eventToAdd = {
                           'id': (gestionClasse == 'modifier' ? parentParameters['id'] : currentId),
                           'title': '${listControllers["title"]?.text}',
                           'description': '${listControllers["description"]?.text}',
@@ -218,7 +303,16 @@ class _AddEventState extends State<AddEvent> {
                         };
 
                         if(!_valueCheckbox){
-                          eventToAdd = {
+                          // eventToAdd['entire_day'] = _valueCheckbox;
+                          eventToAdd['hour'] = _infosTemps['hour'];
+                          eventToAdd['minute'] = _infosTemps['minute'];
+                          eventToAdd['periode_de_temps'] = _valuePeriodeTemps;
+
+                          if(_valuePeriodeTemps == 1){
+                              eventToAdd['hourBeginning'] = _infosTempsDebut['hour'];
+                              eventToAdd['minuteBeginning'] = _infosTempsDebut['minute'];
+                          }
+                          /*eventToAdd = {
                             'id': (gestionClasse == 'modifier' ? parentParameters['id'] : currentId),
                             'title': listControllers["title"]?.text,
                             'description': listControllers["description"]?.text,
@@ -228,8 +322,9 @@ class _AddEventState extends State<AddEvent> {
                             'entire_day': _valueCheckbox,
                             'hour': _infosTemps['hour'],
                             'minute': _infosTemps['minute'],
-                          };
+                          };*/
                         }
+
                         // Si nous sommes en modification, supprimer du tableau deja loader l'evenement avec notre item present
                         if(tableaux_evenements.isNotEmpty && gestionClasse != 'ajouter'){
                           tableaux_evenements.removeWhere((e) => e['id'] == parentParameters['id']);
@@ -246,13 +341,7 @@ class _AddEventState extends State<AddEvent> {
                           const SnackBar(content: Text('Ajout de l\'évènement')),
                         );
                       };
-                      //if(gestionClasse == 'ajouter'){
-                        // fermer la boite modale
                         Navigator.pop(context);
-                      /*} else{
-                        Get.offAllNamed('/calendrier', arguments: { 'day': eventParameters['day'], 'month': eventParameters['month'], 'year': eventParameters['year']});
-                        //Get.back();
-                      }*/
                     },
 
                     child: Text( (gestionClasse == 'ajouter' ? 'Ajouter' : 'Modifier')),

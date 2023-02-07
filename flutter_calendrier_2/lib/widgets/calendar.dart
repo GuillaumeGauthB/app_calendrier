@@ -48,10 +48,25 @@ class _CalendarState extends State<Calendar> {
 
   /// imprimer le calendrier en mode Landscape (pas encore fait)
   Widget get printCalendarLandscape {
-    return Row(
+    return Column(
       children: [
-        printCalendarBase,
-        EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
+        SizedBox(
+          height: 40,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.40,
+              child: printCalendarBase,
+            ),
+            EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
+          ],
+        )
       ],
     );
   }
@@ -60,6 +75,14 @@ class _CalendarState extends State<Calendar> {
   Widget get printCalendarPortrait {
     return Column(
       children: [
+        SizedBox(
+          height: 40,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+        ),
         Expanded(
           child: Stack(
             children: [
@@ -79,14 +102,6 @@ class _CalendarState extends State<Calendar> {
     return // ============================================================== GESTION DU MOIS
       Column(
         children: [
-          SizedBox(
-            height: 40,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
-          ),
           Container(
             margin: const EdgeInsets.only(bottom: 15, top: 15),
             child: Row(
@@ -142,7 +157,6 @@ class _CalendarState extends State<Calendar> {
           SizedBox(
             child: Wrap(
               alignment: WrapAlignment.start,
-              // child: day(),
               children: [
                 /**
                  * JOURS DU MOIS
@@ -162,7 +176,7 @@ class _CalendarState extends State<Calendar> {
                           });
                         },
                         child: day(
-                            DateTime(_currentYear, previousMonth, 0).day + i - weekdays, currentMonth, _currentYear, false, -1
+                            DateTime(_currentYear, previousMonth, 0).day + i - weekdays, currentMonth, _currentYear, false, -1,
                         )
                     ),
                   ],

@@ -23,7 +23,7 @@ const ColorScheme darkColorScheme = ColorScheme(
                   // background: Color(0xFFEAF0F8),
                   // background: Color(0xFF1D3557),
                   background: Color(0xFF303030),
-                  onBackground: Colors.white,
+                  onBackground: Color(0xFFEAF0F8),
                   onPrimary: Color(0xFFEAF0F8),
                   secondary: Color(0xFF1D3557),
                   // secondary: Color(0xFF112034),

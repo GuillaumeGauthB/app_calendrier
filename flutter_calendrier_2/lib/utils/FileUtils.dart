@@ -79,7 +79,7 @@ class FileUtils {
         await collectionRef.add(eventToAdd),
       } else {
         docRef = await collectionRef.where("id", isEqualTo: id).limit(1).get(),
-        if(docRef?.docs[0].reference.id.runtimeType == String){
+        if(docRef!.docs.isNotEmpty && docRef?.docs[0].reference.id.runtimeType == String){
           documentID = docRef?.docs[0].reference.id as String,
           if( mode == 'modifier'){
             collectionRef.doc(documentID).set(eventToAdd,SetOptions(merge: true)),
@@ -110,11 +110,9 @@ class FileUtils {
 
       if(mode != 'supprimer') {
         json.add(eventToAdd);
-
-        if(mode == 'modifier'){
-          modifyDB(collection: 'Calendrier', mode: mode, eventToAdd: eventToAdd, id: (id.runtimeType.toString() != 'Null' ? id : -1));
-        }
       }
+
+      modifyDB(collection: 'Calendrier', mode: mode, eventToAdd: eventToAdd, id: (id.runtimeType.toString() != 'Null' ? id : -1));
 
       return file.writeAsString(jsonEncode(json));
     } else{

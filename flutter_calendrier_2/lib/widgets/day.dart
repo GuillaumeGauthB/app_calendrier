@@ -52,40 +52,47 @@ class day extends StatelessWidget {
 
     eventInDay = tableaux_evenements.where((o) => o['day'] == currentDay && o['month'] == currentMonthNum && o['year'] == currentYear && currentMonth).length;
 
-    return Container(
-      width: widthDay,
-      height: widthDay,
-      margin: const EdgeInsets.symmetric(vertical: 1, horizontal: 1),
+    return FractionallySizedBox(
+      // aspectRatio: 1,
+      widthFactor: 1 / 7,
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: Container(
+          // width: widthDay,
+          // height: widthDay,
+          margin: const EdgeInsets.symmetric(vertical: 1, horizontal: 1),
 
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: const BorderRadius.all(Radius.circular(100)),
-      ),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: const BorderRadius.all(Radius.circular(100)),
+          ),
 
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text(''),
-            Text(
-              currentDay.toString(),
-              style: TextStyle(color: textColor),
-              textAlign: TextAlign.center,
-            ),
-            if(eventInDay > 0)
-              Container(
-                width: widthDay / 5,
-                height: widthDay / 5,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: Colors.grey,
-                ),
+          child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(''),
+                  Text(
+                    currentDay.toString(),
+                    style: TextStyle(color: textColor),
+                    textAlign: TextAlign.center,
+                  ),
+                  if(eventInDay > 0)
+                    Container(
+                      width: widthDay / 5,
+                      height: widthDay / 5,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: Colors.grey,
+                      ),
+                    )
+                  else
+                    Text(''),
+                ],
               )
-            else
-              Text(''),
-          ],
-        )
-      ) ,
+          ) ,
+        ),
+      )
     );
   }
 }

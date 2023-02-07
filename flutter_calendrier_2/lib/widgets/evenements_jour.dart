@@ -66,6 +66,8 @@ class _EvenementsJourState extends State<EvenementsJour> {
 
   /// fonction qui trouve les informations de tous les evenements de la journees choisie
   Future<List> get getData async{
+    String tempsEvenements = '';
+
     // Lire les evenements
     var data = tableaux_evenements;
     // Liste qui va etre utiliser pour imprimer les evenements de la journee
@@ -84,6 +86,15 @@ class _EvenementsJourState extends State<EvenementsJour> {
     if(dataWhere.isNotEmpty){
       List<Widget> dataToPrint = [];
       for (var o in dataWhere) {
+        if(o['entire_day'].runtimeType == bool && o['entire_day']){
+          tempsEvenements = 'Journée';
+        } else {
+          if(o['periode_de_temps'].runtimeType == int && o['periode_de_temps'] == 1){
+            tempsEvenements = '${o['hourBeginning']}:${(int.parse(o['minuteBeginning']) < 10 ? '0${o['minuteBeginning']}' : o['minuteBeginning'])} - ${o['hour']}:${(int.parse(o['minute']) < 10 ? '0${o['minute']}' : o['minute'])}';
+          } else {
+            tempsEvenements = '${o['hour']}:${(int.parse(o['minute']) < 10 ? '0${o['minute']}' : o['minute'])}';
+          }
+        }
         dataToPrint.add(
             TextButton(
               style: const ButtonStyle(
@@ -96,18 +107,22 @@ class _EvenementsJourState extends State<EvenementsJour> {
                     context: context, builder: (context) {
                       return Container(height: MediaQuery.of(context).size.height * 0.70, child: AddEvent({'id': o['id']}));
                     }
-                );
+                ).whenComplete(() => {setState(() {})});
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.65,
+                    ),
                     padding: const EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
 
                     child: Text(
                       o['title'],
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        decoration: TextDecoration.underline,
+                        //decoration: TextDecoration.underline,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ),
@@ -116,9 +131,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
                         // Texte de duree / heure de l'event
 
                         Text(
-                            (
-                                (o['entire_day'].runtimeType.toString() == 'bool' && o['entire_day']) ? 'Journée entière' : '${o['hour']}h${o['minute']}'
-                            ), style: Theme.of(context).textTheme.bodyLarge
+                          tempsEvenements, style: Theme.of(context).textTheme.bodyLarge
                         ),
                         TextButton(
                             onPressed: () {
@@ -167,7 +180,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
           }
 
           // Si retourne rien, imprimer rien
-          if (snapshot.hasData && snapshot.data!.runtimeType == 'Widget') {
+          if (snapshot.hasData && snapshot.data!.runtimeType == Widget) {
             return printData(widgetToSend: [const Text("Aucun évènement", textAlign: TextAlign.center,)]);
           }
 
