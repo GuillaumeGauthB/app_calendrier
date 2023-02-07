@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_calendrier_2/widgets/modify_event.dart';
-import './refresh_data.dart';
 import '../res/values.dart';
 import './calendar.dart';
 import 'package:get/get.dart';
-
-import 'add_event.dart';
 import 'app_settings.dart';
+import 'add_schedule.dart';
 import 'navMenu.dart';
 // import 'package:get/get.dart';
 
@@ -30,7 +28,7 @@ class CalendarBase extends StatelessWidget {
         //backgroundColor: Theme.of(context).colorScheme.primary,
       ),*/
 
-      body: Calendar(),//Get.put<Calendar>(Calendar()),
+      body: const Calendar(),//Get.put<Calendar>(Calendar()),
       bottomNavigationBar: NavMenu(),
     );
   }
@@ -42,8 +40,27 @@ class AppSettingsBase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AppSettings(),
+      body: const AppSettings(),
       bottomNavigationBar: NavMenu(),
+    );
+  }
+}
+
+class AddScheduleBase extends StatelessWidget {
+  const AddScheduleBase({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: const AddSchedule(),
+        bottomNavigationBar: NavMenu(),
+        /*bottomNavigationBar: AppBar(
+          title: Text(
+            'Horaires',
+            style: TextStyle(color: colors["backgroundColor"],
+                fontSize: 25),
+          ),
+        ),*/
     );
   }
 }

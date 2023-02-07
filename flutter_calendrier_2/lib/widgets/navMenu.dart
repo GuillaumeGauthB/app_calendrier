@@ -12,6 +12,25 @@ class NavMenu extends StatelessWidget {
   int index = 0; // position dans les liens
   Map getParam = {}; // donnees GET de la page
 
+  static Widget get addScheduleNavigationBar {
+    return BottomNavigationBar(
+      onTap: (int pos) {
+        //Get.offAndToNamed('/${listLiens[pos]}', arguments: { 'pageIndex': pos });
+      },
+      currentIndex: 0,
+      items: const [
+        BottomNavigationBarItem(
+          label: 'Calendrier',
+          icon: Icon(Icons.calendar_month),
+        ),
+        BottomNavigationBarItem(
+          label: 'Réglages',
+          icon: Icon(Icons.settings),
+        )
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // si nous avons des valeurs GET et que celles si contiennent l'index de la page, le choisir

@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
           GetPage(name: '/calendrier', page: () => const CalendarBase()),
           //GetPage(name: '/calendrier/modifier', page: () => const ModifyEventBase()),
           GetPage(name: '/settings', page: () => const AppSettingsBase()),
+          GetPage(name: '/settings/horaires', page: () => const AddScheduleBase()),
         ],
 
         // Désactiver la bannière

@@ -31,6 +31,18 @@ class FileUtils {
       ), fileName: 'settings.json');
       stringToReturn += 'oui';
     }
+
+    if(directoryContentsFile.where((element) => element.path.contains('horaires.json')).isEmpty){
+      await saveToFile(data: jsonEncode(
+          [
+            {
+              'emptySettingsTemplate': 'Empty Settings'
+            }
+          ]
+      ), fileName: 'horaires.json');
+      stringToReturn += 'oui';
+    }
+
     return stringToReturn;
     //return directoryContents.whereType<File>().where((element) => element.path.contains('data.json'));
   }
@@ -112,7 +124,7 @@ class FileUtils {
         json.add(eventToAdd);
       }
 
-      modifyDB(collection: 'Calendrier', mode: mode, eventToAdd: eventToAdd, id: (id.runtimeType.toString() != 'Null' ? id : -1));
+      modifyDB(collection: 'Calendrier', mode: mode, eventToAdd: eventToAdd, id: (id.runtimeType != Null ? id : -1));
 
       return file.writeAsString(jsonEncode(json));
     } else{

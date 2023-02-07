@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_calendrier_2/utils/FileUtils.dart';
 import 'package:flutter_calendrier_2/widgets/refresh_data.dart';
-
+import 'package:get/get.dart';
 import '../res/settings.dart';
 import 'MyApp.dart';
 
@@ -15,6 +15,7 @@ class AppSettings extends StatefulWidget {
 class _AppSettingsState extends State<AppSettings> {
   @override
   Widget build(BuildContext context) {
+    // print(listeHoraires);
     return Column(
       children: [
         SizedBox(
@@ -44,6 +45,7 @@ class _AppSettingsState extends State<AppSettings> {
                 app_settings['last_refresh'] = DateTime.now().toString();
                 const RefreshData();
                 FileUtils.modifyFile(app_settings, fileName: 'settings.json', mode: 'settings');
+                setState(() {});
               },
               child: Column(
                 children: [
@@ -62,9 +64,44 @@ class _AppSettingsState extends State<AppSettings> {
           ),
         ),
         /**
-         * In put permettant de choisir le theme
+         * Input permettant de choisir le theme
          */
         const SettingsThemeMode(),
+
+        /**
+         * Lien permettant de créer et de lister des horaires
+         */
+        Container(
+          decoration: const BoxDecoration(
+            border: Border(bottom: BorderSide(color: Colors.black, width: 1)),
+          ),
+          /**
+           * Bouton permettant de voir et modifier les horaires existant
+           */
+          child: TextButton(
+            style: const ButtonStyle(
+              overlayColor: MaterialStatePropertyAll<Color>(Colors.black),
+            ),
+            onPressed: () {
+              Get.toNamed("/settings/horaires");
+            },
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text('Créer des horaires'),
+                    Icon(
+                        Icons.arrow_forward_outlined
+                    )
+                  ],
+                ),
+                // Text('Dernière mise à jour: ${app_settings['last_refresh'].runtimeType == String ? app_settings['last_refresh'] : 'Jamais !'}')
+              ],
+            ),
+          ),
+        ),
+
       ],//RefreshData(),
     );
   }
