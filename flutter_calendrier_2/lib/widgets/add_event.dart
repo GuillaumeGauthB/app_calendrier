@@ -238,9 +238,9 @@ class _AddEventState extends State<AddEvent> {
                 selectedDay: eventParameters["day"],
                 startYear: DateTime.now().year - 10,
                 endYear: DateTime.now().year + 20,
-                onChangedDay: (value) =>  _infoDate["day"] = value,
-                onChangedMonth: (value) => {_infoDate["month"] = value},
-                onChangedYear: (value) => _infoDate["year"] = value,
+                onChangedDay: (value) =>  _infoDate["day"] = int.parse(value!),
+                onChangedMonth: (value) => _infoDate["month"] = int.parse(value!),
+                onChangedYear: (value) => _infoDate["year"] = int.parse(value!),
               ),
 
               // ================================================= Journee entiere

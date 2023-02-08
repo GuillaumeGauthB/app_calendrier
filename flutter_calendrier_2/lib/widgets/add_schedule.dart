@@ -6,8 +6,19 @@ import '../res/settings.dart';
 import '../utils/FileUtils.dart';
 
 class AddSchedule extends StatelessWidget {
-  //const AddSchedule({Key? key}) : super(key: key);
+  //AddSchedule({Key? key, int id = -1}) : super(key: key);
+  AddSchedule({int? this.id});
 
+  final int? id;
+  int firstRound = 0;
+
+  // AddSchedule({int id = -1});
+
+  //@override
+
+
+
+  late Map<String, dynamic> _infoDate;
   final _formKey = GlobalKey<FormState>();
   final Map<String, dynamic> listControllers = {
       "name": TextEditingController(),
@@ -15,22 +26,45 @@ class AddSchedule extends StatelessWidget {
   };
   final DateTime now = DateTime.now();
 
-  final Map<String, dynamic> infoDate = {},
-                      currentScheduleParameters = {},
+  Map<String, dynamic> currentScheduleParameters = {},
                       originalScheduleParameters = {};
 
 
   @override
   Widget build(BuildContext context) {
-    currentScheduleParameters["year_beginning"] = originalScheduleParameters['year_beginning'] ?? now.year;
-    currentScheduleParameters["month_beginning"] = originalScheduleParameters['month_beginning'] ?? now.month;
-    currentScheduleParameters["day_beginning"] = originalScheduleParameters['day_beginning'] ?? now.day;
-    currentScheduleParameters["year_end"] = originalScheduleParameters['year_end'] ?? now.year;
-    currentScheduleParameters["month_end"] = originalScheduleParameters['month_end'] ?? now.month;
-    currentScheduleParameters["day_end"] = originalScheduleParameters['day_end'] ?? now.day;
-    currentScheduleParameters["color"] = originalScheduleParameters['color'] ?? Null;
+    if(id.runtimeType != Null){
+      // print(listeHoraires.singleWhere((item) => item['id'] == id));
+      originalScheduleParameters = listeHoraires.singleWhere((item) => item['id'] == id);
+    }
+    print(originalScheduleParameters);
 
-    print(currentScheduleParameters);
+
+    /*_infoDate["year_beginning"] = originalScheduleParameters['year_beginning'] ?? now.year;
+    _infoDate["month_beginning"] = originalScheduleParameters['month_beginning'] ?? now.month;
+    _infoDate["day_beginning"] = originalScheduleParameters['day_beginning'] ?? now.day;
+    _infoDate["year_end"] = originalScheduleParameters['year_end'] ?? now.year;
+    _infoDate["month_end"] = originalScheduleParameters['month_end'] ?? now.month;
+    _infoDate["day_end"] = originalScheduleParameters['day_end'] ?? now.day;*/
+
+    if(firstRound == 0){
+      listControllers['name']?.text = originalScheduleParameters['name'] ?? '';
+      listControllers['description']?.text = originalScheduleParameters['description'] ?? '';
+
+      _infoDate = {
+        "year_beginning": originalScheduleParameters['year_beginning'] ?? now.year,
+        "month_beginning": originalScheduleParameters['month_beginning'] ?? now.month,
+        "day_beginning": originalScheduleParameters['day_beginning'] ?? now.day,
+        "year_end": originalScheduleParameters['year_end'] ?? now.year,
+        "month_end": originalScheduleParameters['month_end'] ?? now.month,
+        "day_end": originalScheduleParameters['day_end'] ?? now.day,
+      };
+      currentScheduleParameters["color"] = originalScheduleParameters['color'] ?? Colors.black.value;
+      firstRound++;
+    }
+
+    //print(_infoDate["month_end"].runtimeType);
+
+    //print(id);
     return Form(
       key: _formKey,
       child: Column(
@@ -97,35 +131,35 @@ class AddSchedule extends StatelessWidget {
                     child: Text('DE:'),
                   ),
                   DropdownDatePicker(
-                    selectedYear: currentScheduleParameters["year_beginning"],
-                    selectedMonth: currentScheduleParameters['month_beginning'],
-                    selectedDay: currentScheduleParameters["day_beginning"],
+                    selectedYear: _infoDate["year_beginning"],
+                    selectedMonth: _infoDate['month_beginning'],
+                    selectedDay: _infoDate["day_beginning"],
                     startYear: now.year - 10,
                     endYear: DateTime.now().year + 20,
-                    onChangedDay: (value) =>  currentScheduleParameters["day_beginning"] = value,
-                    onChangedMonth: (value) => currentScheduleParameters["month_beginning"] = value,
-                    onChangedYear: (value) => currentScheduleParameters["year_beginning"] = value,
+                    onChangedDay: (value) =>  _infoDate["day_beginning"] = int.parse(value!),
+                    onChangedMonth: (value) => _infoDate["month_beginning"] = int.parse(value!),
+                    onChangedYear: (value) => _infoDate["year_beginning"] = int.parse(value!),
                   ),
                   const Center(
                     child: Text('A:'),
                   ),
                   DropdownDatePicker(
-                    selectedYear: currentScheduleParameters["year_end"],
-                    selectedMonth: currentScheduleParameters['month_end'],
-                    selectedDay: currentScheduleParameters["day_end"],
+                    selectedYear: _infoDate["year_end"],
+                    selectedMonth: _infoDate['month_end'],
+                    selectedDay: _infoDate["day_end"],
                     startYear: DateTime.now().year - 10,
                     endYear: DateTime.now().year + 20,
-                    onChangedDay: (value) =>  currentScheduleParameters["day_end"] = value,
-                    onChangedMonth: (value) => currentScheduleParameters["month_end"] = value,
-                    onChangedYear: (value) => currentScheduleParameters["year_end"] = value,
+                    onChangedDay: (value) =>  _infoDate["day_end"] = int.parse(value!),
+                    onChangedMonth: (value) => _infoDate["month_end"] = int.parse(value!),
+                    onChangedYear: (value) => _infoDate["year_end"] = int.parse(value!),
                   ),
                   ColorPicker(
-                    pickerColor: Colors.black,
+                    pickerColor: Color(currentScheduleParameters["color"]),
                     enableAlpha: false,
                     onColorChanged: (Color color){
                       // print(color.)
-                      print(color.value);
-                      currentScheduleParameters["color"] = color.value;
+                      print(color);
+                      currentScheduleParameters["color"] = color!.value;
                     },
                   )
                 ],
@@ -165,14 +199,16 @@ class AddSchedule extends StatelessWidget {
                         'id': originalScheduleParameters['id'] ?? currentId,
                         'name': '${listControllers["name"]?.text}',
                         'description': '${listControllers["description"]?.text}',
-                        'day_beginning': currentScheduleParameters["day_beginning"],
-                        'month_beginning': currentScheduleParameters["month_beginning"],
-                        'year_beginning': currentScheduleParameters["year_beginning"],
-                        'day_end': currentScheduleParameters["day_end"],
-                        'month_end': currentScheduleParameters["month_end"],
-                        'year_end': currentScheduleParameters["year_end"],
+                        'day_beginning': _infoDate["day_beginning"],
+                        'month_beginning': _infoDate["month_beginning"],
+                        'year_beginning': _infoDate["year_beginning"],
+                        'day_end': _infoDate["day_end"],
+                        'month_end': _infoDate["month_end"],
+                        'year_end': _infoDate["year_end"],
                         'color': currentScheduleParameters['color']
                       };
+
+                      print(eventToAdd['month_end'].runtimeType);
 
                       // Si nous sommes en modification, supprimer du tableau deja loader l'evenement avec notre item present
                       if(listeHoraires.isNotEmpty && originalScheduleParameters['id'].runtimeType != Null){

@@ -38,21 +38,7 @@ class _ListScheduleState extends State<ListSchedule> {
         toPrint.add(
           GestureDetector(
             onTap: () {
-              showModalBottomSheet(
-                  enableDrag: false,
-                  isScrollControlled: true,
-                  isDismissible: false,
-                  context: context,
-                  builder: (context) {
-                    /**
-                     * Class that adds event
-                     */
-                    return Container(
-                        // height: MediaQuery.of(context).size.height,
-                        child:Placeholder()
-                    );
-                  }
-              ).whenComplete(() => {setState(() {})});
+              printModalBox(AddSchedule(id: listeItem['id']));
             },
             child: SizedBox(
                 width: MediaQuery.of(context).size.width,
