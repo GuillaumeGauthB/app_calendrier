@@ -4,7 +4,7 @@ import '../res/values.dart';
 import './calendar.dart';
 import 'package:get/get.dart';
 import 'app_settings.dart';
-import 'add_schedule.dart';
+import 'list_schedule.dart';
 import 'navMenu.dart';
 // import 'package:get/get.dart';
 
@@ -52,7 +52,7 @@ class AddScheduleBase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: const AddSchedule(),
+        body: const ListSchedule(),
         bottomNavigationBar: NavMenu(),
         /*bottomNavigationBar: AppBar(
           title: Text(

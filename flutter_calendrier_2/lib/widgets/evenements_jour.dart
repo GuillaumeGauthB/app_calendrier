@@ -145,7 +145,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
                                   border: Border.all(width: 1, color: Colors.white),
                                   borderRadius: BorderRadius.all(Radius.circular(100)),
                                 ),
-                                child: Icon(Icons.delete_forever, color: Colors.white,)
+                                child: const Icon(Icons.delete_forever, color: Colors.white,)
                             )
                         )
                       ]

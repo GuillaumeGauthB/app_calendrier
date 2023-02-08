@@ -110,7 +110,7 @@ class FileUtils {
   }
 
   /// Fonction qui modifie le contenu du fichier de sauvegarde
-  static Future<File> modifyFile(Object eventToAdd, {String mode = "ajouter", id, String fileName = 'data.json'}) async{
+  static Future<File> modifyFile(Object eventToAdd, {String collection = 'Calendrier', String mode = "ajouter", id, String fileName = 'data.json'}) async{
     final file = await getFile(file: fileName);
 
     if(mode != 'settings'){
@@ -124,7 +124,7 @@ class FileUtils {
         json.add(eventToAdd);
       }
 
-      modifyDB(collection: 'Calendrier', mode: mode, eventToAdd: eventToAdd, id: (id.runtimeType != Null ? id : -1));
+      modifyDB(collection: collection, mode: mode, eventToAdd: eventToAdd, id: (id.runtimeType != Null ? id : -1));
 
       return file.writeAsString(jsonEncode(json));
     } else{

@@ -43,7 +43,7 @@ class _AppSettingsState extends State<AppSettings> {
               onPressed: () {
                 // on sauvegarde les changements et rafrachit les evenements
                 app_settings['last_refresh'] = DateTime.now().toString();
-                const RefreshData();
+                RefreshData.getData;
                 FileUtils.modifyFile(app_settings, fileName: 'settings.json', mode: 'settings');
                 setState(() {});
               },
