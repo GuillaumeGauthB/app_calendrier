@@ -40,31 +40,40 @@ class _ListScheduleState extends State<ListSchedule> {
             onTap: () {
               printModalBox(AddSchedule(id: listeItem['id']));
             },
-            child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.20,
-                child: Container(
-                    decoration: BoxDecoration(
+            child: Theme(
+              data: ThemeData(
+                textTheme: TextTheme(
+                  bodyMedium: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: listeItem['color_font'].runtimeType == int ? Color(listeItem['color_font']) : Colors.black,
+                  ),
+                )
+              ),
+              child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.20,
+                  child: Container(
+                      decoration: BoxDecoration(
                         color: listeItem['color'].runtimeType == int ? Color(listeItem['color']) : Colors.transparent,
                         border: Border(bottom: BorderSide(color: Colors.black, width: 3)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text('${listeItem['name'] ?? 'Horaire sans nom'}'),
-                            Text('${listeItem['color'] ?? 'Horaire sans couleur'}'),
-                          ],
-                        ),
-                        const Icon(
-                          Icons.arrow_forward_outlined,
-                        )
-                      ],
-                    )
-                )
-            ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text('${listeItem['name'] ?? 'Horaire sans nom'}', /*style: Theme.textTheme.bodyMedium,*/),
+                              Text('${listeItem['color'] ?? 'Horaire sans couleur'}',  style: Theme.of(context).textTheme.bodyMedium,),
+                            ],
+                          ),
+                          const Icon(
+                            Icons.arrow_forward_outlined,
+                          )
+                        ],
+                      )
+                  )
+              ),
+            )
           )
         );
 

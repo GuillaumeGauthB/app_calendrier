@@ -96,6 +96,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
           }
         }
         dataToPrint.add(
+          
             TextButton(
               style: const ButtonStyle(
                 overlayColor: MaterialStatePropertyAll<Color>(Colors.black),
@@ -114,7 +115,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
                 children: [
                   Container(
                     constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.65,
+                      maxWidth: MediaQuery.of(context).size.width * 0.60,
                     ),
                     padding: const EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
 

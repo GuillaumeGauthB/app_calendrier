@@ -8,6 +8,7 @@ int testState = 0;
 
 // Classe servant a la lecture du fichier data.json de l'utilisateur
 class FileUtils {
+  ///
   static Future<String> get init async{
     List directoryContents = await getDirectoryContent;
     Iterable directoryContentsFile = directoryContents.whereType<File>();
@@ -131,9 +132,4 @@ class FileUtils {
       return file.writeAsString(jsonEncode(eventToAdd));
     }
   }
-
-  /// Modification des settings
-
-
-  // static modifyEvents(Object event)
 }

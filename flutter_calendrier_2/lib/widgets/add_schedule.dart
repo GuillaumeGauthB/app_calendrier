@@ -5,30 +5,63 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../res/settings.dart';
 import '../utils/FileUtils.dart';
 
-class AddSchedule extends StatelessWidget {
-  //AddSchedule({Key? key, int id = -1}) : super(key: key);
+class AddSchedule extends StatefulWidget {
+  //const AddSchedule({Key? key}) : super(key: key);
+  final int? id;
   AddSchedule({int? this.id});
 
+  @override
+  State<AddSchedule> createState() => _AddScheduleState(id: id);
+}
+
+class _AddScheduleState extends State<AddSchedule> {
   final int? id;
   int firstRound = 0;
+  bool isOpenPermanent = true;
 
-  // AddSchedule({int id = -1});
-
-  //@override
-
-
+  _AddScheduleState({int? this.id});
 
   late Map<String, dynamic> _infoDate;
   final _formKey = GlobalKey<FormState>();
   final Map<String, dynamic> listControllers = {
-      "name": TextEditingController(),
-      "description": TextEditingController()
+    "name": TextEditingController(),
+    "description": TextEditingController()
   };
   final DateTime now = DateTime.now();
 
   Map<String, dynamic> currentScheduleParameters = {},
-                      originalScheduleParameters = {};
+      originalScheduleParameters = {};
 
+  List<Widget> get printSectionTemporaire {
+    return [
+      const Center(
+        child: Text('DE:'),
+      ),
+      DropdownDatePicker(
+        selectedYear: _infoDate["year_beginning"],
+        selectedMonth: _infoDate['month_beginning'],
+        selectedDay: _infoDate["day_beginning"],
+        startYear: now.year - 10,
+        endYear: DateTime.now().year + 20,
+        onChangedDay: (value) =>  _infoDate["day_beginning"] = int.parse(value!),
+        onChangedMonth: (value) => _infoDate["month_beginning"] = int.parse(value!),
+        onChangedYear: (value) => _infoDate["year_beginning"] = int.parse(value!),
+      ),
+      const Center(
+        child: Text('A:'),
+      ),
+      DropdownDatePicker(
+        selectedYear: _infoDate["year_end"],
+        selectedMonth: _infoDate['month_end'],
+        selectedDay: _infoDate["day_end"],
+        startYear: DateTime.now().year - 10,
+        endYear: DateTime.now().year + 20,
+        onChangedDay: (value) =>  _infoDate["day_end"] = int.parse(value!),
+        onChangedMonth: (value) => _infoDate["month_end"] = int.parse(value!),
+        onChangedYear: (value) => _infoDate["year_end"] = int.parse(value!),
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +69,7 @@ class AddSchedule extends StatelessWidget {
       // print(listeHoraires.singleWhere((item) => item['id'] == id));
       originalScheduleParameters = listeHoraires.singleWhere((item) => item['id'] == id);
     }
-    print(originalScheduleParameters);
+    // print(originalScheduleParameters);
 
 
     /*_infoDate["year_beginning"] = originalScheduleParameters['year_beginning'] ?? now.year;
@@ -58,7 +91,12 @@ class AddSchedule extends StatelessWidget {
         "month_end": originalScheduleParameters['month_end'] ?? now.month,
         "day_end": originalScheduleParameters['day_end'] ?? now.day,
       };
+
+      isOpenPermanent = originalScheduleParameters['permanent'] ?? true;
+
       currentScheduleParameters["color"] = originalScheduleParameters['color'] ?? Colors.black.value;
+      currentScheduleParameters["color_font"] = originalScheduleParameters['color_font'] ?? Colors.black.value;
+
       firstRound++;
     }
 
@@ -127,32 +165,20 @@ class AddSchedule extends StatelessWidget {
                     ),
                     controller: listControllers["description"],
                   ),
-                  const Center(
-                    child: Text('DE:'),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child:CheckboxListTile(
+                      title: const Text("Journée entière", style: TextStyle(), textWidthBasis: TextWidthBasis.longestLine),
+                      value: isOpenPermanent,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isOpenPermanent = value!;
+                        });
+                      },
+                    ),
                   ),
-                  DropdownDatePicker(
-                    selectedYear: _infoDate["year_beginning"],
-                    selectedMonth: _infoDate['month_beginning'],
-                    selectedDay: _infoDate["day_beginning"],
-                    startYear: now.year - 10,
-                    endYear: DateTime.now().year + 20,
-                    onChangedDay: (value) =>  _infoDate["day_beginning"] = int.parse(value!),
-                    onChangedMonth: (value) => _infoDate["month_beginning"] = int.parse(value!),
-                    onChangedYear: (value) => _infoDate["year_beginning"] = int.parse(value!),
-                  ),
-                  const Center(
-                    child: Text('A:'),
-                  ),
-                  DropdownDatePicker(
-                    selectedYear: _infoDate["year_end"],
-                    selectedMonth: _infoDate['month_end'],
-                    selectedDay: _infoDate["day_end"],
-                    startYear: DateTime.now().year - 10,
-                    endYear: DateTime.now().year + 20,
-                    onChangedDay: (value) =>  _infoDate["day_end"] = int.parse(value!),
-                    onChangedMonth: (value) => _infoDate["month_end"] = int.parse(value!),
-                    onChangedYear: (value) => _infoDate["year_end"] = int.parse(value!),
-                  ),
+                  if(!isOpenPermanent)
+                    ...printSectionTemporaire,
                   ColorPicker(
                     pickerColor: Color(currentScheduleParameters["color"]),
                     enableAlpha: false,
@@ -160,6 +186,15 @@ class AddSchedule extends StatelessWidget {
                       // print(color.)
                       print(color);
                       currentScheduleParameters["color"] = color!.value;
+                    },
+                  ),
+                  ColorPicker(
+                    pickerColor: Color(currentScheduleParameters["color"]),
+                    enableAlpha: false,
+                    onColorChanged: (Color color){
+                      // print(color.)
+                      print(color);
+                      currentScheduleParameters["color_font"] = color!.value;
                     },
                   )
                 ],
@@ -177,60 +212,61 @@ class AddSchedule extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.40,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Si le formulaire est valider...
-                    if (_formKey.currentState!.validate()) {
-                      // Si le tableau n'est pas vide, incrementer l'id le plus elever de 1, sinon, mettre 0
-                      List tableau_id = [];
-                      if(listeHoraires.isNotEmpty){
-                        listeHoraires.forEach((x) => {if(x['id'] != null) tableau_id.add(x['id'])});
+                  width: MediaQuery.of(context).size.width * 0.40,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Si le formulaire est valider...
+                      if (_formKey.currentState!.validate()) {
+                        // Si le tableau n'est pas vide, incrementer l'id le plus elever de 1, sinon, mettre 0
+                        List tableau_id = [];
+                        if(listeHoraires.isNotEmpty){
+                          listeHoraires.forEach((x) => {if(x['id'] != null) tableau_id.add(x['id'])});
+                        }
+
+                        int currentId = 0;
+
+                        if(tableau_id.length > 0){
+                          currentId = tableau_id.reduce((value, element) => value > element ? value : element);
+                          currentId++;
+                        }
+
+                        Map<String, dynamic> eventToAdd = {
+                          'id': originalScheduleParameters['id'] ?? currentId,
+                          'name': '${listControllers["name"]?.text}',
+                          'description': '${listControllers["description"]?.text}',
+                          'day_beginning': _infoDate["day_beginning"],
+                          'month_beginning': _infoDate["month_beginning"],
+                          'year_beginning': _infoDate["year_beginning"],
+                          'day_end': _infoDate["day_end"],
+                          'month_end': _infoDate["month_end"],
+                          'year_end': _infoDate["year_end"],
+                          'permanent': isOpenPermanent,
+                          'color': currentScheduleParameters['color']
+                        };
+
+                        // print(eventToAdd['month_end'].runtimeType);
+
+                        // Si nous sommes en modification, supprimer du tableau deja loader l'evenement avec notre item present
+                        if(listeHoraires.isNotEmpty && originalScheduleParameters['id'].runtimeType != Null){
+                          listeHoraires.removeWhere((e) => e['id'] == originalScheduleParameters['id']);
+                        }
+
+                        // Ajouter le nouvel evenement au tableau local
+                        listeHoraires.add(eventToAdd);
+
+                        // Appeler la methode de la classe static pour envoyer nos modifications dans le fichier local json et dans la base de donnee
+                        FileUtils.modifyFile(eventToAdd, collection: 'Horaires', mode: (originalScheduleParameters['id'].runtimeType == Null ? 'ajouter' : 'modifier'), id: originalScheduleParameters['id'], fileName: 'horaires.json');
+
+                        // Faire apparaitre un snackbar pour dire que le tout a fonctionner
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Ajout de l\'évènement')),
+                        );
+                        Navigator.pop(context);
                       }
+                    },
 
-                      int currentId = 0;
-
-                      if(tableau_id.length > 0){
-                        currentId = tableau_id.reduce((value, element) => value > element ? value : element);
-                        currentId++;
-                      }
-
-                      Map<String, dynamic> eventToAdd = {
-                        'id': originalScheduleParameters['id'] ?? currentId,
-                        'name': '${listControllers["name"]?.text}',
-                        'description': '${listControllers["description"]?.text}',
-                        'day_beginning': _infoDate["day_beginning"],
-                        'month_beginning': _infoDate["month_beginning"],
-                        'year_beginning': _infoDate["year_beginning"],
-                        'day_end': _infoDate["day_end"],
-                        'month_end': _infoDate["month_end"],
-                        'year_end': _infoDate["year_end"],
-                        'color': currentScheduleParameters['color']
-                      };
-
-                      print(eventToAdd['month_end'].runtimeType);
-
-                      // Si nous sommes en modification, supprimer du tableau deja loader l'evenement avec notre item present
-                      if(listeHoraires.isNotEmpty && originalScheduleParameters['id'].runtimeType != Null){
-                        listeHoraires.removeWhere((e) => e['id'] == originalScheduleParameters['id']);
-                      }
-
-                      // Ajouter le nouvel evenement au tableau local
-                      listeHoraires.add(eventToAdd);
-
-                      // Appeler la methode de la classe static pour envoyer nos modifications dans le fichier local json et dans la base de donnee
-                      FileUtils.modifyFile(eventToAdd, collection: 'Horaires', mode: (originalScheduleParameters['id'].runtimeType == Null ? 'ajouter' : 'modifier'), id: originalScheduleParameters['id'], fileName: 'horaires.json');
-
-                      // Faire apparaitre un snackbar pour dire que le tout a fonctionner
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Ajout de l\'évènement')),
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-
-                  child: Text( 'Ajouter' /*(gestionClasse == 'ajouter' ? 'Ajouter' : 'Modifier')*/),
-                )
+                    child: Text( (originalScheduleParameters['id'].runtimeType == Null ? 'Ajouter' : 'Modifier')),
+                  )
               ),
             ],
           )
