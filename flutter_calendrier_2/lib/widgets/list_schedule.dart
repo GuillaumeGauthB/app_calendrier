@@ -99,59 +99,6 @@ class _ListScheduleState extends State<ListSchedule> {
             )
           )
         );
-
-
-
-        /// sert a rien sauf tester
-        /*
-        for(int i = 0; i < 50; i++){
-          toPrint.add(
-              GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                      enableDrag: false,
-                      isScrollControlled: true,
-                      isDismissible: false,
-                      context: context,
-                      builder: (context) {
-                        /**
-                         * Class that adds event
-                         */
-                        return Container(
-                          // height: MediaQuery.of(context).size.height,
-                            child:Placeholder()
-                        );
-                      }
-                  ).whenComplete(() => {setState(() {})});
-                },
-                child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height * 0.20,
-                    child: Container(
-                        decoration: const BoxDecoration(
-                            border: Border(bottom: BorderSide(color: Colors.black, width: 3))
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text('${listeItem['name'] ?? 'Horaire sans nom'}'),
-                                Text('${listeItem['color'] ?? 'Horaire sans couleur'}'),
-                              ],
-                            ),
-                            const Icon(
-                              Icons.arrow_forward_outlined,
-                            )
-                          ],
-                        )
-                    )
-                ),
-              )
-          );
-        }
-        */
       }
     } else {
       toPrint.add(

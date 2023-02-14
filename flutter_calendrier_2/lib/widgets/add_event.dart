@@ -5,7 +5,7 @@ import 'package:datepicker_dropdown/datepicker_dropdown.dart'; // Pour les dropd
  import 'package:flutter_calendrier_2/res/events.dart';
 import 'package:flutter_calendrier_2/res/settings.dart';
 // import '../services/local_notification_service.dart';
-import '../utils/FileUtils.dart';
+import '../utils/file_utils.dart';
 import 'package:get/get.dart';
 
 import '../utils/schedule.dart';

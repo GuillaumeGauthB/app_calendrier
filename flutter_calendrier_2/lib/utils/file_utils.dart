@@ -44,6 +44,17 @@ class FileUtils {
       stringToReturn += 'oui';
     }
 
+    if(directoryContentsFile.where((element) => element.path.contains('checklists.json')).isEmpty){
+      await saveToFile(data: jsonEncode(
+          [
+            {
+              'emptySettingsTemplate': 'Empty Settings'
+            }
+          ]
+      ));
+      stringToReturn += 'oui';
+    }
+
     return stringToReturn;
     //return directoryContents.whereType<File>().where((element) => element.path.contains('data.json'));
   }

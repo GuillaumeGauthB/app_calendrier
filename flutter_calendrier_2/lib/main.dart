@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_calendrier_2/utils/SharedPreferencesUtils.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import '../utils/FileUtils.dart';
+import '../utils/file_utils.dart';
 import '../res/events.dart';
 import '../res/settings.dart';
 import 'widgets/MyApp.dart';

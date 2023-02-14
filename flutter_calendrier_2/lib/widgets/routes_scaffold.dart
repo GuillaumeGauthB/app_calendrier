@@ -4,6 +4,7 @@ import '../res/values.dart';
 import './calendar.dart';
 import 'package:get/get.dart';
 import 'app_settings.dart';
+import 'list_checklists.dart';
 import 'list_schedule.dart';
 import 'navMenu.dart';
 // import 'package:get/get.dart';
@@ -65,7 +66,24 @@ class AddScheduleBase extends StatelessWidget {
   }
 }
 
+class ChecklistsBase extends StatelessWidget {
+  const ChecklistsBase({Key? key}) : super(key: key);
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: const ListCheckmarks(),
+      bottomNavigationBar: NavMenu(),
+    );
+  }
+}
+
+
+
+
+
+
+/*
 class ModifyEventBase extends StatelessWidget {
   const ModifyEventBase({Key? key}) : super(key: key);
 
@@ -84,4 +102,4 @@ class ModifyEventBase extends StatelessWidget {
     );
   }
 }
-
+*/

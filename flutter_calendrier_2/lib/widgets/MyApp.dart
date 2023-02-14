@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
         initialRoute: '/calendrier',
         getPages: [
           GetPage(name: '/calendrier', page: () => const CalendarBase()),
+          GetPage(name: '/checklists', page: () => const ChecklistsBase()),
           //GetPage(name: '/calendrier/modifier', page: () => const ModifyEventBase()),
           GetPage(name: '/settings', page: () => const AppSettingsBase()),
           GetPage(name: '/settings/horaires', page: () => const AddScheduleBase()),

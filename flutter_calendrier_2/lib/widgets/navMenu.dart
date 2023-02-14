@@ -7,6 +7,7 @@ class NavMenu extends StatelessWidget {
   // liste contenant les liens du site
   final List<String> listLiens = [
     'calendrier',
+    'checklists',
     'settings'
   ];
   int index = 0; // position dans les liens
@@ -33,9 +34,13 @@ class NavMenu extends StatelessWidget {
           icon: Icon(Icons.calendar_month),
         ),
         BottomNavigationBarItem(
+          label: 'Checklists',
+          icon: Icon(Icons.check),
+        ),
+        BottomNavigationBarItem(
           label: 'Réglages',
           icon: Icon(Icons.settings),
-        )
+        ),
       ],
     );
   }

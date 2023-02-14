@@ -4,7 +4,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_hsvcolor_picker/flutter_hsvcolor_picker.dart';
 
 import '../res/settings.dart';
-import '../utils/FileUtils.dart';
+import '../utils/file_utils.dart';
 
 class AddSchedule extends StatefulWidget {
   //const AddSchedule({Key? key}) : super(key: key);

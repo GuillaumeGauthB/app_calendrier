@@ -7,29 +7,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_calendrier_2/utils/schedule.dart';
 import '../res/events.dart';
 import '../res/values.dart';
-import '../utils/FileUtils.dart';
+import '../utils/file_utils.dart';
 import 'package:get/get.dart';
 
 import 'add_event.dart';
 
 
-class DayEvents extends StatefulWidget {
+class ListEvents extends StatefulWidget {
   //const DayEvents({Key? key}) : super(key: key);
 
   final Map<String, dynamic> evenementsParameters;
 
-  DayEvents(this.evenementsParameters);
+  ListEvents(this.evenementsParameters);
   @override
-  State<DayEvents> createState() => _DayEventsState(evenementsParameters);
+  State<ListEvents> createState() => _ListEventsState(evenementsParameters);
 }
 
-class _DayEventsState extends State<DayEvents> {
+class _ListEventsState extends State<ListEvents> {
   final GlobalKey _columnEventKey = GlobalKey();
 
   late Map<String, dynamic> evenementsParameters; // parametres envoyees du parent
   late int day, month, year; // informations de la date lue
 
-  _DayEventsState(this.evenementsParameters);
+  _ListEventsState(this.evenementsParameters);
 
   late DateTime now;
 
@@ -97,7 +97,6 @@ class _DayEventsState extends State<DayEvents> {
                   DateTime(element['year_end'], element['month_end'], element['day_end']) == now
 
               )
-
     );
 
     if(activeSchedules.isNotEmpty){
@@ -107,8 +106,6 @@ class _DayEventsState extends State<DayEvents> {
               activeSchedules.where((elementSchedule) => element['schedule'] == elementSchedule['id']).isNotEmpty
 
       );
-
-      print(schedulesEvents);
 
       if(schedulesEvents != null){
         var schedulesEventsToAdd = schedulesEvents.where(
@@ -138,30 +135,11 @@ class _DayEventsState extends State<DayEvents> {
           dataWhere.add(event);
         }
       }
-
-
     }
 
-    //print(schedulesEventsToAdd);
-    
-    /*
-    
-    activeSchedules.where(
-        (element) {
-          if(element['repetition'] == 'week'){
-            if(DateTime())
-          }
-          return element;
-        }
-    );
-    
-    
-    var schedules = data.where(
-            (element) => !dataWhere.firstWhereOrNull((elementNow) => elementNow[element['id']]) &&
-
-    );*/
-
-    //print(schedules);
+    /**
+     * FIN DU TRAITEMENT DES HORAIRES
+     */
     
 
     // envoyer de base cet element
