@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_calendrier_2/utils/schedule.dart';
 import '../res/settings.dart';
 import 'add_schedule.dart';
 
@@ -34,7 +35,28 @@ class _ListScheduleState extends State<ListSchedule> {
   Widget build(BuildContext context) {
     toPrint = [];
     if(listeHoraires.isNotEmpty){
+
+      Schedule.ListSchedule;
+
       for(Map<String, dynamic> listeItem in listeHoraires){
+        late Color colorToUse;
+        late Color colorToUseText;
+        if(listeItem['color'].runtimeType == int){
+          colorToUse = Color(listeItem['color']);
+        }else if(listeItem['color'].runtimeType == Color){
+          colorToUse = listeItem['color'];
+        } else{
+          colorToUse = Colors.transparent;
+        }
+
+        if(listeItem['color_frontend'].runtimeType == int){
+          colorToUseText = Color(listeItem['color_frontend']);
+        }else if(listeItem['color_frontend'].runtimeType == Color){
+          colorToUseText = listeItem['color_frontend'];
+        } else {
+          colorToUseText = Colors.white;
+        }
+
         toPrint.add(
           GestureDetector(
             onTap: () {
@@ -53,7 +75,7 @@ class _ListScheduleState extends State<ListSchedule> {
                   height: MediaQuery.of(context).size.height * 0.20,
                   child: Container(
                       decoration: BoxDecoration(
-                        color: listeItem['color'].runtimeType == int ? Color(listeItem['color']) : Colors.transparent,
+                        color: colorToUse,
                         border: Border(bottom: BorderSide(color: Colors.black, width: 3)),
                       ),
                       child: Row(
@@ -62,12 +84,13 @@ class _ListScheduleState extends State<ListSchedule> {
                           Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              Text('${listeItem['name'] ?? 'Horaire sans nom'}', /*style: Theme.textTheme.bodyMedium,*/),
-                              Text('${listeItem['color'] ?? 'Horaire sans couleur'}',  style: Theme.of(context).textTheme.bodyMedium,),
+                              Text('${listeItem['name'] ?? 'Horaire sans nom'}', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorToUseText)),
+                              Text('${listeItem['color'] ?? 'Horaire sans couleur'}',  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorToUseText),),
                             ],
                           ),
-                          const Icon(
+                          Icon(
                             Icons.arrow_forward_outlined,
+                            color: colorToUseText,
                           )
                         ],
                       )

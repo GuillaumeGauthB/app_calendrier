@@ -48,6 +48,7 @@ dependencies:
   get: ^4.6.5
   sliding_up_panel: ^2.0.0+1
   flutter_colorpicker: ^1.0.3
+  flutter_hsvcolor_picker: ^1.2.3
   #flutter_local_notifications: ^13.0.0
   #timezone: ^0.9.1
   #rxdart: ^0.27.7

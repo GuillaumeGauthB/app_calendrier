@@ -67,30 +67,42 @@ class day extends StatelessWidget {
             borderRadius: const BorderRadius.all(Radius.circular(100)),
           ),
 
-          child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(''),
-                  Text(
-                    currentDay.toString(),
-                    style: TextStyle(color: textColor),
-                    textAlign: TextAlign.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: widthDay / 5,
+                height: widthDay / 5,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: Colors.transparent,
+                ),
+              ),
+              Text(
+                currentDay.toString(),
+                style: TextStyle(color: textColor),
+              ),
+              if(eventInDay > 0)
+                Container(
+                  width: widthDay / 5,
+                  height: widthDay / 5,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: Colors.grey,
                   ),
-                  if(eventInDay > 0)
-                    Container(
-                      width: widthDay / 5,
-                      height: widthDay / 5,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: Colors.grey,
-                      ),
-                    )
-                  else
-                    Text(''),
-                ],
-              )
-          ) ,
+                )
+              else
+                Container(
+                  width: widthDay / 5,
+                  height: widthDay / 5,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: Colors.transparent,
+                  ),
+                ),
+            ],
+          )
         ),
       )
     );

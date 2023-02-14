@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_calendrier_2/res/events.dart';
 import 'day.dart';
-import 'evenements_jour.dart';
+import 'day_events.dart';
 import '../res/values.dart';
 import 'add_event.dart';
 import 'package:get/get.dart';
@@ -64,7 +64,7 @@ class _CalendarState extends State<Calendar> {
               width: MediaQuery.of(context).size.width * 0.40,
               child: printCalendarBase,
             ),
-            EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
+            DayEvents({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
           ],
         )
       ],
@@ -87,7 +87,7 @@ class _CalendarState extends State<Calendar> {
           child: Stack(
             children: [
               printCalendarBase,
-              EvenementsJour({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
+              DayEvents({"year": _currentYear, "month": currentMonth,"day": (_dayClicked == -1 ? now.day : _dayClicked+1),}),
             ],
           ),
         ),

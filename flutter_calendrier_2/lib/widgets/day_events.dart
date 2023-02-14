@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_calendrier_2/utils/schedule.dart';
 import '../res/events.dart';
 import '../res/values.dart';
 import '../utils/FileUtils.dart';
@@ -12,29 +13,31 @@ import 'package:get/get.dart';
 import 'add_event.dart';
 
 
-class EvenementsJour extends StatefulWidget {
-  //const EvenementsJour({Key? key}) : super(key: key);
+class DayEvents extends StatefulWidget {
+  //const DayEvents({Key? key}) : super(key: key);
 
   final Map<String, dynamic> evenementsParameters;
 
-  EvenementsJour(this.evenementsParameters);
+  DayEvents(this.evenementsParameters);
   @override
-  State<EvenementsJour> createState() => _EvenementsJourState(evenementsParameters);
+  State<DayEvents> createState() => _DayEventsState(evenementsParameters);
 }
 
-class _EvenementsJourState extends State<EvenementsJour> {
+class _DayEventsState extends State<DayEvents> {
   final GlobalKey _columnEventKey = GlobalKey();
 
   late Map<String, dynamic> evenementsParameters; // parametres envoyees du parent
   late int day, month, year; // informations de la date lue
 
-  _EvenementsJourState(this.evenementsParameters);
+  _DayEventsState(this.evenementsParameters);
+
+  late DateTime now;
 
   /// fonction qui imprime les donnees a envoyer
   Widget printData({List widgetToSend = const []}) {
     return SizedBox.expand(
         child: DraggableScrollableSheet(
-            maxChildSize: (widgetToSend.length > 5 ? 0.75 : 0.40),
+            maxChildSize: (widgetToSend.length >= 5 ? 0.75 : 0.40),
             initialChildSize: 0.40,
             minChildSize: 0.40,
             builder: (context, scrollController) {
@@ -79,11 +82,94 @@ class _EvenementsJourState extends State<EvenementsJour> {
       }
     }
 
+    /**
+     * TRAITEMENT DES HORAIRES
+     */
+    var activeSchedules = Schedule.ListSchedule.where(
+            (element) => element['permanent'] != null &&
+              element['permanent'] == true ||
+              (
+                  (
+                      DateTime(element['year_beginning'], element['month_beginning'], element['day_beginning']).isBefore(now) &&
+                      DateTime(element['year_end'], element['month_end'], element['day_end']).isAfter(now)
+                  ) ||
+                  DateTime(element['year_beginning'], element['month_beginning'], element['day_beginning']) == now ||
+                  DateTime(element['year_end'], element['month_end'], element['day_end']) == now
+
+              )
+
+    );
+
+    if(activeSchedules.isNotEmpty){
+      var schedulesEvents = data.where(
+              (element) =>  dataWhere.firstWhereOrNull((elementNow) => elementNow['id'] == element['id'] && elementNow['id']!= null) == null &&
+              element['schedule'] != null &&
+              activeSchedules.where((elementSchedule) => element['schedule'] == elementSchedule['id']).isNotEmpty
+
+      );
+
+      print(schedulesEvents);
+
+      if(schedulesEvents != null){
+        var schedulesEventsToAdd = schedulesEvents.where(
+                (element) {
+              var currentSchedule = activeSchedules.toList().firstWhereOrNull((elementSchedule) => elementSchedule['id'] == element['schedule']);
+              DateTime elTime = DateTime(element['year'], element['month'], element['day']);
+              if(currentSchedule != null){
+                if(currentSchedule['repetition'] == 'week'){
+                  if(now.weekday == elTime.weekday){
+                    return true;
+                  }
+                } else if (currentSchedule['repetition'] == 'month'){
+                  if(now.day == elTime.day){
+                    return true;
+                  }
+                } else if(currentSchedule['repetition'] == 'year'){
+                  if(now.month == elTime.month && now.day == elTime.day){
+                    return true;
+                  }
+                }
+              }
+              return false;
+            }
+        );
+
+        for(var event in schedulesEventsToAdd){
+          dataWhere.add(event);
+        }
+      }
+
+
+    }
+
+    //print(schedulesEventsToAdd);
+    
+    /*
+    
+    activeSchedules.where(
+        (element) {
+          if(element['repetition'] == 'week'){
+            if(DateTime())
+          }
+          return element;
+        }
+    );
+    
+    
+    var schedules = data.where(
+            (element) => !dataWhere.firstWhereOrNull((elementNow) => elementNow[element['id']]) &&
+
+    );*/
+
+    //print(schedules);
+    
+
     // envoyer de base cet element
     List arrayToSend = [Text("Aucun évènement", style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center,)];
 
     // mais si la liste avec ce qu'il y a a imprimer n'est pas vide, remplacer le contenu de arrayToSend par le contenu de dataWhere
     if(dataWhere.isNotEmpty){
+      dataWhere.sort((a, b) => (a['title'].toLowerCase()).compareTo(b['title'].toLowerCase()));
       List<Widget> dataToPrint = [];
       for (var o in dataWhere) {
         if(o['entire_day'].runtimeType == bool && o['entire_day']){
@@ -95,11 +181,20 @@ class _EvenementsJourState extends State<EvenementsJour> {
             tempsEvenements = '${o['hour']}:${(int.parse(o['minute']) < 10 ? '0${o['minute']}' : o['minute'])}';
           }
         }
+
+        //var schedule = null;
+        var schedule = Schedule.ListSchedule.firstWhereOrNull((element) => element['id'] == o['schedule']);
+
+        //print(Schedule.ListSchedule.singleWhere((element) => element['id'] == o['schedule']));
+
         dataToPrint.add(
           
             TextButton(
-              style: const ButtonStyle(
-                overlayColor: MaterialStatePropertyAll<Color>(Colors.black),
+              style: ButtonStyle(
+                overlayColor: MaterialStatePropertyAll<Color>(schedule.runtimeType != Null ? Color(schedule['color_frontend']) : Colors.black),
+                backgroundColor: MaterialStatePropertyAll<Color>(schedule.runtimeType != Null ? Color(schedule['color']) : Colors.transparent),
+                foregroundColor: MaterialStatePropertyAll<Color>(schedule.runtimeType != Null ? Color(schedule['color_frontend']) : Theme.of(context).textTheme.bodyLarge!.color!),
+                textStyle: MaterialStatePropertyAll<TextStyle>(Theme.of(context).textTheme.bodyLarge!.copyWith(color: Colors.white)),
               ),
               onPressed: () {
                 showModalBottomSheet(
@@ -113,17 +208,20 @@ class _EvenementsJourState extends State<EvenementsJour> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.60,
-                    ),
-                    padding: const EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
-
-                    child: Text(
-                      o['title'],
-                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        //decoration: TextDecoration.underline,
-                        overflow: TextOverflow.ellipsis,
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
+                      child: Text(
+                        o['title'],
+                        style: const TextStyle(
+                          overflow: TextOverflow.fade,
+                        ),
+                        /*style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          overflow: TextOverflow.fade,
+                        ),*/
+                        textWidthBasis: TextWidthBasis.longestLine,
+                        maxLines: 1,
+                        softWrap: false,
                       ),
                     ),
                   ),
@@ -132,7 +230,7 @@ class _EvenementsJourState extends State<EvenementsJour> {
                         // Texte de duree / heure de l'event
 
                         Text(
-                          tempsEvenements, style: Theme.of(context).textTheme.bodyLarge
+                          tempsEvenements,
                         ),
                         TextButton(
                             onPressed: () {
@@ -143,10 +241,10 @@ class _EvenementsJourState extends State<EvenementsJour> {
                             child: Container(
                                 padding: EdgeInsets.all(2),
                                 decoration: BoxDecoration(
-                                  border: Border.all(width: 1, color: Colors.white),
+                                  border: Border.all(width: 1, color: schedule.runtimeType != Null ? Color(schedule['color_frontend']) : Theme.of(context).textTheme.bodyLarge!.color!),
                                   borderRadius: BorderRadius.all(Radius.circular(100)),
                                 ),
-                                child: const Icon(Icons.delete_forever, color: Colors.white,)
+                                child: Icon(Icons.delete_forever, color: schedule.runtimeType != Null ? Color(schedule['color_frontend']) : Theme.of(context).textTheme.bodyLarge!.color)
                             )
                         )
                       ]
@@ -170,6 +268,8 @@ class _EvenementsJourState extends State<EvenementsJour> {
     day = widget.evenementsParameters['day'];
     month = widget.evenementsParameters['month'];
     year = widget.evenementsParameters['year'];
+
+    now = DateTime(year, month, day);
 
     // FutureBuilder:: Widget qui traite la fonction AJAX de lecture
     return FutureBuilder(

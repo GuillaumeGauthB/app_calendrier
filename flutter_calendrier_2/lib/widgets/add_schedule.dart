@@ -1,6 +1,7 @@
 import 'package:datepicker_dropdown/datepicker_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:flutter_hsvcolor_picker/flutter_hsvcolor_picker.dart';
 
 import '../res/settings.dart';
 import '../utils/FileUtils.dart';
@@ -18,6 +19,9 @@ class _AddScheduleState extends State<AddSchedule> {
   final int? id;
   int firstRound = 0;
   bool isOpenPermanent = true;
+
+  void onChanged(Color value) => currentScheduleParameters["color"] = value;
+  void onChangedFrontEnd(Color value) => currentScheduleParameters["color_frontend"] = value;
 
   _AddScheduleState({int? this.id});
 
@@ -65,19 +69,10 @@ class _AddScheduleState extends State<AddSchedule> {
 
   @override
   Widget build(BuildContext context) {
+
     if(id.runtimeType != Null){
-      // print(listeHoraires.singleWhere((item) => item['id'] == id));
       originalScheduleParameters = listeHoraires.singleWhere((item) => item['id'] == id);
     }
-    // print(originalScheduleParameters);
-
-
-    /*_infoDate["year_beginning"] = originalScheduleParameters['year_beginning'] ?? now.year;
-    _infoDate["month_beginning"] = originalScheduleParameters['month_beginning'] ?? now.month;
-    _infoDate["day_beginning"] = originalScheduleParameters['day_beginning'] ?? now.day;
-    _infoDate["year_end"] = originalScheduleParameters['year_end'] ?? now.year;
-    _infoDate["month_end"] = originalScheduleParameters['month_end'] ?? now.month;
-    _infoDate["day_end"] = originalScheduleParameters['day_end'] ?? now.day;*/
 
     if(firstRound == 0){
       listControllers['name']?.text = originalScheduleParameters['name'] ?? '';
@@ -95,14 +90,12 @@ class _AddScheduleState extends State<AddSchedule> {
       isOpenPermanent = originalScheduleParameters['permanent'] ?? true;
 
       currentScheduleParameters["color"] = originalScheduleParameters['color'] ?? Colors.black.value;
-      currentScheduleParameters["color_font"] = originalScheduleParameters['color_font'] ?? Colors.black.value;
+      currentScheduleParameters["color_frontend"] = originalScheduleParameters['color_frontend'] ?? Colors.white.value;
+      currentScheduleParameters["repetition"] = originalScheduleParameters['repetition'] ?? 'none';
 
       firstRound++;
     }
 
-    //print(_infoDate["month_end"].runtimeType);
-
-    //print(id);
     return Form(
       key: _formKey,
       child: Column(
@@ -124,16 +117,16 @@ class _AddScheduleState extends State<AddSchedule> {
                    * Titre du formulaire
                    */
                   Container(
-                      margin: const EdgeInsets.only(bottom: 20.0, top: 20.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: const [
-                          Text(
-                            'Ajouter un évènement',
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      )
+                    margin: const EdgeInsets.only(bottom: 20.0, top: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: const [
+                        Text(
+                          'Ajouter un horaire',
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    )
                   ),
                   /**
                    * Contenu du formulaire
@@ -146,9 +139,6 @@ class _AddScheduleState extends State<AddSchedule> {
                       labelText: 'Nom de l\'évènement',
                     ),
                     controller: listControllers["name"],
-                    // style: Theme.of(context).,
-                    // style: Theme.of(context).textTheme.labelMedium,
-
                     validator: (value) {
                       // Empecher de sauvegarder un evenement sans titre
                       if(value == null || value.isEmpty){
@@ -168,7 +158,7 @@ class _AddScheduleState extends State<AddSchedule> {
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child:CheckboxListTile(
-                      title: const Text("Journée entière", style: TextStyle(), textWidthBasis: TextWidthBasis.longestLine),
+                      title: const Text("Permanent", style: TextStyle(), textWidthBasis: TextWidthBasis.longestLine),
                       value: isOpenPermanent,
                       onChanged: (bool? value) {
                         setState(() {
@@ -179,24 +169,56 @@ class _AddScheduleState extends State<AddSchedule> {
                   ),
                   if(!isOpenPermanent)
                     ...printSectionTemporaire,
-                  ColorPicker(
-                    pickerColor: Color(currentScheduleParameters["color"]),
-                    enableAlpha: false,
-                    onColorChanged: (Color color){
-                      // print(color.)
-                      print(color);
-                      currentScheduleParameters["color"] = color!.value;
+                  DropdownButtonFormField(
+                    onChanged: (Object? objet) async {
+                      currentScheduleParameters["repetition"] = objet;
                     },
+
+                    decoration: const InputDecoration(
+                        label: Text('Répétition')
+                    ),
+
+                    value: currentScheduleParameters["repetition"],
+
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'none',
+                        child: Text('Aucune répétition'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'week',
+                        child: Text('Chaque semaine'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'month',
+                        child: Text('Chaque mois'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'year',
+                        child: Text('Chaque année'),
+                      )
+                    ],
                   ),
-                  ColorPicker(
-                    pickerColor: Color(currentScheduleParameters["color"]),
-                    enableAlpha: false,
-                    onColorChanged: (Color color){
-                      // print(color.)
-                      print(color);
-                      currentScheduleParameters["color_font"] = color!.value;
-                    },
-                  )
+                  const Center(
+                    heightFactor: 2,
+                    child: Text('Couleur background'),
+                  ),
+                  RGBPicker(
+                    color: currentScheduleParameters["color"].runtimeType == int ? Color(currentScheduleParameters["color"]) : currentScheduleParameters['color'],
+                    onChanged: (value) => setState(
+                          () => onChanged(value),
+                    ),
+                  ),
+                  /*const Center(
+                    heightFactor: 2,
+                    child: Text('Couleur texte'),
+                  ),
+                  RGBPicker(
+                    color: currentScheduleParameters["color_frontend"].runtimeType == int ? Color(currentScheduleParameters["color_frontend"]) : currentScheduleParameters['color_frontend'],
+                    onChanged: (value) => setState(
+                          () => onChangedFrontEnd(value),
+                    ),
+                  )*/
                 ],
               ),
             ),
@@ -230,6 +252,14 @@ class _AddScheduleState extends State<AddSchedule> {
                           currentId++;
                         }
 
+                        if(currentScheduleParameters["color"].runtimeType == Color){
+                          currentScheduleParameters["color"] = currentScheduleParameters['color'].value;
+                        }
+
+                        if(currentScheduleParameters["color_frontend"].runtimeType == Color){
+                          currentScheduleParameters["color_frontend"] = currentScheduleParameters['color_frontend'].value;
+                        }
+
                         Map<String, dynamic> eventToAdd = {
                           'id': originalScheduleParameters['id'] ?? currentId,
                           'name': '${listControllers["name"]?.text}',
@@ -241,7 +271,9 @@ class _AddScheduleState extends State<AddSchedule> {
                           'month_end': _infoDate["month_end"],
                           'year_end': _infoDate["year_end"],
                           'permanent': isOpenPermanent,
-                          'color': currentScheduleParameters['color']
+                          'color': currentScheduleParameters['color'],
+                          'color_frontend': Color(currentScheduleParameters['color']).computeLuminance() > 0.5 ? Colors.black.value : Colors.white.value ,
+                          'repetition': currentScheduleParameters["repetition"]
                         };
 
                         // print(eventToAdd['month_end'].runtimeType);
