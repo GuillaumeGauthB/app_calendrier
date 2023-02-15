@@ -8,7 +8,7 @@ int testState = 0;
 
 // Classe servant a la lecture du fichier data.json de l'utilisateur
 class FileUtils {
-  ///
+  /// initialisation
   static Future<String> get init async{
     List directoryContents = await getDirectoryContent;
     Iterable directoryContentsFile = directoryContents.whereType<File>();
