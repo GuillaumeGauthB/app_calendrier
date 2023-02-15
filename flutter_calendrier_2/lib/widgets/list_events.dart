@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_calendrier_2/utils/schedule.dart';
+import 'package:flutter_calendrier_2/utils/lists_manipulation.dart';
 import '../res/events.dart';
 import '../res/values.dart';
 import '../utils/file_utils.dart';
@@ -85,7 +85,7 @@ class _ListEventsState extends State<ListEvents> {
     /**
      * TRAITEMENT DES HORAIRES
      */
-    var activeSchedules = Schedule.ListSchedule.where(
+    var activeSchedules = ListsManipulation.ListSchedule.where(
             (element) => element['permanent'] != null &&
               element['permanent'] == true ||
               (
@@ -161,7 +161,7 @@ class _ListEventsState extends State<ListEvents> {
         }
 
         //var schedule = null;
-        var schedule = Schedule.ListSchedule.firstWhereOrNull((element) => element['id'] == o['schedule']);
+        var schedule = ListsManipulation.ListSchedule.firstWhereOrNull((element) => element['id'] == o['schedule']);
 
         //print(Schedule.ListSchedule.singleWhere((element) => element['id'] == o['schedule']));
 

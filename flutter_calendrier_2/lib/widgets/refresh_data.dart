@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '../res/checklists.dart';
 import '../res/events.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,6 +13,7 @@ class RefreshData extends StatelessWidget {
   static void get getData {
     getDataHor();
     getDataCal();
+    getDataCheck();
   }
 
   static void getDataCal() async{
@@ -48,12 +50,31 @@ class RefreshData extends StatelessWidget {
     listeHoraires = jsonDecode(await FileUtils.readFromFile(fileName: 'horaires.json'));
   }
 
+  static void getDataCheck() async{
+
+    // Get docs from collection reference
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('Checklists').get();
+
+    List<Object?> result_3 = [];
+    var result = await querySnapshot.docs.map((doc) => result_3.add(doc.data()));
+
+    // dunno why this gotta stick but apparently it does
+    String result_s = result.toString();
+
+    print(result_3.length);
+
+    FileUtils.saveToFile(data: jsonEncode(result_3), fileName: 'checklists.json');
+    listChecklists = result_3;
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){
           getDataHor();
+          getDataCheck();
           getDataCal();
+
         },
       // TODO Customiser l'apparence du bouton
       child: const Align(

@@ -8,7 +8,7 @@ import 'package:flutter_calendrier_2/res/settings.dart';
 import '../utils/file_utils.dart';
 import 'package:get/get.dart';
 
-import '../utils/schedule.dart';
+import '../utils/lists_manipulation.dart';
 /// Classe qui ajoute un evenement
 class AddEvent extends StatefulWidget {
   //const AddEvent({Key? key}) : super(key: key);
@@ -174,17 +174,7 @@ class _AddEventState extends State<AddEvent> {
     if (_formKey.currentState!.validate()) {
 
       // Si le tableau n'est pas vide, incrementer l'id le plus elever de 1, sinon, mettre 0
-      List tableau_id = [];
-      if(tableaux_evenements.isNotEmpty){
-        tableaux_evenements.forEach((x) => {if(x['id'] != null) tableau_id.add(x['id'])});
-      }
-
-      int currentId = 0;
-
-      if(tableau_id.length > 0){
-        currentId = tableau_id.reduce((value, element) => value > element ? value : element);
-        currentId++;
-      }
+      int currentId = FileUtils.getNewID(itemList: tableaux_evenements);
 
       Map<String, dynamic> eventToAdd = {
         'id': (gestionClasse == 'modifier' ? parentParameters['id'] : currentId),
@@ -230,7 +220,7 @@ class _AddEventState extends State<AddEvent> {
 
   /// les horaires disponibles a selectionner
   List<DropdownMenuItem> get printSchedules {
-    List schedules = Schedule.ListSchedule;
+    List schedules = ListsManipulation.ListSchedule;
     List<DropdownMenuItem> widgetsToSend = [];
     for(Map<String, dynamic> schedule in schedules){
       widgetsToSend.add(

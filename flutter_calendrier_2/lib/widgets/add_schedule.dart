@@ -36,65 +36,33 @@ class _AddScheduleState extends State<AddSchedule> {
   Map<String, dynamic> currentScheduleParameters = {},
       originalScheduleParameters = {};
 
-  List<Widget> get printSectionTemporaire {
-    return [
-      const Center(
-        child: Text('DE:'),
-      ),
-      DropdownDatePicker(
-        selectedYear: _infoDate["year_beginning"],
-        selectedMonth: _infoDate['month_beginning'],
-        selectedDay: _infoDate["day_beginning"],
-        startYear: now.year - 10,
-        endYear: DateTime.now().year + 20,
-        onChangedDay: (value) =>  _infoDate["day_beginning"] = int.parse(value!),
-        onChangedMonth: (value) => _infoDate["month_beginning"] = int.parse(value!),
-        onChangedYear: (value) => _infoDate["year_beginning"] = int.parse(value!),
-      ),
-      const Center(
-        child: Text('A:'),
-      ),
-      DropdownDatePicker(
-        selectedYear: _infoDate["year_end"],
-        selectedMonth: _infoDate['month_end'],
-        selectedDay: _infoDate["day_end"],
-        startYear: DateTime.now().year - 10,
-        endYear: DateTime.now().year + 20,
-        onChangedDay: (value) =>  _infoDate["day_end"] = int.parse(value!),
-        onChangedMonth: (value) => _infoDate["month_end"] = int.parse(value!),
-        onChangedYear: (value) => _infoDate["year_end"] = int.parse(value!),
-      ),
-    ];
-  }
-
   @override
-  Widget build(BuildContext context) {
-
+  void initState() {
     if(id.runtimeType != Null){
       originalScheduleParameters = listeHoraires.singleWhere((item) => item['id'] == id);
     }
 
-    if(firstRound == 0){
-      listControllers['name']?.text = originalScheduleParameters['name'] ?? '';
-      listControllers['description']?.text = originalScheduleParameters['description'] ?? '';
+    listControllers['name']?.text = originalScheduleParameters['name'] ?? '';
+    listControllers['description']?.text = originalScheduleParameters['description'] ?? '';
 
-      _infoDate = {
-        "year_beginning": originalScheduleParameters['year_beginning'] ?? now.year,
-        "month_beginning": originalScheduleParameters['month_beginning'] ?? now.month,
-        "day_beginning": originalScheduleParameters['day_beginning'] ?? now.day,
-        "year_end": originalScheduleParameters['year_end'] ?? now.year,
-        "month_end": originalScheduleParameters['month_end'] ?? now.month,
-        "day_end": originalScheduleParameters['day_end'] ?? now.day,
-      };
+    _infoDate = {
+      "year_beginning": originalScheduleParameters['year_beginning'] ?? now.year,
+      "month_beginning": originalScheduleParameters['month_beginning'] ?? now.month,
+      "day_beginning": originalScheduleParameters['day_beginning'] ?? now.day,
+      "year_end": originalScheduleParameters['year_end'] ?? now.year,
+      "month_end": originalScheduleParameters['month_end'] ?? now.month,
+      "day_end": originalScheduleParameters['day_end'] ?? now.day,
+    };
 
-      isOpenPermanent = originalScheduleParameters['permanent'] ?? true;
+    isOpenPermanent = originalScheduleParameters['permanent'] ?? true;
 
-      currentScheduleParameters["color"] = originalScheduleParameters['color'] ?? Colors.black.value;
-      currentScheduleParameters["color_frontend"] = originalScheduleParameters['color_frontend'] ?? Colors.white.value;
-      currentScheduleParameters["repetition"] = originalScheduleParameters['repetition'] ?? 'none';
+    currentScheduleParameters["color"] = originalScheduleParameters['color'] ?? Colors.black.value;
+    currentScheduleParameters["color_frontend"] = originalScheduleParameters['color_frontend'] ?? Colors.white.value;
+    currentScheduleParameters["repetition"] = originalScheduleParameters['repetition'] ?? 'none';
+  }
 
-      firstRound++;
-    }
+  @override
+  Widget build(BuildContext context) {
 
     return Form(
       key: _formKey,
@@ -136,7 +104,7 @@ class _AddScheduleState extends State<AddSchedule> {
                     decoration: const InputDecoration(
                       icon: Icon(Icons.person),
                       hintText: 'Nom',
-                      labelText: 'Nom de l\'évènement',
+                      labelText: 'Nom de l\'horaire',
                     ),
                     controller: listControllers["name"],
                     validator: (value) {
@@ -157,7 +125,7 @@ class _AddScheduleState extends State<AddSchedule> {
                   ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
-                    child:CheckboxListTile(
+                    child: CheckboxListTile(
                       title: const Text("Permanent", style: TextStyle(), textWidthBasis: TextWidthBasis.longestLine),
                       value: isOpenPermanent,
                       onChanged: (bool? value) {
@@ -305,5 +273,37 @@ class _AddScheduleState extends State<AddSchedule> {
         ],
       ),
     );
+  }
+
+  /// Contenu pour un horaire temporaire
+  List<Widget> get printSectionTemporaire {
+    return [
+      const Center(
+        child: Text('DE:'),
+      ),
+      DropdownDatePicker(
+        selectedYear: _infoDate["year_beginning"],
+        selectedMonth: _infoDate['month_beginning'],
+        selectedDay: _infoDate["day_beginning"],
+        startYear: now.year - 10,
+        endYear: DateTime.now().year + 20,
+        onChangedDay: (value) =>  _infoDate["day_beginning"] = int.parse(value!),
+        onChangedMonth: (value) => _infoDate["month_beginning"] = int.parse(value!),
+        onChangedYear: (value) => _infoDate["year_beginning"] = int.parse(value!),
+      ),
+      const Center(
+        child: Text('A:'),
+      ),
+      DropdownDatePicker(
+        selectedYear: _infoDate["year_end"],
+        selectedMonth: _infoDate['month_end'],
+        selectedDay: _infoDate["day_end"],
+        startYear: DateTime.now().year - 10,
+        endYear: DateTime.now().year + 20,
+        onChangedDay: (value) =>  _infoDate["day_end"] = int.parse(value!),
+        onChangedMonth: (value) => _infoDate["month_end"] = int.parse(value!),
+        onChangedYear: (value) => _infoDate["year_end"] = int.parse(value!),
+      ),
+    ];
   }
 }

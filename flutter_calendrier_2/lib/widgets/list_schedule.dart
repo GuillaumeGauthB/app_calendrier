@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_calendrier_2/utils/schedule.dart';
+import 'package:flutter_calendrier_2/utils/lists_manipulation.dart';
 import '../res/settings.dart';
 import 'add_schedule.dart';
 
@@ -36,7 +36,7 @@ class _ListScheduleState extends State<ListSchedule> {
     toPrint = [];
     if(listeHoraires.isNotEmpty){
 
-      Schedule.ListSchedule;
+      ListsManipulation.ListSchedule;
 
       for(Map<String, dynamic> listeItem in listeHoraires){
         late Color colorToUse;

@@ -51,7 +51,7 @@ class FileUtils {
               'emptySettingsTemplate': 'Empty Settings'
             }
           ]
-      ));
+      ), fileName: 'checklists.json');
       stringToReturn += 'oui';
     }
 
@@ -94,6 +94,7 @@ class FileUtils {
     }
   }
 
+  /// Methode qui modifie la base de donnee
   static modifyDB({required String collection, int id = -1, String mode = 'ajouter', required Object eventToAdd}) {
     final CollectionReference collectionRef = FirebaseFirestore.instance.collection(collection);
     QuerySnapshot? docRef;
@@ -142,5 +143,22 @@ class FileUtils {
     } else{
       return file.writeAsString(jsonEncode(eventToAdd));
     }
+  }
+
+  /// Methode qui renvoit le nouvel id a ajouter
+  static int getNewID({required itemList}) {
+    List tableau_id = [];
+    if(itemList.isNotEmpty){
+      itemList.forEach((x) => {if(x['id'] != null) tableau_id.add(x['id'])});
+    }
+
+    int currentId = 0;
+
+    if(tableau_id.length > 0){
+      currentId = tableau_id.reduce((value, element) => value > element ? value : element);
+      currentId++;
+    }
+
+    return currentId;
   }
 }
