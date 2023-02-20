@@ -1,4 +1,5 @@
 import 'package:animations/animations.dart';
+import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendrier_2/res/checklists.dart';
 import 'package:flutter_calendrier_2/utils/file_utils.dart';
@@ -24,20 +25,11 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
   Widget? _clickedItem;
 
   int currently_open = -1;
-/*
-  Widget _buildItem(
-      BuildContext context, int index, Animation<double> animation) {
-    return CheckboxItem(
-      animation: animation,
-      item: _list[index],
-      selected: _selectedItem == _list[index],
-      onTap: () {
-        setState(() {
-          _selectedItem = _selectedItem == _list[index] ? null : _list[index];
-        });
-      },
-    );
-  }*/
+  double heightToOpen = 0;
+  bool boolVisibility = false;
+  late TextDecoration currentTextDecoration;
+  double currentHeight = 0;
+  int? openedItemId;
 
   void ModifyChecklist({id}) {
     showModalBottomSheet(
@@ -46,49 +38,151 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
       isDismissible: false,
       context: context,
       builder: (BuildContext context) {
-        return AddChecklist();
+        return AddChecklist(id: id);
       },
-    ).whenComplete(() => {setState(() { _list = ListsManipulation.ListChecklists;})});
+    ).whenComplete(() => { _listOri = ListsManipulation.ListChecklists, setUpList, setState(() { })});
   }
 
   @override
   void initState() {
     super.initState();
-    for(var i in _listOri){
-      _list.add(
-          Text('${i['name']}', style: TextStyle(fontSize: 20),),
-      ) ;
-    }
 
   }
 
-  Widget getSubDataChecklist(parentItem, index) {
+  Widget getSubDataChecklist(parentItem, int index) {
     List widgetsToSend = [];
-    for(var i in parentItem.keys.where((el) => el.toString().contains('checkbox') && !el.toString().contains('completed')).toList().reversed){
+
+    if(openedItemId != null && openedItemId == parentItem['id']){
+      currentHeight = heightToOpen;
+    } else {
+      currentHeight = 0;
+    }
+
+    for(var i in parentItem.keys.where((el) => el.toString().contains('checkbox') && !el.toString().contains('completed')).toList()){
+
+      currentTextDecoration = TextDecoration.none;
+
+      if(currentHeight == heightToOpen){
+        if((parentItem['${i}_completed'].runtimeType == bool && parentItem['${i}_completed']) || (parentItem['${i}_completed'].runtimeType == String && parentItem['${i}_completed'].toLowerCase == 'true')){
+          currentTextDecoration = TextDecoration.lineThrough;
+        }
+      }
       widgetsToSend.add(
-          CheckboxListTile(
-            title: Text('${parentItem[i]}', style: TextStyle(color: Colors.white), textWidthBasis: TextWidthBasis.longestLine),
-            value: parentItem['${i}_completed'],
-            onChanged: (bool? value) {
-              parentItem['${i}_completed'] = value!;
-              setState(() {
-                _list[index] = getSubDataChecklist(parentItem, index);
-              });
-            },
+          AnimatedContainer(
+            height: currentHeight,
+            duration: const Duration(milliseconds: 300),
+
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  parentItem['${i}_completed'] = !parentItem['${i}_completed'];
+                });
+              },
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                child: Text('${parentItem[i]}', style: TextStyle(color: Colors.white, decoration: currentTextDecoration), textWidthBasis: TextWidthBasis.longestLine),
+              ),
+            )
           )
       );
     }
+
+    if(openedItemId != null && openedItemId == parentItem['id']){
+      widgetsToSend.add(
+        AnimatedContainer(
+          height: 60,
+          duration: const Duration(milliseconds: 300),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  //setState(() {
+                  ModifyChecklist(id: parentItem['id']);
+                },
+
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Icon(
+                        Icons.edit,
+                        size: 25.0,
+                      ),
+                    ]
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  if(await confirm(
+                      context,
+                      title: const Text('Supprimer'),
+                      content: const Text('Êtes-vous certain de vouloir supprimer cette liste?'),
+                      textOK: const Text('Oui'),
+                      textCancel: const Text("Non")
+                    )
+                  ){
+                    _listKey.currentState?.setState(() {
+                      listChecklists.removeWhere((e) => e['id'] == parentItem['id']);
+                      FileUtils.modifyFile({},collection: 'Checklists', fileName: 'checklists.json', mode: 'supprimer', id: parentItem['id']);
+                      _list.removeAt(index);
+                      _listOri.removeWhere((element) => element['id'] == parentItem['id']);
+                      _selectedItem = null;
+                      openedItemId = null;
+
+                    });
+                  }
+                },
+
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Icon(
+                        Icons.delete_forever,
+                        size: 25.0,
+                      ),
+                    ]
+                ),
+              ),
+            ],
+          ),
+        )
+      );
+    }
+
 
     Widget widgetToSend = Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primary,
         ),
         child: Column(
-          children: [...widgetsToSend],
+          children: [
+            ...widgetsToSend,
+          ],
         )
     );
 
     return widgetToSend;
+  }
+
+  get setUpList {
+    _list = [];
+    for(var i in _listOri){
+      _list.add(
+        Column(
+          children: [
+            Text('${i['name']}', style: TextStyle(fontSize: 20),),
+            getSubDataChecklist(i, _list.length),
+          ],
+        )
+      ) ;
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    setUpList;
   }
 
   @override
@@ -113,36 +207,24 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
                   if(_listOri[index] != null){
 
                     if(_selectedItem == null){
-                      _clickedItem = _list[index];
-                      var parentItem = _listOri[_list.indexOf(_clickedItem)];
-
-                      Widget widgetToSend = getSubDataChecklist(parentItem, _list.indexOf(_clickedItem)+1);
-
-                      _list.insert(_list.indexOf(_clickedItem)+1, widgetToSend);
-                      _listKey.currentState?.insertItem(_list.indexOf(_clickedItem)+1);
+                      setState(() {
+                        print(_listOri[index]);
+                        heightToOpen = 20;
+                        boolVisibility = true;
+                        openedItemId = _listOri[index]['id'];
+                        setUpList;
+                      });
                       _selectedItem = _list[_list.indexOf(_clickedItem)+1];
                     } else {
-                      print(_list.indexOf(_clickedItem));
-                      _clickedItem = _list[index];
-                      if(_clickedItem == _list[index]){
-                        int indexDel = _list.indexOf(_selectedItem);
-                        _list.removeAt(indexDel);
-                        _listKey.currentState?.removeItem(indexDel, (context, animation)  {return Placeholder();});
-
-                        /*if(_list.indexOf(_clickedItem)+1 != _list.indexOf(_selectedItem)){
-                          _clickedItem = _list[index];
-                          var parentItem = _listOri[_list.indexOf(_clickedItem)];
-
-                          Widget widgetToSend = getSubDataChecklist(parentItem, _list.indexOf(_clickedItem)+1);
-
-                          _list.insert(_list.indexOf(_clickedItem)+1, widgetToSend);
-                          _listKey.currentState?.insertItem(_list.indexOf(_clickedItem)+1);
-                          _selectedItem = _list[_list.indexOf(_clickedItem)+1];
-                        } else {*/
-                          _selectedItem = null;
-                        //}
-                      }
+                      setState(() {
+                        heightToOpen = 0;
+                        boolVisibility = false;
+                        openedItemId = null;
+                        setUpList;
+                      });
+                      _selectedItem = null;
                     }
+                    //print(index);
                   }
 
 

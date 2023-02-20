@@ -4,13 +4,17 @@ import '../res/checklists.dart';
 import '../utils/file_utils.dart';
 
 class AddChecklist extends StatefulWidget {
-  const AddChecklist({Key? key}) : super(key: key);
+  const AddChecklist({Key? key, required this.id}) : super(key: key);
 
+  final int? id;
   @override
-  State<AddChecklist> createState() => _AddChecklistState();
+  State<AddChecklist> createState() => _AddChecklistState(id: id);
 }
 
 class _AddChecklistState extends State<AddChecklist> {
+  _AddChecklistState({required this.id});
+
+  final int? id;
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> listControllers = {
     'name': TextEditingController(),
@@ -23,7 +27,16 @@ class _AddChecklistState extends State<AddChecklist> {
   late int lengthNewCheckbox;
 
   @override void initState(){
+    if(id != null){
+      var currentItem = listChecklists.singleWhere((element) => element['id'] == id);
+      listControllers['name'].text = currentItem['name'];
+      listControllers['description'].text = currentItem['description'];
+      for(var i in currentItem.keys.where((element) => element.contains('checkbox_') && !element.contains('completed')).toList()){
+        listControllers[i] = TextEditingController(text: currentItem[i]);
+      }
+    }
 
+    print(listControllers);
   }
 
   List get getFilledCheckbox {
@@ -164,7 +177,7 @@ class _AddChecklistState extends State<AddChecklist> {
   void processingData() {
     // Si le formulaire est valider...
     if (_formKey.currentState!.validate()) {
-      int currentId = FileUtils.getNewID(itemList: listChecklists);
+      int currentId = id ?? FileUtils.getNewID(itemList: listChecklists);
 
       Map<String, dynamic> checklistToAdd = {
         // 'id': (gestionClasse == 'modifier' ? parentParameters['id'] : currentId),
@@ -181,13 +194,15 @@ class _AddChecklistState extends State<AddChecklist> {
         loop++;
       }
 
-      print(checklistToAdd);
+      if(listChecklists.isNotEmpty && id != null){
+        listChecklists.removeWhere((e) => e['id'] == id);
+      }
 
-      // Ajouter le nouvel evenement au tableau local
+      // Ajouter la nouvelle checklist au tableau local
       listChecklists.add(checklistToAdd);
 
       // Appeler la methode de la classe static pour envoyer nos modifications dans le fichier local json et dans la base de donnee
-      FileUtils.modifyFile(checklistToAdd, collection: 'Checklists', mode: 'ajouter', id: currentId, fileName: 'checklists.json');
+      FileUtils.modifyFile(checklistToAdd, collection: 'Checklists', mode: id == null ? 'ajouter' : 'modifier', id: currentId, fileName: 'checklists.json');
 
       // Faire apparaitre un snackbar pour dire que le tout a fonctionner
       ScaffoldMessenger.of(context).showSnackBar(
