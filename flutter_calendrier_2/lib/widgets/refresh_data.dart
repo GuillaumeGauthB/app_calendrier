@@ -64,7 +64,9 @@ class RefreshData extends StatelessWidget {
     print(result_3.length);
 
     FileUtils.saveToFile(data: jsonEncode(result_3), fileName: 'checklists.json');
-    listChecklists = result_3;
+    listeChecklists = result_3;
+
+    print(await FileUtils.readFromFile(fileName: 'checklists.json'));
   }
 
   @override

@@ -4,6 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path_provider/path_provider.dart'; // pour trouver la location du dossier
 import 'package:firebase_core/firebase_core.dart';
 
+import '../res/checklists.dart';
+import '../res/events.dart';
+import '../res/settings.dart';
+
 int testState = 0;
 
 // Classe servant a la lecture du fichier data.json de l'utilisateur
@@ -57,6 +61,15 @@ class FileUtils {
 
     return stringToReturn;
     //return directoryContents.whereType<File>().where((element) => element.path.contains('data.json'));
+  }
+
+  static Future<void> get listInit async {
+    print(await FileUtils.init);
+    app_settings = jsonDecode(await FileUtils.readFromFile(fileName: 'settings.json'));
+    listeHoraires = jsonDecode(await FileUtils.readFromFile(fileName: 'horaires.json'));
+    listeHoraires = jsonDecode(await FileUtils.readFromFile(fileName: 'horaires.json'));
+    listeChecklists = jsonDecode(await FileUtils.readFromFile(fileName: 'checklists.json'));
+    tableaux_evenements = jsonDecode(await FileUtils.readFromFile());
   }
 
   /// Getter servant a a prendre le path du fichier a modifier

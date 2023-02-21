@@ -122,7 +122,7 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
                     )
                   ){
                     _listKey.currentState?.setState(() {
-                      listChecklists.removeWhere((e) => e['id'] == parentItem['id']);
+                      listeChecklists.removeWhere((e) => e['id'] == parentItem['id']);
                       FileUtils.modifyFile({},collection: 'Checklists', fileName: 'checklists.json', mode: 'supprimer', id: parentItem['id']);
                       _list.removeAt(index);
                       _listOri.removeWhere((element) => element['id'] == parentItem['id']);

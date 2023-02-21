@@ -10,9 +10,9 @@ class ListsManipulation {
 
   static List get ListChecklists {
 
-    List liste1 = listChecklists.where((a) => !a['completed']).toList();
+    List liste1 = listeChecklists.where((a) => !a['completed']).toList();
 
-    List liste2 = listChecklists.where((a) => a['completed']).toList();
+    List liste2 = listeChecklists.where((a) => a['completed']).toList();
 
     liste1.sort((a, b) {
       return (a['name'].toLowerCase()).compareTo(b['name'].toLowerCase());
@@ -24,8 +24,8 @@ class ListsManipulation {
 
     liste1.addAll(liste2);
 
-    listChecklists = liste1;
+    listeChecklists = liste1;
 
-    return listChecklists;
+    return listeChecklists;
   }
 }

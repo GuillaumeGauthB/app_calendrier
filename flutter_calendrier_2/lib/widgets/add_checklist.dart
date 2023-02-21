@@ -28,7 +28,7 @@ class _AddChecklistState extends State<AddChecklist> {
 
   @override void initState(){
     if(id != null){
-      var currentItem = listChecklists.singleWhere((element) => element['id'] == id);
+      var currentItem = listeChecklists.singleWhere((element) => element['id'] == id);
       listControllers['name'].text = currentItem['name'];
       listControllers['description'].text = currentItem['description'];
       for(var i in currentItem.keys.where((element) => element.contains('checkbox_') && !element.contains('completed')).toList()){
@@ -177,7 +177,7 @@ class _AddChecklistState extends State<AddChecklist> {
   void processingData() {
     // Si le formulaire est valider...
     if (_formKey.currentState!.validate()) {
-      int currentId = id ?? FileUtils.getNewID(itemList: listChecklists);
+      int currentId = id ?? FileUtils.getNewID(itemList: listeChecklists);
 
       Map<String, dynamic> checklistToAdd = {
         // 'id': (gestionClasse == 'modifier' ? parentParameters['id'] : currentId),
@@ -194,12 +194,12 @@ class _AddChecklistState extends State<AddChecklist> {
         loop++;
       }
 
-      if(listChecklists.isNotEmpty && id != null){
-        listChecklists.removeWhere((e) => e['id'] == id);
+      if(listeChecklists.isNotEmpty && id != null){
+        listeChecklists.removeWhere((e) => e['id'] == id);
       }
 
       // Ajouter la nouvelle checklist au tableau local
-      listChecklists.add(checklistToAdd);
+      listeChecklists.add(checklistToAdd);
 
       // Appeler la methode de la classe static pour envoyer nos modifications dans le fichier local json et dans la base de donnee
       FileUtils.modifyFile(checklistToAdd, collection: 'Checklists', mode: id == null ? 'ajouter' : 'modifier', id: currentId, fileName: 'checklists.json');
