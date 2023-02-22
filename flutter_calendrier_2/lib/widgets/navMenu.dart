@@ -23,25 +23,38 @@ class NavMenu extends StatelessWidget {
       }
     }
 
-    return BottomNavigationBar(
-      onTap: (int pos) {
-        Get.offAndToNamed('/${listLiens[pos]}', arguments: { 'pageIndex': pos });
-      },
-      currentIndex: index,
-      items: const [
-        BottomNavigationBarItem(
-          label: 'Calendrier',
-          icon: Icon(Icons.calendar_month),
-        ),
-        BottomNavigationBarItem(
-          label: 'Checklists',
-          icon: Icon(Icons.check),
-        ),
-        BottomNavigationBarItem(
-          label: 'Réglages',
-          icon: Icon(Icons.settings),
-        ),
-      ],
+    return Container(
+      decoration: BoxDecoration(
+        // border: Border.all(color: Colors.grey)
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey,
+            offset: Offset(0, -2)
+          ),
+        ]
+      ),
+      child: BottomNavigationBar(
+        // backgroundColor: Theme.of(context).backgroundColor,
+        // elevation: 5,
+        onTap: (int pos) {
+          Get.offAndToNamed('/${listLiens[pos]}', arguments: { 'pageIndex': pos });
+        },
+        currentIndex: index,
+        items: const [
+          BottomNavigationBarItem(
+            label: 'Calendrier',
+            icon: Icon(Icons.calendar_month),
+          ),
+          BottomNavigationBarItem(
+            label: 'Checklists',
+            icon: Icon(Icons.check),
+          ),
+          BottomNavigationBarItem(
+            label: 'Réglages',
+            icon: Icon(Icons.settings),
+          ),
+        ],
+      ),
     );
   }
 }

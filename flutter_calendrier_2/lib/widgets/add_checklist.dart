@@ -59,32 +59,40 @@ class _AddChecklistState extends State<AddChecklist> {
             ),
           ),
           Expanded(
-            child: Column(
-              children: [
-                ...getFormInputs,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+            child: SingleChildScrollView(
+              child: Column(
                   children: [
+                    ...getFormInputs,
                     SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.40,
-                      child: ElevatedButton(
-                        onPressed: () {Navigator.pop(context);},
-                        child: Text('Annuler'),
-                      ),
+                      height: MediaQuery.of(context).size.height * 0.08,
                     ),
-                    SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.40,
-                        child: ElevatedButton(
-                          onPressed: processingData,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.40,
+                          child: ElevatedButton(
+                            onPressed: () {Navigator.pop(context);},
+                            child: Text('Annuler'),
+                          ),
+                        ),
+                        SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.40,
+                            child: ElevatedButton(
+                              onPressed: processingData,
 
-                          child: Text( 'Ajouter'),
-                        )
+                              child: Text( 'Ajouter'),
+                            )
+                        ),
+                      ],
                     ),
-                  ],
-                )
-              ]
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.15,
+                    ),
+                  ]
+              ),
             )
-          ),
+          )
         ],
       ),
     );
@@ -130,11 +138,13 @@ class _AddChecklistState extends State<AddChecklist> {
         child: Text('Liste des checklists'),
       ),
       ...getNewChecklist,
+      SizedBox(
+        height: MediaQuery.of(context).size.height * 0.02
+      ),
       ElevatedButton(
         onPressed: () {
-          listControllers['checkbox_${lengthNewCheckbox + 1}'] = TextEditingController();
           setState(() {
-
+            listControllers['checkbox_${lengthNewCheckbox + 1}'] = TextEditingController();
           });
         },
         child: Icon(Icons.add)
@@ -206,7 +216,7 @@ class _AddChecklistState extends State<AddChecklist> {
 
       // Faire apparaitre un snackbar pour dire que le tout a fonctionner
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ajout de l\'évènement')),
+        const SnackBar(content: Text('Ajout de la liste')),
       );
       Navigator.pop(context);
     }

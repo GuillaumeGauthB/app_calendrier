@@ -33,6 +33,8 @@ class _ListEventsState extends State<ListEvents> {
 
   late DateTime now;
 
+  MaterialStatePropertyAll<RoundedRectangleBorder>? firstEventBorder;
+
   /// fonction qui imprime les donnees a envoyer
   Widget printData({List widgetToSend = const []}) {
     return SizedBox.expand(
@@ -46,6 +48,13 @@ class _ListEventsState extends State<ListEvents> {
                     color: Theme.of(context).colorScheme.secondary,
                     //border: Border.all(color: Colors.black),
                     borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black54,
+                        spreadRadius: 5,
+                        blurRadius: 50
+                      )
+                    ]
                   ),
                   child: SingleChildScrollView(
                       controller: scrollController,
@@ -150,6 +159,17 @@ class _ListEventsState extends State<ListEvents> {
       dataWhere.sort((a, b) => (a['title'].toLowerCase()).compareTo(b['title'].toLowerCase()));
       List<Widget> dataToPrint = [];
       for (var o in dataWhere) {
+        if(dataToPrint.isEmpty){
+          firstEventBorder = MaterialStatePropertyAll<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(topRight: Radius.circular(20.0), topLeft: Radius.circular(20.0)),
+                // side: BorderSide(color: Colors.red),
+              )
+          );
+        } else {
+          firstEventBorder = null;
+        }
+
         if(o['entire_day'].runtimeType == bool && o['entire_day']){
           tempsEvenements = 'Journée';
         } else {
@@ -169,6 +189,7 @@ class _ListEventsState extends State<ListEvents> {
           
             TextButton(
               style: ButtonStyle(
+                shape: firstEventBorder,
                 overlayColor: MaterialStatePropertyAll<Color>(schedule.runtimeType != Null ? Color(schedule['color_frontend']) : Colors.black),
                 backgroundColor: MaterialStatePropertyAll<Color>(schedule.runtimeType != Null ? Color(schedule['color']) : Colors.transparent),
                 foregroundColor: MaterialStatePropertyAll<Color>(schedule.runtimeType != Null ? Color(schedule['color_frontend']) : Theme.of(context).textTheme.bodyLarge!.color!),
