@@ -10,6 +10,7 @@ class CheckboxItem extends StatefulWidget {
     this.removeElement,
     this.modifyElement,
     this.checkChild,
+    this.showAsWhole
   }) : super(key: key);
 
   final Map<String, dynamic> item;
@@ -18,6 +19,7 @@ class CheckboxItem extends StatefulWidget {
   final Future<Null> Function()? removeElement;
   final VoidCallback? modifyElement;
   final Function(String)? checkChild;
+  final bool? showAsWhole;
 
   @override
   State<CheckboxItem> createState() => _CheckboxItemState(
@@ -27,6 +29,7 @@ class CheckboxItem extends StatefulWidget {
       removeElement: removeElement,
       modifyElement: modifyElement,
       checkChild: checkChild,
+      showAsWhole: showAsWhole,
   );
 }
 
@@ -39,6 +42,7 @@ class _CheckboxItemState extends State<CheckboxItem> {
     this.heightToOpen,
     this.modifyElement,
     this.checkChild,
+    this.showAsWhole,
   });
 
 
@@ -48,6 +52,7 @@ class _CheckboxItemState extends State<CheckboxItem> {
   final Future<Null> Function()? removeElement;
   final VoidCallback? modifyElement;
   final Function(String)? checkChild;
+  final bool? showAsWhole;
 
   List? listChildCheckbox;
   bool isVisible = false;
@@ -70,7 +75,8 @@ class _CheckboxItemState extends State<CheckboxItem> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('${widget.item['name']}', style: TextStyle(fontSize: 20),),
-              Icon(widget.openedItemId != null && widget.openedItemId == widget.item['id'] ? Icons.keyboard_double_arrow_up : Icons.keyboard_double_arrow_down)
+              if(showAsWhole == null || !showAsWhole!)
+                Icon(widget.openedItemId != null && widget.openedItemId == widget.item['id'] ? Icons.keyboard_double_arrow_up : Icons.keyboard_double_arrow_down)
             ],
           ),
         ),
@@ -100,14 +106,14 @@ class _CheckboxItemState extends State<CheckboxItem> {
 
       currentTextDecoration = TextDecoration.none;
 
-      if(currentHeight == widget.heightToOpen){
+      if(currentHeight == widget.heightToOpen || (showAsWhole == null || showAsWhole!)){
         if((parentItem['${i}_completed'].runtimeType == bool && parentItem['${i}_completed']) || (parentItem['${i}_completed'].runtimeType == String && parentItem['${i}_completed'].toLowerCase == 'true')){
           currentTextDecoration = TextDecoration.lineThrough;
         }
       }
       widgetsToSend.add(
           AnimatedContainer(
-              height: currentHeight,
+              height: (showAsWhole == null || !showAsWhole!) ? currentHeight : widget.heightToOpen,
               duration: const Duration(milliseconds: 100),
 
               child: GestureDetector(
@@ -141,7 +147,7 @@ class _CheckboxItemState extends State<CheckboxItem> {
               }
             },
             child: Visibility(
-              visible: isVisible,
+              visible: showAsWhole == null || showAsWhole == false ? isVisible : false,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [

@@ -51,14 +51,13 @@ class _AppSettingsState extends State<AppSettings> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('Mettre à jour les évènements'),
+                    children: [
+                      Text('Dernière mise à jour: ${app_settings['last_refresh'].runtimeType == String ? app_settings['last_refresh'].substring(0, app_settings['last_refresh'].indexOf('.')) : 'Jamais !'}'),
                       Icon(
                           Icons.refresh
                       )
                     ],
                   ),
-                  Text('Dernière mise à jour: ${app_settings['last_refresh'].runtimeType == String ? app_settings['last_refresh'] : 'Jamais !'}')
                 ],
               ),
           ),

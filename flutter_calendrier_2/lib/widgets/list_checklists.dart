@@ -44,11 +44,13 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
         return AddChecklist(id: id);
       },
     ).whenComplete(() => {
-      setState(() {
-        _listOri = ListsManipulation.ListChecklists;
-        setUpList;
-        _listKey.currentState?.insertItem(_listOri.length-1);
-      })
+      if(_listOri.length != listeChecklists.length){
+        setState(() {
+          _listOri = ListsManipulation.ListChecklists;
+          setUpList;
+          _listKey.currentState?.insertItem(_listOri.length-1);
+        }),
+      }
     });
   }
 
@@ -127,10 +129,9 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
           modifyElement: () => {
             ModifyChecklist(id: i['id'])
           },
-          checkChild: (String test) {
-            print(test);
+          checkChild: (String modified) {
             setState(() {
-              i['${test}_completed'] = !i['${test}_completed'];
+              i['${modified}_completed'] = !i['${modified}_completed'];
               FileUtils.modifyFile(i, fileName: 'checklists.json', mode: 'modifier', id: i['id'], collection: 'Checklists');
               setUpList;
             });
