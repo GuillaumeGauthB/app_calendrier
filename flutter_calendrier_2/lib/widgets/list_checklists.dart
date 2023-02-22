@@ -62,7 +62,81 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
     _list = [];
     lengthList = listeChecklists.length;
     for(var i in _listOri){
+      //print(openedItemId);
       _list.add(
+        CheckboxItem(
+          item: i,
+          openedItemId: openedItemId,
+          heightToOpen: heightToOpen,
+          removeElement: () async {
+            if(await confirm(
+                  context,
+                  title: const Text('Supprimer'),
+                  content: const Text('Êtes-vous certain de vouloir supprimer cette liste?'),
+                  textOK: const Text('Oui'),
+                  textCancel: const Text("Non")
+              )
+            ){
+              _listKey.currentState?.setState(() {
+                FileUtils.modifyFile({},collection: 'Checklists', fileName: 'checklists.json', mode: 'supprimer', id: i['id']);
+                _list.removeAt(listeChecklists.indexWhere((element) => element['id'] == i['id']));
+                lengthList--;
+                _listKey.currentState?.removeItem(
+                    listeChecklists.indexWhere((element) => element['id'] == i['id']),
+                        (context, animation){
+
+                      // prit de :: https://github.com/flutter/flutter/issues/42079
+                      return SizeTransition(
+                        sizeFactor: animation.drive(Tween(begin: 0, end: 1)),
+                        axis: Axis.vertical,
+                        child: FadeTransition(
+                          opacity: animation.drive(Tween(begin: 0, end: 1)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10.0),
+                            child: Row(
+                              children: <Widget>[
+                                Flexible(
+                                  fit: FlexFit.loose,
+                                  child: TextFormField(
+                                    decoration: InputDecoration(
+                                      fillColor: Colors.grey[300],
+                                      filled: true,
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
+                                      disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.amber)),
+                                      hintText: i['name'],
+                                    ),
+                                  ),
+                                ),
+
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                );
+                listeChecklists.removeWhere((e) => e['id'] == i['id']);
+                _listOri.removeWhere((element) => element['id'] == i['id']);
+                _selectedItem = null;
+                openedItemId = null;
+                //lengthList--;
+              });
+            }
+          },
+          modifyElement: () => {
+            ModifyChecklist(id: i['id'])
+          },
+          checkChild: (String test) {
+            print(test);
+            setState(() {
+              i['${test}_completed'] = !i['${test}_completed'];
+              FileUtils.modifyFile(i, fileName: 'checklists.json', mode: 'modifier', id: i['id'], collection: 'Checklists');
+              setUpList;
+            });
+          },
+        )
+        /*
         Column(
           children: [
             Container(
@@ -81,185 +155,9 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
             ),
             getSubDataChecklist(i, lengthList),
           ],
-        ),
+        ),*/
       ) ;
     }
-  }
-
-  Widget getSubDataChecklist(parentItem, int index) {
-    List widgetsToSend = [];
-
-    if(openedItemId != null && openedItemId == parentItem['id']){
-      currentHeight = heightToOpen;
-    } else {
-      currentHeight = 0;
-    }
-
-    listChildCheckbox = parentItem.keys.where((el) => el.toString().contains('checkbox') && !el.toString().contains('completed')).toList();
-    listChildCheckbox!.sort((a,b) {
-      if(a.length != b.length){
-        return a.length.compareTo(b.length);
-      }
-      return a.compareTo(b);
-    });
-
-    for(var i in listChildCheckbox!){
-
-      currentTextDecoration = TextDecoration.none;
-
-      if(currentHeight == heightToOpen){
-        if((parentItem['${i}_completed'].runtimeType == bool && parentItem['${i}_completed']) || (parentItem['${i}_completed'].runtimeType == String && parentItem['${i}_completed'].toLowerCase == 'true')){
-          currentTextDecoration = TextDecoration.lineThrough;
-        }
-      }
-      widgetsToSend.add(
-          AnimatedContainer(
-              height: currentHeight,
-              duration: const Duration(milliseconds: 100),
-
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    parentItem['${i}_completed'] = !parentItem['${i}_completed'];
-                    FileUtils.modifyFile(parentItem, fileName: 'checklists.json', mode: 'modifier', id: parentItem['id'], collection: 'Checklists');
-                    setUpList;
-                  });
-                },
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: Text('${parentItem[i]}', style: TextStyle(color: Colors.white, decoration: currentTextDecoration), textWidthBasis: TextWidthBasis.longestLine),
-                ),
-              )
-          )
-      );
-    }
-
-    if(currentHeight != 0){
-      isVisible = true;
-    }
-
-    widgetsToSend.add(
-        AnimatedContainer(
-            height: currentHeight == 0 ? 0 : 60,
-            duration: const Duration(milliseconds: 150),
-            onEnd: () {
-              if(currentHeight == 0){
-                setState(() {
-                  isVisible = false;
-                });
-              }
-            },
-            child: Visibility(
-              visible: isVisible,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      //setState(() {
-                      ModifyChecklist(id: parentItem['id']);
-                    },
-
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          Icon(
-                            Icons.edit,
-                            size: 25.0,
-                          ),
-                        ]
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if(await confirm(
-                          context,
-                          title: const Text('Supprimer'),
-                          content: const Text('Êtes-vous certain de vouloir supprimer cette liste?'),
-                          textOK: const Text('Oui'),
-                          textCancel: const Text("Non")
-                      )
-                      ){
-                        _listKey.currentState?.setState(() {
-                          FileUtils.modifyFile({},collection: 'Checklists', fileName: 'checklists.json', mode: 'supprimer', id: parentItem['id']);
-                          print(listeChecklists.indexWhere((element) => element['id'] == parentItem['id']));
-                          _list.removeAt(listeChecklists.indexWhere((element) => element['id'] == parentItem['id']));
-                          lengthList--;
-                          _listKey.currentState?.removeItem(
-                            listeChecklists.indexWhere((element) => element['id'] == parentItem['id']),
-                                  (context, animation){
-
-                              // prit de :: https://github.com/flutter/flutter/issues/42079
-                                return SizeTransition(
-                                  sizeFactor: animation.drive(Tween(begin: 0, end: 1)),
-                                  axis: Axis.vertical,
-                                  child: FadeTransition(
-                                    opacity: animation.drive(Tween(begin: 0, end: 1)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                      child: Row(
-                                        children: <Widget>[
-                                          Flexible(
-                                            fit: FlexFit.loose,
-                                            child: TextFormField(
-                                              decoration: InputDecoration(
-                                                fillColor: Colors.grey[300],
-                                                filled: true,
-                                                contentPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
-                                                disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.amber)),
-                                                hintText: parentItem['name'],
-                                              ),
-                                            ),
-                                          ),
-
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                          );
-                          listeChecklists.removeWhere((e) => e['id'] == parentItem['id']);
-                          _listOri.removeWhere((element) => element['id'] == parentItem['id']);
-                          _selectedItem = null;
-                          openedItemId = null;
-                          //lengthList--;
-                        });
-                      }
-                    },
-
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          Icon(
-                            Icons.delete_forever,
-                            size: 25.0,
-                          ),
-                        ]
-                    ),
-                  ),
-                ],
-              ),
-            )
-        )
-    );
-
-    isVisible = false;
-
-    Widget widgetToSend = Container(
-        decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20))
-        ),
-        child: Column(
-          children: [
-            ...widgetsToSend,
-          ],
-        )
-    );
-
-    return widgetToSend;
   }
 
   @override
@@ -293,8 +191,8 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
                   return Placeholder();
                 }*/
                 return GestureDetector(
-                  behavior: HitTestBehavior.deferToChild,
                   onTap: () {
+                    print('parent ${openedItemId}');
                     if(_listOri[index] != null){
                       if(_selectedItem == null){
                         setState(() {
