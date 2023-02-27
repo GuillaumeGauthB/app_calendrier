@@ -4,7 +4,9 @@ import 'package:flutter/material.dart'; // flutter
 import 'package:datepicker_dropdown/datepicker_dropdown.dart'; // Pour les dropdowns de date
  import 'package:flutter_calendrier_2/res/events.dart';
 import 'package:flutter_calendrier_2/res/settings.dart';
+import 'package:flutter_calendrier_2/widgets/checkbox_item.dart';
 // import '../services/local_notification_service.dart';
+import '../res/checklists.dart';
 import '../utils/file_utils.dart';
 import 'package:get/get.dart';
 
@@ -45,6 +47,8 @@ class _AddEventState extends State<AddEvent> {
     //"temps_type": ,
     //"temps":
   };
+
+  Map<String, dynamic> listContent = {};
 
   // Les informations de la date
   late Map<String, dynamic> _infoDate;
@@ -129,7 +133,7 @@ class _AddEventState extends State<AddEvent> {
             )
           ],
         )
-);
+    );
     return optionsTempsJournee;
   }
 
@@ -166,6 +170,8 @@ class _AddEventState extends State<AddEvent> {
 
     listControllers['title']?.text = eventParameters['title'] ?? '';
     listControllers['description']?.text = eventParameters['description'] ?? '';
+
+    eventParameters["associated_list"] = eventParameters["associated_list"];
   }
 
   /// le processing des donnees
@@ -184,7 +190,8 @@ class _AddEventState extends State<AddEvent> {
         'month': _infoDate["month"],
         'year': _infoDate["year"],
         'entire_day': _valueCheckbox,
-        'schedule': eventParameters['schedule']
+        'schedule': eventParameters['schedule'],
+        'associated_list': eventParameters["associated_list"]
       };
 
       if(!_valueCheckbox){
@@ -209,7 +216,6 @@ class _AddEventState extends State<AddEvent> {
 
       // Appeler la methode de la classe static pour envoyer nos modifications dans le fichier local json et dans la base de donnee
       FileUtils.modifyFile(eventToAdd, mode: gestionClasse, id: parentParameters['id']);
-
       // Faire apparaitre un snackbar pour dire que le tout a fonctionner
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Ajout de l\'évènement')),
@@ -233,8 +239,25 @@ class _AddEventState extends State<AddEvent> {
     return widgetsToSend;
   }
 
+  /// les horaires disponibles a selectionner
+  List<DropdownMenuItem> get printLists {
+    List schedules = listeChecklists;
+    List<DropdownMenuItem> widgetsToSend = [];
+    for(Map<String, dynamic> schedule in schedules){
+      widgetsToSend.add(
+        DropdownMenuItem(
+          value: schedule['id'],
+          child: Text(schedule['name'] ?? 'Horaire sans nom #${schedule['id']}'),
+        ),
+      );
+    }
+    return widgetsToSend;
+  }
+
   /// Methode les form inputs du formulaire
   List get formInputs {
+    if(eventParameters['associated_list'] != null)
+      listContent = listeChecklists.singleWhere((element) => element['id'] == eventParameters["associated_list"]);
     return [
       /**
        * Titre du formulaire
@@ -246,7 +269,6 @@ class _AddEventState extends State<AddEvent> {
             children: const [
               Text(
                 'Ajouter un évènement',
-                textAlign: TextAlign.center,
               ),
             ],
           )
@@ -335,6 +357,43 @@ class _AddEventState extends State<AddEvent> {
       // ================================================= Pas journee entiere
       if(!_valueCheckbox)
         ...optionsTempsJournee,
+
+      if(eventParameters["associated_list"] != null)
+        CheckboxItem(
+          item: listContent,
+          showAsWhole: true,
+          heightToOpen: 35,
+          checkChild: (String modified) {
+            setState(() {
+              listContent['${modified}_completed'] = !listContent['${modified}_completed'];
+              FileUtils.modifyFile(listContent, fileName: 'checklists.json', mode: 'modifier', id: listContent['id'], collection: 'Checklists');
+            });
+          },
+          // openedItemId: listContent['id'],
+        ),
+      
+      DropdownButtonFormField(
+        /*onChanged: (Object? objet) async {
+          eventParameters["schedule"] = objet;
+        },*/
+
+        decoration: const InputDecoration(
+            label: Text('Liste')
+        ),
+
+        value: eventParameters["associated_list"],
+
+        items: [
+          const DropdownMenuItem(
+            value: null,
+            child: Text('Aucune liste'),
+          ),
+          ...printLists,
+        ],
+        onChanged: (value) {
+          eventParameters["associated_list"] = value;
+        },
+      ),
     ];
   }
 
