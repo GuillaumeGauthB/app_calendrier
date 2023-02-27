@@ -40,7 +40,6 @@
                               //Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
                               if (snapshot.connectionState == ConnectionState.done) {
                                 dataDay = snapshot.data!;
-                                // TODO Allow scrolling here
                                 return SingleChildScrollView(
                                     child: Column(
                                       children: dataDay.map((obj) =>

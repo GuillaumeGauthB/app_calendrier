@@ -54,6 +54,8 @@ class _CheckboxItemState extends State<CheckboxItem> {
   final Function(String)? checkChild;
   final bool? showAsWhole;
 
+  BoxDecoration? itemDecoration;
+
   List? listChildCheckbox;
   bool isVisible = false;
   double currentHeight = 0;
@@ -61,16 +63,23 @@ class _CheckboxItemState extends State<CheckboxItem> {
 
   @override
   Widget build(BuildContext context) {
-    print('enfant ${widget.openedItemId != null && widget.openedItemId == widget.item['id']}');
+    //print('enfant ${widget.openedItemId != null && widget.openedItemId == widget.item['id']}');
+
+    if(showAsWhole == true){
+      itemDecoration = BoxDecoration(
+        color: Theme.of(context).primaryColor,
+      );
+    } else {
+      itemDecoration = const BoxDecoration(
+        color: Colors.transparent,
+      );
+    }
 
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(10),
-          decoration: const BoxDecoration(
-            //border: BorderDirectional(bottom: BorderSide(color: Colors.grey, width: 1)),
-            color: /*_listOri.indexOf(i) % 2 == 1 ? Colors.grey : */Colors.transparent,
-          ),
+          decoration: itemDecoration ?? const BoxDecoration(),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
