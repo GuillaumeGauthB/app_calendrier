@@ -3,11 +3,13 @@ import 'package:flutter_calendrier_2/res/checklists.dart';
 import '../res/settings.dart';
 
 class ListsManipulation {
+  /// ressort la liste des horaires ordonnees alphabetiquement
   static List get ListSchedule {
     listeHoraires.sort((a, b) => (a['name'].toLowerCase()).compareTo(b['name'].toLowerCase()));
     return listeHoraires;
   }
 
+  /// ressort la liste des checklists ordonnees premierement par lesquelles sont completees, puis alphabetiquement
   static List get ListChecklists {
 
     List liste1 = listeChecklists.where((a) => !a['completed']).toList();
