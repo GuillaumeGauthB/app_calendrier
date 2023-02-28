@@ -63,6 +63,7 @@ class FileUtils {
     //return directoryContents.whereType<File>().where((element) => element.path.contains('data.json'));
   }
 
+  /// commandes a initialiser
   static Future<void> get listInit async {
     print(await FileUtils.init);
     app_settings = jsonDecode(await FileUtils.readFromFile(fileName: 'settings.json'));
