@@ -19,10 +19,11 @@ const ColorScheme lightColorScheme = ColorScheme(
 
 const ColorScheme darkColorScheme = ColorScheme(
                   brightness: Brightness.dark,
-                  primary: Color(0xFF3663a3),
+                  primary: Color(0xFF6C95CE),
                   // background: Color(0xFFEAF0F8),
                   // background: Color(0xFF1D3557),
-                  background: Color(0xFF303030),
+                  // background: Color(0xFF303030),
+                  background: Color(0xFF1c1c1c),
                   onBackground: Color(0xFFEAF0F8),
                   onPrimary: Color(0xFFEAF0F8),
                   secondary: Color(0xFF1D3557),
@@ -150,8 +151,19 @@ class AppTheme {
       colorScheme: darkColorScheme,
       primaryColor: darkColorScheme.primary,
       textTheme: TextTheme(
-        bodyMedium: TextStyle(color: darkColorScheme.primary),
-        titleMedium: TextStyle(color: darkColorScheme.primary),
+        bodyMedium: TextStyle(
+          color: darkColorScheme.primary,
+        ),
+        headlineMedium: TextStyle(
+            color: darkColorScheme.primary,
+            fontWeight: FontWeight.bold
+        ),
+        titleLarge: TextStyle(
+          color: darkColorScheme.primary,
+        ),
+        titleMedium: TextStyle(
+          color: darkColorScheme.primary,
+        ),
         labelMedium: TextStyle(
           color: darkColorScheme.primary,
           decorationColor: darkColorScheme.primary,

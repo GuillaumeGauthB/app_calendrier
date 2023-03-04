@@ -10,7 +10,9 @@ class CheckboxItem extends StatefulWidget {
     this.removeElement,
     this.modifyElement,
     this.checkChild,
-    this.showAsWhole
+    this.showAsWhole,
+    this.borderRadius,
+    this.backgroundColor,
   }) : super(key: key);
 
   final Map<String, dynamic> item;
@@ -20,6 +22,8 @@ class CheckboxItem extends StatefulWidget {
   final VoidCallback? modifyElement;
   final Function(String)? checkChild;
   final bool? showAsWhole;
+  final BorderRadius? borderRadius;
+  final Color? backgroundColor;
 
   @override
   State<CheckboxItem> createState() => _CheckboxItemState(
@@ -30,6 +34,8 @@ class CheckboxItem extends StatefulWidget {
       modifyElement: modifyElement,
       checkChild: checkChild,
       showAsWhole: showAsWhole,
+      borderRadius: borderRadius,
+      backgroundColor: backgroundColor
   );
 }
 
@@ -43,6 +49,8 @@ class _CheckboxItemState extends State<CheckboxItem> {
     this.modifyElement,
     this.checkChild,
     this.showAsWhole,
+    this.borderRadius,
+    this.backgroundColor
   });
 
 
@@ -53,8 +61,14 @@ class _CheckboxItemState extends State<CheckboxItem> {
   final VoidCallback? modifyElement;
   final Function(String)? checkChild;
   final bool? showAsWhole;
+  final BorderRadius? borderRadius;
+  final Color? backgroundColor;
 
-  BoxDecoration? itemDecoration;
+  late BoxDecoration itemDecoration;
+  late TextStyle itemTextDecoration;
+
+  late Color bgColor,
+             fontColor;
 
   List? listChildCheckbox;
   bool isVisible = false;
@@ -65,32 +79,78 @@ class _CheckboxItemState extends State<CheckboxItem> {
   Widget build(BuildContext context) {
     //print('enfant ${widget.openedItemId != null && widget.openedItemId == widget.item['id']}');
 
-    if(showAsWhole == true){
-      itemDecoration = BoxDecoration(
-        color: Theme.of(context).primaryColor,
-      );
-    } else {
-      itemDecoration = const BoxDecoration(
-        color: Colors.transparent,
+    //fontColor = Theme.of(context).colorScheme.background;
+    fontColor = Theme.of(context).primaryColor;
+    // bgColor = Theme.of(context).primaryColor;
+    bgColor = Colors.transparent;
+
+    itemTextDecoration = TextStyle(
+      color: fontColor,
+    );
+
+    if(widget.item['completed']){
+      itemTextDecoration = itemTextDecoration.copyWith(
+        decoration: TextDecoration.lineThrough,
+        decorationThickness: 3.5,
+        decorationColor: const Color(0xFFdddddd), fontSize: 15
       );
     }
 
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: itemDecoration ?? const BoxDecoration(),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('${widget.item['name']}', style: TextStyle(fontSize: 20),),
-              if(showAsWhole == null || !showAsWhole!)
-                Icon(widget.openedItemId != null && widget.openedItemId == widget.item['id'] ? Icons.keyboard_double_arrow_up : Icons.keyboard_double_arrow_down)
-            ],
-          ),
-        ),
-        getSubDataChecklist(widget.item),
-      ],
+    itemDecoration = BoxDecoration(
+      color: bgColor,
+    );
+
+    /*if(widget.item['completed']){
+      itemDecoration = BoxDecoration(
+        //color: Color(0xFF1b1b1b),
+        color: backgroundColor,
+      );
+    }*/
+
+    Widget mainBody = Container(
+      padding: const EdgeInsets.all(10),
+      decoration: itemDecoration,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('${widget.item['name']}', style: itemTextDecoration.copyWith(fontSize: 20)),
+          if(showAsWhole == null || !showAsWhole!)
+            Icon(
+              widget.openedItemId != null && widget.openedItemId == widget.item['id'] ? Icons.keyboard_double_arrow_up : Icons.keyboard_double_arrow_down,
+              color: fontColor,
+            )
+        ],
+      ),
+    );
+
+    //Widget bodyToPrint = mainBody;
+
+    if(showAsWhole != null && showAsWhole!){
+      mainBody = GestureDetector(
+        onTap: () {
+          //if(showAsWhole != null && showAsWhole!){
+            checkChild!('completed');
+          //}
+        },
+        child: mainBody,
+      );
+    }
+
+
+    return ClipRRect(
+      borderRadius: borderRadius ?? BorderRadius.zero,
+      child: Column(
+        children: [
+          mainBody,
+
+
+          getSubDataChecklist(widget.item),
+          if(showAsWhole == null || !showAsWhole!)
+            Divider(
+
+            )
+        ],
+      ),
     );
   }
 
@@ -116,24 +176,33 @@ class _CheckboxItemState extends State<CheckboxItem> {
       currentTextDecoration = TextDecoration.none;
 
       if(currentHeight == widget.heightToOpen || (showAsWhole == null || showAsWhole!)){
-        if((parentItem['${i}_completed'].runtimeType == bool && parentItem['${i}_completed']) || (parentItem['${i}_completed'].runtimeType == String && parentItem['${i}_completed'].toLowerCase == 'true')){
+        if(widget.item['completed'] || (parentItem['${i}_completed'].runtimeType == bool && parentItem['${i}_completed']) || (parentItem['${i}_completed'].runtimeType == String && parentItem['${i}_completed'].toLowerCase == 'true')){
           currentTextDecoration = TextDecoration.lineThrough;
         }
       }
       widgetsToSend.add(
           AnimatedContainer(
               height: (showAsWhole == null || !showAsWhole!) ? currentHeight : widget.heightToOpen,
-              duration: const Duration(milliseconds: 100),
+              duration: Duration(milliseconds: 12 * (listChildCheckbox?.length ?? 0)),
 
               child: GestureDetector(
                 onTap: () {
                   if(checkChild != null){
-                    checkChild!(i);
+                    checkChild!(i+'_completed');
                   }
                 },
                 child: Container(
                   width: MediaQuery.of(context).size.width,
-                  child: Text('${parentItem[i]}', style: TextStyle(color: Colors.white, decoration: currentTextDecoration), textWidthBasis: TextWidthBasis.longestLine),
+                  padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.05),
+                  child: Text(
+                      parentItem[i].toString(),
+                      style: itemTextDecoration.copyWith(
+                          decoration: currentTextDecoration,
+                          decorationThickness: 3.5,
+                          decorationColor: const Color(0xFFdddddd), fontSize: 15
+                      ),
+                      textWidthBasis: TextWidthBasis.longestLine
+                  ),
                 ),
               )
           )
@@ -174,6 +243,21 @@ class _CheckboxItemState extends State<CheckboxItem> {
                     ),
                   ),
                   ElevatedButton(
+                    onPressed: () {
+                      checkChild!('completed');
+                    },
+
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: const [
+                          Icon(
+                            Icons.check,
+                            size: 25.0,
+                          ),
+                        ]
+                    ),
+                  ),
+                  ElevatedButton(
                     onPressed: removeElement ?? () {},
 
                     child: Row(
@@ -196,8 +280,8 @@ class _CheckboxItemState extends State<CheckboxItem> {
 
     Widget widgetToSend = Container(
         decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20))
+            color: bgColor,
+            //borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20))
         ),
         child: Column(
           children: [

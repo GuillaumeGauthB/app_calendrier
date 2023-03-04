@@ -103,9 +103,9 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
                                     decoration: InputDecoration(
                                       fillColor: Colors.grey[300],
                                       filled: true,
-                                      contentPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
-                                      disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.amber)),
+                                      disabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.amber)),
                                       hintText: i['name'],
                                     ),
                                   ),
@@ -122,7 +122,6 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
                 _listOri.removeWhere((element) => element['id'] == i['id']);
                 _selectedItem = null;
                 openedItemId = null;
-                //lengthList--;
               });
             }
           },
@@ -131,32 +130,21 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
           },
           checkChild: (String modified) {
             setState(() {
-              i['${modified}_completed'] = !i['${modified}_completed'];
+              i[modified] = !i[modified];
               FileUtils.modifyFile(i, fileName: 'checklists.json', mode: 'modifier', id: i['id'], collection: 'Checklists');
+              _listOri = ListsManipulation.ListChecklists;
+              print(_listOri);
               setUpList;
             });
           },
+          /**checkParent: () {
+            setState(() {
+              i['completed'] = !i['completed'];
+              FileUtils.modifyFile(i, fileName: 'checklists.json', mode: 'modifier', id: i['id'], collection: 'Checklists');
+              setUpList;
+            });
+          },*/
         )
-        /*
-        Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                //border: BorderDirectional(bottom: BorderSide(color: Colors.grey, width: 1)),
-                color: /*_listOri.indexOf(i) % 2 == 1 ? Colors.grey : */Colors.transparent,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('${i['name']}', style: TextStyle(fontSize: 20),),
-                  Icon(openedItemId != null && openedItemId == i['id'] ? Icons.keyboard_double_arrow_up : Icons.keyboard_double_arrow_down)
-                ],
-              ),
-            ),
-            getSubDataChecklist(i, lengthList),
-          ],
-        ),*/
       ) ;
     }
   }

@@ -80,75 +80,9 @@ class _ListEventsState extends State<ListEvents> {
   Future<List> get getData async{
     String tempsEvenements = '';
 
-    // Lire les evenements
-    var data = tableaux_evenements;
-    // Liste qui va etre utiliser pour imprimer les evenements de la journee
-    var dataWhere = [];
-    // Mettre les bons evenements dans la liste
-    for (var o in data) {
-      if(o['day'] == day && o['month'] == month && o['year'] == year){
-        dataWhere.add(o);
-      }
-    }
+    var dataWhere = ListsManipulation.ListEventSchedule(day: day, month: month, year: year);
 
-    /**
-     * TRAITEMENT DES HORAIRES
-     */
-    var activeSchedules = ListsManipulation.ListSchedule.where(
-            (element) => element['permanent'] != null &&
-              element['permanent'] == true ||
-              (
-                  (
-                      DateTime(element['year_beginning'], element['month_beginning'], element['day_beginning']).isBefore(now) &&
-                      DateTime(element['year_end'], element['month_end'], element['day_end']).isAfter(now)
-                  ) ||
-                  DateTime(element['year_beginning'], element['month_beginning'], element['day_beginning']) == now ||
-                  DateTime(element['year_end'], element['month_end'], element['day_end']) == now
 
-              )
-    );
-
-    if(activeSchedules.isNotEmpty){
-      var schedulesEvents = data.where(
-              (element) =>  dataWhere.firstWhereOrNull((elementNow) => elementNow['id'] == element['id'] && elementNow['id']!= null) == null &&
-              element['schedule'] != null &&
-              activeSchedules.where((elementSchedule) => element['schedule'] == elementSchedule['id']).isNotEmpty
-
-      );
-
-      if(schedulesEvents != null){
-        var schedulesEventsToAdd = schedulesEvents.where(
-                (element) {
-              var currentSchedule = activeSchedules.toList().firstWhereOrNull((elementSchedule) => elementSchedule['id'] == element['schedule']);
-              DateTime elTime = DateTime(element['year'], element['month'], element['day']);
-              if(currentSchedule != null){
-                if(currentSchedule['repetition'] == 'week'){
-                  if(now.weekday == elTime.weekday){
-                    return true;
-                  }
-                } else if (currentSchedule['repetition'] == 'month'){
-                  if(now.day == elTime.day){
-                    return true;
-                  }
-                } else if(currentSchedule['repetition'] == 'year'){
-                  if(now.month == elTime.month && now.day == elTime.day){
-                    return true;
-                  }
-                }
-              }
-              return false;
-            }
-        );
-
-        for(var event in schedulesEventsToAdd){
-          dataWhere.add(event);
-        }
-      }
-    }
-
-    /**
-     * FIN DU TRAITEMENT DES HORAIRES
-     */
     
 
     // envoyer de base cet element

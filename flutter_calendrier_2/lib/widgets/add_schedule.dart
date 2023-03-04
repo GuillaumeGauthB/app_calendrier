@@ -88,9 +88,9 @@ class _AddScheduleState extends State<AddSchedule> {
                     margin: const EdgeInsets.only(bottom: 20.0, top: 20.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: const [
+                      children: [
                         Text(
-                          'Ajouter un horaire',
+                          '${(originalScheduleParameters['id'].runtimeType == Null ? 'Ajouter' : 'Modifier')} un horaire',
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -282,6 +282,9 @@ class _AddScheduleState extends State<AddSchedule> {
         child: Text('DE:'),
       ),
       DropdownDatePicker(
+        textStyle: TextStyle(
+            color: Theme.of(context).primaryColor
+        ),
         selectedYear: _infoDate["year_beginning"],
         selectedMonth: _infoDate['month_beginning'],
         selectedDay: _infoDate["day_beginning"],
@@ -295,6 +298,9 @@ class _AddScheduleState extends State<AddSchedule> {
         child: Text('A:'),
       ),
       DropdownDatePicker(
+        textStyle: TextStyle(
+            color: Theme.of(context).primaryColor
+        ),
         selectedYear: _infoDate["year_end"],
         selectedMonth: _infoDate['month_end'],
         selectedDay: _infoDate["day_end"],

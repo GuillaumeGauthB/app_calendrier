@@ -16,29 +16,31 @@ class _AppSettingsState extends State<AppSettings> {
   @override
   Widget build(BuildContext context) {
     // print(listeHoraires);
-    return Column(
-      children: [
-        SizedBox(
-          height: 40,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.background,
+      child: Column(
+        children: [
+          SizedBox(
+            height: 40,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
             ),
           ),
-        ),
-        /**
-         * Debut des settings
-         */
-        Container(
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: Colors.black, width: 1)),
-          ),
           /**
-           * Bouton permettant de synchroniser la DB
+           * Debut des settings
            */
-          child: TextButton(
-              style: const ButtonStyle(
-                overlayColor: MaterialStatePropertyAll<Color>(Colors.black),
+          Container(
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1)),
+            ),
+            /**
+             * Bouton permettant de synchroniser la DB
+             */
+            child: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStatePropertyAll<Color>(Theme.of(context).colorScheme.onBackground),
               ),
               onPressed: () {
                 // on sauvegarde les changements et rafrachit les evenements
@@ -53,55 +55,55 @@ class _AppSettingsState extends State<AppSettings> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Dernière mise à jour: ${app_settings['last_refresh'].runtimeType == String ? app_settings['last_refresh'].substring(0, app_settings['last_refresh'].indexOf('.')) : 'Jamais !'}'),
-                      Icon(
+                      const Icon(
                           Icons.refresh
                       )
                     ],
                   ),
                 ],
               ),
-          ),
-        ),
-        /**
-         * Input permettant de choisir le theme
-         */
-        const SettingsThemeMode(),
-
-        /**
-         * Lien permettant de créer et de lister des horaires
-         */
-        Container(
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: Colors.black, width: 1)),
+            ),
           ),
           /**
-           * Bouton permettant de voir et modifier les horaires existant
+           * Input permettant de choisir le theme
            */
-          child: TextButton(
-            style: const ButtonStyle(
-              overlayColor: MaterialStatePropertyAll<Color>(Colors.black),
+          const SettingsThemeMode(),
+
+          /**
+           * Lien permettant de créer et de lister des horaires
+           */
+          Container(
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1)),
             ),
-            onPressed: () {
-              Get.toNamed("/settings/horaires");
-            },
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text('Créer des horaires'),
-                    Icon(
-                        Icons.arrow_forward_outlined
-                    )
-                  ],
-                ),
-                // Text('Dernière mise à jour: ${app_settings['last_refresh'].runtimeType == String ? app_settings['last_refresh'] : 'Jamais !'}')
-              ],
+            /**
+             * Bouton permettant de voir et modifier les horaires existant
+             */
+            child: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStatePropertyAll<Color>(Theme.of(context).colorScheme.onBackground),
+              ),
+              onPressed: () {
+                Get.toNamed("/settings/horaires");
+              },
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text('Créer des horaires'),
+                      Icon(
+                          Icons.arrow_forward_outlined
+                      )
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
 
-      ],//RefreshData(),
+        ],//RefreshData(),
+      ),
     );
   }
 }

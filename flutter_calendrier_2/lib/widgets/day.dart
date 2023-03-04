@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_calendrier_2/res/events.dart';
+import 'package:flutter_calendrier_2/utils/lists_manipulation.dart';
 import '../res/values.dart';
 
 // Single day component
@@ -11,9 +12,11 @@ class day extends StatelessWidget {
   bool currentMonth; // le mois a imprimer
 
   late Color textColor, // la couleur du texte
-        bgColor;  // la couleur du background
+        bgColor,        // la couleur du background
+        circleColor,    // la couleur du cercle
+        circleBorderColor;// la couleur de la bordure du cercle
 
-  late int eventInDay; // nombre d'evenements sur la journee present
+  late Map<String, bool> eventInDay; // nombre d'evenements sur la journee present
 
   DateTime now = DateTime.now(); // informations de la journee presente
 
@@ -45,12 +48,30 @@ class day extends StatelessWidget {
 
     if(dayClicked == currentDay){
       textColor = Theme.of(context).colorScheme.onPrimary;
-      bgColor = Theme.of(context).colorScheme.primary;
+      bgColor = Theme.of(context).colorScheme.secondary;
     }
 
     currentDay++;
 
-    eventInDay = tableaux_evenements.where((o) => o['day'] == currentDay && o['month'] == currentMonthNum && o['year'] == currentYear && currentMonth).length;
+    //eventInDay = tableaux_evenements.where((o) => o['day'] == currentDay && o['month'] == currentMonthNum && o['year'] == currentYear && currentMonth).length;
+    eventInDay = ListsManipulation.GetEventTypes(
+        list: ListsManipulation.ListEventSchedule(day: currentDay, month: currentMonthNum, year: currentYear),
+        condition: currentMonth
+    );
+
+    if(eventInDay['event']!){
+      circleColor = Colors.grey;
+    } else {
+      circleColor = Colors.transparent;
+    }
+
+    if(eventInDay['schedule']!){
+      circleBorderColor = Colors.red;
+    } else {
+      circleBorderColor = Colors.transparent;
+    }
+
+    //print(eventInDay);
 
     return FractionallySizedBox(
       // aspectRatio: 1,
@@ -83,24 +104,15 @@ class day extends StatelessWidget {
                 currentDay.toString(),
                 style: TextStyle(color: textColor),
               ),
-              if(eventInDay > 0)
-                Container(
-                  width: widthDay / 5,
-                  height: widthDay / 5,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: Colors.grey,
-                  ),
-                )
-              else
-                Container(
-                  width: widthDay / 5,
-                  height: widthDay / 5,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: Colors.transparent,
-                  ),
+              Container(
+                width: widthDay / 5,
+                height: widthDay / 5,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: circleColor,
+                  border: Border.all(color: circleBorderColor)
                 ),
+              ),
             ],
           )
         ),

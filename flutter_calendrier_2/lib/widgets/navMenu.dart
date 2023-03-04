@@ -36,6 +36,7 @@ class NavMenu extends StatelessWidget {
       child: BottomNavigationBar(
         // backgroundColor: Theme.of(context).backgroundColor,
         // elevation: 5,
+        selectedItemColor: Theme.of(context).primaryColor,
         onTap: (int pos) {
           Get.offAndToNamed('/${listLiens[pos]}', arguments: { 'pageIndex': pos });
         },
@@ -43,15 +44,21 @@ class NavMenu extends StatelessWidget {
         items: const [
           BottomNavigationBarItem(
             label: 'Calendrier',
-            icon: Icon(Icons.calendar_month),
+            icon: Icon(
+              Icons.calendar_month,
+            ),
           ),
           BottomNavigationBarItem(
             label: 'Checklists',
-            icon: Icon(Icons.check),
+            icon: Icon(
+              Icons.check,
+            ),
           ),
           BottomNavigationBarItem(
             label: 'Réglages',
-            icon: Icon(Icons.settings),
+            icon: Icon(
+              Icons.settings
+            ),
           ),
         ],
       ),

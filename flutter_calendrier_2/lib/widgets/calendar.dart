@@ -105,7 +105,7 @@ class _CalendarState extends State<Calendar> {
           Container(
             margin: const EdgeInsets.only(bottom: 15, top: 15),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
                   // Lorsqu'on clique, provoquer un changement de mois
@@ -116,15 +116,18 @@ class _CalendarState extends State<Calendar> {
                     });
                   },
 
-                  child: const Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.black,
-                    size: 25.0,
-                  ),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.15,
+                    child: Icon(
+                      Icons.arrow_back_ios,
+                      color: Theme.of(context).primaryColor,
+                      size: 25.0,
+                    ),
+                  )
                 ),
                 Text(
                     "${arrayMonths[currentMonth-1]} $_currentYear",
-                    style: const TextStyle(fontSize: 25)
+                    style: Theme.of(context).textTheme.headlineMedium
                 ),
                 GestureDetector(
                   // Lorsqu'on clique, provoquer un changement de mois
@@ -134,11 +137,14 @@ class _CalendarState extends State<Calendar> {
                       _dayClicked = -1;
                     });
                   },
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.black,
-                    size: 25.0,
-                  ),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.15,
+                    child: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Theme.of(context).primaryColor,
+                      size: 25.0,
+                    ),
+                  )
                 ),
               ],
             ),
@@ -231,7 +237,7 @@ class _CalendarState extends State<Calendar> {
                  */
                 return Container(
                     height: MediaQuery.of(context).size.height * 0.70,
-                    child:AddEvent({
+                    child: AddEvent({
                       "day": _dayClicked != -1 ? _dayClicked + 1 : now.day,
                       "month": currentMonth,
                       "year": _currentYear
