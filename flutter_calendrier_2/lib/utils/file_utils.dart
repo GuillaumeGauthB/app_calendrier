@@ -8,15 +8,19 @@ import '../res/checklists.dart';
 import '../res/events.dart';
 import '../res/settings.dart';
 
-int testState = 0;
-
 // Classe servant a la lecture du fichier data.json de l'utilisateur
 class FileUtils {
-  /// initialisation
+  /// Methode initialisant les fichiers de l'application
+  /// Retourne une string permettant de savoir ce qui a ete initialiser
   static Future<String> get init async{
+    /// Liste du contenu du dossier principal de l'application
     List directoryContents = await getDirectoryContent;
+    /// Fichiers du type File dans le dossier
     Iterable directoryContentsFile = directoryContents.whereType<File>();
+    /// String d'information disant quels fichiers ont ete creer
     String stringToReturn = '';
+    /// si le fichier d'evenement n'existe pas, le creer avec un template
+    /// Faire la mm chose pour tous les autres fichiers
     if(directoryContentsFile.where((element) => element.path.contains('data.json')).isEmpty){
       await saveToFile(data: jsonEncode(
           [
@@ -25,7 +29,7 @@ class FileUtils {
             }
           ]
       ));
-      stringToReturn += 'oui';
+      stringToReturn += 'evenements';
     }
 
     if(directoryContentsFile.where((element) => element.path.contains('settings.json')).isEmpty){
@@ -34,7 +38,7 @@ class FileUtils {
           'emptySettingsTemplate': 'Empty Settings'
         }
       ), fileName: 'settings.json');
-      stringToReturn += 'oui';
+      stringToReturn += '__settings';
     }
 
     if(directoryContentsFile.where((element) => element.path.contains('horaires.json')).isEmpty){
@@ -45,7 +49,7 @@ class FileUtils {
             }
           ]
       ), fileName: 'horaires.json');
-      stringToReturn += 'oui';
+      stringToReturn += '__horaires';
     }
 
     if(directoryContentsFile.where((element) => element.path.contains('checklists.json')).isEmpty){
@@ -56,14 +60,14 @@ class FileUtils {
             }
           ]
       ), fileName: 'checklists.json');
-      stringToReturn += 'oui';
+      stringToReturn += '__checklists';
     }
 
+    /// Retourner la liste des fichiers creer
     return stringToReturn;
-    //return directoryContents.whereType<File>().where((element) => element.path.contains('data.json'));
   }
 
-  /// commandes a initialiser
+  /// Initialisation des listes a utiliser
   static Future<void> get listInit async {
     print(await FileUtils.init);
     app_settings = jsonDecode(await FileUtils.readFromFile(fileName: 'settings.json'));
@@ -73,31 +77,32 @@ class FileUtils {
     tableaux_evenements = jsonDecode(await FileUtils.readFromFile());
   }
 
-  /// Getter servant a a prendre le path du fichier a modifier
+  /// Retourner le path de l'application
   static Future<String> get getFilePath async {
     final directory = await getApplicationDocumentsDirectory();
     return directory.path;
   }
 
-  /// Getter a selectionner le fichier a modifier
+  /// Retourner le fichier a modifier
   static Future<File> getFile({required String file}) async{
     final path = await getFilePath;
     return File('$path/$file');
   }
 
-  /// Setter servant a modifier le fichier data.json
-  static Future<File> saveToFile({required String data, String fileName = 'data.json'}) async{
+  /// Retourner le fichier modifier
+  static Future<File> saveToFile({required String data, String fileName = 'data.json'}) async {
     final file = await getFile(file: fileName);
     return file.writeAsString(data);
   }
 
-  /// fonction de test servant a lire le contenu des dossiers locaux
+  /// fonction de test
+  /// Retourner le contenu du dossier principal de l'application
   static Future<List<FileSystemEntity>> get getDirectoryContent async{
     final dir = Directory(await getFilePath);
     return await dir.list().toList();
   }
 
-  /// Fonction servant a lire le contenu du fichier modifier
+  /// Retourne soit le contenu du fichier ou sa location (pour debugging)
   static Future<String> readFromFile({String fileName = 'data.json'}) async{
     try{
       final file = await getFile(file: fileName);
@@ -108,18 +113,35 @@ class FileUtils {
     }
   }
 
-  /// Methode qui modifie la base de donnee
-  static modifyDB({required String collection, int id = -1, String mode = 'ajouter', required Object eventToAdd}) {
+  /// Modifier la base de donnee
+  static modifyDB({
+    required String collection,
+    required Object eventToAdd,
+    int id = -1,
+    String mode = 'ajouter',
+  }) {
+    /// Reference a la collection a modifier
     final CollectionReference collectionRef = FirebaseFirestore.instance.collection(collection);
+    /// Reference au document a modifier (s'il existe deja)
     QuerySnapshot? docRef;
+    /// L'ID du document (s'il existe deja)
     String documentID = '';
+
+    /// Executer une transaction avec le serveur
     FirebaseFirestore.instance.runTransaction((transaction) async => {
+      /// Si on ajoute, ajouter a la base de donnee,
+      /// Sinon, chercher le document et le modifier
       if(mode == 'ajouter'){
         await collectionRef.add(eventToAdd),
       } else {
         docRef = await collectionRef.where("id", isEqualTo: id).limit(1).get(),
+        /// Si le document existe, modifier le document, sinon, erreur
+        /// Si il y a une erreur et que le mode est modification, ajouter le
+        /// document
         if(docRef!.docs.isNotEmpty && docRef?.docs[0].reference.id.runtimeType == String){
           documentID = docRef?.docs[0].reference.id as String,
+          /// Si on modifier, modifier
+          /// Sinon, supprimer le document
           if( mode == 'modifier'){
             collectionRef.doc(documentID).set(eventToAdd,SetOptions(merge: true)),
           }
@@ -130,49 +152,73 @@ class FileUtils {
           print('Document does not exist'),
           await collectionRef.add(eventToAdd),
         }
-        //  FirebaseFirestore.instance.collection('Calendrier').doc(documentID).set({})
-        //},
       }
     });
   }
 
-  /// Fonction qui modifie le contenu du fichier de sauvegarde
-  static Future<File> modifyFile(Object eventToAdd, {String collection = 'Calendrier', String mode = "ajouter", id, String fileName = 'data.json'}) async{
+  /// Retourner le fichier modifier
+  static Future<File> modifyFile(
+      Object eventToAdd,
+      {
+        String collection = 'Calendrier',
+        String mode = "ajouter",
+        id,
+        String fileName = 'data.json'
+      }
+    ) async{
+    /// le fichier a modifier
     final file = await getFile(file: fileName);
 
+    /// Si les settings ne sont pas modifier, faire des manipulations uniques aux
+    /// autres fichiers
     if(mode != 'settings'){
+      /// Liste du contenu du fichier
       List json = jsonDecode(await FileUtils.readFromFile(fileName: fileName));
 
+      /// Si on ajoute pas, supprimer l'original
       if(mode != 'ajouter') {
         json.removeWhere((e) => e['id'] == id);
       }
 
+      /// Si on ne supprime pas, ajouter l'item
       if(mode != 'supprimer') {
         json.add(eventToAdd);
       }
 
-      modifyDB(collection: collection, mode: mode, eventToAdd: eventToAdd, id: (id.runtimeType != Null ? id : -1));
+      /// Modifier la base de donnee avec les informations necessaires
+      modifyDB(
+          collection: collection,
+          mode: mode,
+          eventToAdd: eventToAdd,
+          id: (id.runtimeType != Null ? id : -1)
+      );
 
+      /// Retourner le fichier modifier
       return file.writeAsString(jsonEncode(json));
     } else{
+      /// Retourner le fichier modifier
       return file.writeAsString(jsonEncode(eventToAdd));
     }
   }
 
-  /// Methode qui renvoit le nouvel id a ajouter
+  /// Retourne le dernier int a ajouter
   static int getNewID({required itemList}) {
+    /// Liste contenant tous les id
     List tableau_id = [];
     if(itemList.isNotEmpty){
       itemList.forEach((x) => {if(x['id'] != null) tableau_id.add(x['id'])});
     }
 
+    /// L'id a retourner
     int currentId = 0;
 
+    /// Si la liste n'est pas vide, retourner l'id le plus elever incrementer de 1
     if(tableau_id.length > 0){
       currentId = tableau_id.reduce((value, element) => value > element ? value : element);
       currentId++;
     }
 
+    /// Retourner l'id
     return currentId;
   }
 }

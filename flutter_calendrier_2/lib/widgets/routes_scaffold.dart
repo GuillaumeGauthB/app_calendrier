@@ -54,7 +54,38 @@ class AddScheduleBase extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         body: const ListSchedule(),
-        bottomNavigationBar: NavMenu(),
+        bottomNavigationBar: GestureDetector(
+          onTap: () {
+            Get.offAndToNamed('/settings', arguments: {'pageIndex': 2});
+          },
+
+          child: Container(
+            decoration: const BoxDecoration(
+                border: BorderDirectional(top: BorderSide(color: Colors.grey))
+            ),
+            height: 55,
+            child: Row(
+                children: [
+                  Container(
+                      padding: const EdgeInsets.only(left: 25),
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: Theme.of(context).colorScheme.primary,
+                      )
+                  ),
+                  Container(
+                      padding: const EdgeInsets.only(left: 25),
+                      child: Text(
+                        'Retour',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 20,
+                        ),
+                      )
+                  )
+                ]
+            ),
+          ),
+        ),
         /*bottomNavigationBar: AppBar(
           title: Text(
             'Horaires',

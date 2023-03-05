@@ -15,6 +15,7 @@ class NavMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     // si nous avons des valeurs GET et que celles si contiennent l'index de la page, le choisir
     if(Get.arguments.runtimeType != Null){
       getParam = Get.arguments;
@@ -24,7 +25,7 @@ class NavMenu extends StatelessWidget {
     }
 
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         // border: Border.all(color: Colors.grey)
         boxShadow: [
           BoxShadow(
