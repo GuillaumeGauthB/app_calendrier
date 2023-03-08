@@ -54,7 +54,7 @@ class _AddEventState extends State<AddEvent> {
   late Map<String, dynamic> _infoDate;
 
   // le mode de la classe, peut etre ajouter ou modifier
-  String gestionClasse = 'ajouter';
+  OperationType gestionClasse = OperationType.addition;
 
   _AddEventState(this.parentParameters);
 
@@ -65,7 +65,7 @@ class _AddEventState extends State<AddEvent> {
 
     // si le param id existe, mettre en mode modification et prendre les informations de cet evenement
     if(parentParameters['id'].runtimeType.toString() != 'Null'){
-      gestionClasse = 'modifier';
+      gestionClasse = OperationType.modification;
       eventParameters = tableaux_evenements.singleWhere((e) => e['id'] == parentParameters['id']);
     }
 
@@ -114,7 +114,7 @@ class _AddEventState extends State<AddEvent> {
                     padding: const EdgeInsets.only(left: 150.0, top: 40.0),
                     child: ElevatedButton(
                       onPressed: processData,
-                      child: Text( (gestionClasse == 'ajouter' ? 'Ajouter' : 'Modifier')),
+                      child: Text( (gestionClasse == OperationType.addition ? 'Ajouter' : 'Modifier')),
                     )
                 ),
               ],
@@ -133,7 +133,7 @@ class _AddEventState extends State<AddEvent> {
       int currentId = FileUtils.getNewID(itemList: tableaux_evenements);
 
       Map<String, dynamic> eventToAdd = {
-        'id': (gestionClasse == 'modifier' ? parentParameters['id'] : currentId),
+        'id': (gestionClasse == OperationType.modification ? parentParameters['id'] : currentId),
         'title': '${listControllers["title"]?.text}',
         'description': '${listControllers["description"]?.text}',
         'day': _infoDate["day"],
@@ -157,7 +157,7 @@ class _AddEventState extends State<AddEvent> {
       }
 
       // Si nous sommes en modification, supprimer du tableau deja loader l'evenement avec notre item present
-      if(tableaux_evenements.isNotEmpty && gestionClasse != 'ajouter'){
+      if(tableaux_evenements.isNotEmpty && gestionClasse != OperationType.addition){
         tableaux_evenements.removeWhere((e) => e['id'] == parentParameters['id']);
       }
 
@@ -165,7 +165,11 @@ class _AddEventState extends State<AddEvent> {
       tableaux_evenements.add(eventToAdd);
 
       // Appeler la methode de la classe static pour envoyer nos modifications dans le fichier local json et dans la base de donnee
-      FileUtils.modifyFile(eventToAdd, mode: gestionClasse, id: parentParameters['id']);
+      FileUtils.modifyFile(
+        itemToAdd: eventToAdd,
+        mode: gestionClasse,
+        id: parentParameters['id']
+      );
       // Faire apparaitre un snackbar pour dire que le tout a fonctionner
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Ajout de l\'évènement')),
@@ -188,7 +192,7 @@ class _AddEventState extends State<AddEvent> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Text(
-                '${gestionClasse == 'ajouter' ? 'Ajouter' : 'Modifier'} un évènement',
+                '${gestionClasse == OperationType.addition ? 'Ajouter' : 'Modifier'} un évènement',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ],

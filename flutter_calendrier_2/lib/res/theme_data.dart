@@ -60,6 +60,7 @@ class AppTheme {
       textTheme: TextTheme(
         bodyMedium: TextStyle(color: lightColorScheme.primary),
         titleMedium: TextStyle(color: lightColorScheme.primary),
+        headlineMedium: TextStyle(color: lightColorScheme.primary),
         labelMedium: TextStyle(
           color: lightColorScheme.primary,
           decorationColor: lightColorScheme.primary,

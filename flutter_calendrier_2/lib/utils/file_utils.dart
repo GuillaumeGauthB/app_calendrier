@@ -8,6 +8,13 @@ import '../res/checklists.dart';
 import '../res/events.dart';
 import '../res/settings.dart';
 
+enum OperationType {
+  addition,
+  modification,
+  deletion,
+  settings
+}
+
 // Classe servant a la lecture du fichier data.json de l'utilisateur
 class FileUtils {
   /// Methode initialisant les fichiers de l'application
@@ -90,7 +97,12 @@ class FileUtils {
   }
 
   /// Retourner le fichier modifier
-  static Future<File> saveToFile({required String data, String fileName = 'data.json'}) async {
+  static Future<File> saveToFile(
+      {
+        required String data,
+        String fileName = 'data.json'
+      }
+    ) async {
     final file = await getFile(file: fileName);
     return file.writeAsString(data);
   }
@@ -118,10 +130,11 @@ class FileUtils {
     required String collection,
     required Object eventToAdd,
     int id = -1,
-    String mode = 'ajouter',
+    OperationType mode = OperationType.addition,
   }) {
     /// Reference a la collection a modifier
-    final CollectionReference collectionRef = FirebaseFirestore.instance.collection(collection);
+    final CollectionReference collectionRef = FirebaseFirestore.instance
+                                                        .collection(collection);
     /// Reference au document a modifier (s'il existe deja)
     QuerySnapshot? docRef;
     /// L'ID du document (s'il existe deja)
@@ -131,24 +144,26 @@ class FileUtils {
     FirebaseFirestore.instance.runTransaction((transaction) async => {
       /// Si on ajoute, ajouter a la base de donnee,
       /// Sinon, chercher le document et le modifier
-      if(mode == 'ajouter'){
+      if(mode == OperationType.addition){
         await collectionRef.add(eventToAdd),
       } else {
         docRef = await collectionRef.where("id", isEqualTo: id).limit(1).get(),
         /// Si le document existe, modifier le document, sinon, erreur
         /// Si il y a une erreur et que le mode est modification, ajouter le
         /// document
-        if(docRef!.docs.isNotEmpty && docRef?.docs[0].reference.id.runtimeType == String){
+        if(docRef!.docs.isNotEmpty
+                        && docRef?.docs[0].reference.id.runtimeType == String){
           documentID = docRef?.docs[0].reference.id as String,
           /// Si on modifier, modifier
           /// Sinon, supprimer le document
-          if( mode == 'modifier'){
-            collectionRef.doc(documentID).set(eventToAdd,SetOptions(merge: true)),
+          if( mode == OperationType.modification){
+            collectionRef.doc(documentID).set(eventToAdd,
+                                                      SetOptions(merge: true)),
           }
           else{
             collectionRef.doc(documentID).delete(),
           }
-        } else if(mode == 'modifier') {
+        } else if(mode == OperationType.modification) {
           print('Document does not exist'),
           await collectionRef.add(eventToAdd),
         }
@@ -158,10 +173,10 @@ class FileUtils {
 
   /// Retourner le fichier modifier
   static Future<File> modifyFile(
-      Object eventToAdd,
       {
+        Object itemToAdd = const {},
         String collection = 'Calendrier',
-        String mode = "ajouter",
+        OperationType mode = OperationType.addition,
         id,
         String fileName = 'data.json'
       }
@@ -171,25 +186,25 @@ class FileUtils {
 
     /// Si les settings ne sont pas modifier, faire des manipulations uniques aux
     /// autres fichiers
-    if(mode != 'settings'){
+    if(mode != OperationType.settings){
       /// Liste du contenu du fichier
       List json = jsonDecode(await FileUtils.readFromFile(fileName: fileName));
 
       /// Si on ajoute pas, supprimer l'original
-      if(mode != 'ajouter') {
+      if(mode != OperationType.addition) {
         json.removeWhere((e) => e['id'] == id);
       }
 
       /// Si on ne supprime pas, ajouter l'item
-      if(mode != 'supprimer') {
-        json.add(eventToAdd);
+      if(mode != OperationType.deletion) {
+        json.add(itemToAdd);
       }
 
       /// Modifier la base de donnee avec les informations necessaires
       modifyDB(
           collection: collection,
           mode: mode,
-          eventToAdd: eventToAdd,
+          eventToAdd: itemToAdd,
           id: (id.runtimeType != Null ? id : -1)
       );
 
@@ -197,7 +212,7 @@ class FileUtils {
       return file.writeAsString(jsonEncode(json));
     } else{
       /// Retourner le fichier modifier
-      return file.writeAsString(jsonEncode(eventToAdd));
+      return file.writeAsString(jsonEncode(itemToAdd));
     }
   }
 

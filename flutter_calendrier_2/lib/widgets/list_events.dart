@@ -168,7 +168,10 @@ class _ListEventsState extends State<ListEvents> {
                         TextButton(
                             onPressed: () {
                               tableaux_evenements.removeWhere((e) => e['id'] == o['id']);
-                              FileUtils.modifyFile({}, mode: 'supprimer', id: o['id']);
+                              FileUtils.modifyFile(
+                                mode: OperationType.deletion,
+                                id: o['id']
+                              );
                               setState(() {});
                             },
                             child: Container(

@@ -21,7 +21,7 @@ class ListsManipulation {
   }) {
 
     /// temps present
-    DateTime now = DateTime.now();
+    DateTime now = DateTime(year, month, day);
 
     /// Premiere liste des evenements
     var data = tableaux_evenements;
@@ -38,25 +38,54 @@ class ListsManipulation {
 
     /// Trouver les horaires concernant la date choisie
     var activeSchedules = ListsManipulation.ListSchedule.where(
-            (element) => element['permanent'] != null &&
-            element['permanent'] == true ||
+        (element) => element['permanent'] != null &&
+        element['permanent'] == true ||
+        (
             (
-                (
-                    DateTime(element['year_beginning'], element['month_beginning'], element['day_beginning']).isBefore(now) &&
-                        DateTime(element['year_end'], element['month_end'], element['day_end']).isAfter(now)
-                ) ||
-                    DateTime(element['year_beginning'], element['month_beginning'], element['day_beginning']) == now ||
-                    DateTime(element['year_end'], element['month_end'], element['day_end']) == now
-
+                DateTime(
+                    element['year_beginning'],
+                    element['month_beginning'],
+                    element['day_beginning']
+                ).isBefore(now)
+                    &&
+                DateTime(
+                    element['year_end'],
+                    element['month_end'],
+                    element['day_end']
+                ).isAfter(now)
             )
+                ||
+            DateTime(
+                element['year_beginning'],
+                element['month_beginning'],
+                element['day_beginning']
+            ) == now
+                ||
+            DateTime(
+                element['year_end'],
+                element['month_end'],
+                element['day_end']
+            ) == now
+
+        )
     );
 
     /// Si un resultat a ete trouver, trouver les evenements
     if(activeSchedules.isNotEmpty){
       var schedulesEvents = data.where(
-              (element) =>  dataWhere.firstWhereOrNull((elementNow) => elementNow['id'] == element['id'] && elementNow['id']!= null) == null &&
-              element['schedule'] != null &&
-              activeSchedules.where((elementSchedule) => element['schedule'] == elementSchedule['id']).isNotEmpty
+              (element) =>
+                  dataWhere.firstWhereOrNull(
+                      (elementNow) =>
+                          elementNow['id'] == element['id']
+                              &&
+                          elementNow['id']!= null
+                  ) == null
+                    &&
+                  element['schedule'] != null &&
+                  activeSchedules.where(
+                        (elementSchedule) =>
+                            element['schedule'] == elementSchedule['id']
+                  ).isNotEmpty
 
       );
 
@@ -64,10 +93,18 @@ class ListsManipulation {
       if(schedulesEvents != null){
         var schedulesEventsToAdd = schedulesEvents.where(
                 (element) {
-              var currentSchedule = activeSchedules.toList().firstWhereOrNull((elementSchedule) => elementSchedule['id'] == element['schedule']);
-              DateTime elTime = DateTime(element['year'], element['month'], element['day']);
+              var currentSchedule = activeSchedules.toList().firstWhereOrNull(
+                      (elementSchedule) =>
+                          elementSchedule['id'] == element['schedule']
+              );
+              DateTime elTime = DateTime(
+                                  element['year'],
+                                  element['month'],
+                                  element['day']
+              );
               if(currentSchedule != null){
-                /// Verifier si l'evenement se repete a chaque semaine, mois ou annee
+                /// Verifier si l'evenement se repete a chaque semaine, mois ou
+                /// annee
                 if(currentSchedule['repetition'] == 'week'){
                   if(now.weekday == elTime.weekday){
                     return true;

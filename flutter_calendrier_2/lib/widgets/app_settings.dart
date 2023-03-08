@@ -46,7 +46,11 @@ class _AppSettingsState extends State<AppSettings> {
                 // on sauvegarde les changements et rafrachit les evenements
                 app_settings['last_refresh'] = DateTime.now().toString();
                 RefreshData.getData();
-                FileUtils.modifyFile(app_settings, fileName: 'settings.json', mode: 'settings');
+                FileUtils.modifyFile(
+                  itemToAdd: app_settings,
+                  fileName: 'settings.json',
+                  mode: OperationType.settings
+                );
                 setState(() {});
               },
               child: Column(
@@ -125,7 +129,11 @@ class _SettingsThemeModeState extends State<SettingsThemeMode> {
           child: DropdownButtonFormField(
             onChanged: (Object? objet) async {
               app_settings['theme_mode'] = objet;
-              await FileUtils.modifyFile(app_settings, fileName: 'settings.json', mode: 'settings');
+              await FileUtils.modifyFile(
+                itemToAdd: app_settings,
+                fileName: 'settings.json',
+                mode: OperationType.settings
+              );
               runApp(MyApp());
             },
 

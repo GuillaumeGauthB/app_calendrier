@@ -66,7 +66,12 @@ class day extends StatelessWidget {
     }
 
     if(eventInDay['schedule']!){
-      circleBorderColor = Colors.red;
+      circleBorderColor = Theme.of(context).colorScheme.onBackground;
+
+      if(dayClicked == currentDay - 1){
+        circleBorderColor = Colors.white;
+      }
+
     } else {
       circleBorderColor = Colors.transparent;
     }

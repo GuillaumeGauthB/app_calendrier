@@ -212,7 +212,13 @@ class _AddChecklistState extends State<AddChecklist> {
       listeChecklists.add(checklistToAdd);
 
       // Appeler la methode de la classe static pour envoyer nos modifications dans le fichier local json et dans la base de donnee
-      FileUtils.modifyFile(checklistToAdd, collection: 'Checklists', mode: id == null ? 'ajouter' : 'modifier', id: currentId, fileName: 'checklists.json');
+      FileUtils.modifyFile(
+        itemToAdd: checklistToAdd,
+        collection: 'Checklists',
+        mode: (id == null ? OperationType.addition : OperationType.modification),
+        id: currentId,
+        fileName: 'checklists.json'
+      );
 
       // Faire apparaitre un snackbar pour dire que le tout a fonctionner
       ScaffoldMessenger.of(context).showSnackBar(

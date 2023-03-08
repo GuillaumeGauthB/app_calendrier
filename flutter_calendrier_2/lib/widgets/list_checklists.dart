@@ -80,7 +80,12 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
               )
             ){
               _listKey.currentState?.setState(() {
-                FileUtils.modifyFile({},collection: 'Checklists', fileName: 'checklists.json', mode: 'supprimer', id: i['id']);
+                FileUtils.modifyFile(
+                  collection: 'Checklists',
+                  fileName: 'checklists.json',
+                  mode: OperationType.deletion,
+                  id: i['id']
+                );
                 _list.removeAt(listeChecklists.indexWhere((element) => element['id'] == i['id']));
                 lengthList--;
                 _listKey.currentState?.removeItem(
@@ -131,7 +136,13 @@ class _ListCheckmarksState extends State<ListCheckmarks> {
           checkChild: (String modified) {
             setState(() {
               i[modified] = !i[modified];
-              FileUtils.modifyFile(i, fileName: 'checklists.json', mode: 'modifier', id: i['id'], collection: 'Checklists');
+              FileUtils.modifyFile(
+                itemToAdd: i,
+                fileName: 'checklists.json',
+                mode: OperationType.modification,
+                id: i['id'],
+                collection: 'Checklists'
+              );
               _listOri = ListsManipulation.ListChecklists;
               print(_listOri);
               setUpList;

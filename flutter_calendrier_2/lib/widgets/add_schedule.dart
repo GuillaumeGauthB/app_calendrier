@@ -33,6 +33,9 @@ class _AddScheduleState extends State<AddSchedule> {
   };
   final DateTime now = DateTime.now();
 
+  late Widget buttonCancel,
+          buttonDelete;
+
   Map<String, dynamic> currentScheduleParameters = {},
       originalScheduleParameters = {};
 
@@ -63,6 +66,43 @@ class _AddScheduleState extends State<AddSchedule> {
 
   @override
   Widget build(BuildContext context) {
+    buttonCancel = SizedBox(
+      width: MediaQuery.of(context).size.width * 0.40,
+      child: ElevatedButton(
+        onPressed: () {Navigator.pop(context);},
+        child: const Text('Annuler'),
+      ),
+    );
+
+    buttonDelete = SizedBox(
+      width: MediaQuery.of(context).size.width * 0.40,
+      child: ElevatedButton(
+        onPressed: () {
+          listeHoraires.removeWhere((e) => e['id'] == originalScheduleParameters['id']);
+          FileUtils.modifyFile(
+            id: originalScheduleParameters['id'],
+            collection: 'Horaires',
+            mode: OperationType.deletion,
+            fileName: 'horaires.json'
+          );
+          Navigator.pop(context);
+        },
+
+        style: ButtonStyle(
+          backgroundColor: const MaterialStatePropertyAll<Color>(Colors.red),
+          foregroundColor: const MaterialStatePropertyAll<Color>(Colors.white),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  side: const BorderSide(color: Colors.red)
+              )
+          )
+        ),
+
+        child: const Text('Supprimer'),
+      ),
+    );
+
 
     return Form(
       key: _formKey,
@@ -191,83 +231,96 @@ class _AddScheduleState extends State<AddSchedule> {
               ),
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+          Column(
             children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.40,
-                child: ElevatedButton(
-                  onPressed: () {Navigator.pop(context);},
-                  child: Text('Annuler'),
-                ),
-              ),
-              SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.40,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Si le formulaire est valider...
-                      if (_formKey.currentState!.validate()) {
-                        // Si le tableau n'est pas vide, incrementer l'id le plus elever de 1, sinon, mettre 0
-                        List tableau_id = [];
-                        if(listeHoraires.isNotEmpty){
-                          listeHoraires.forEach((x) => {if(x['id'] != null) tableau_id.add(x['id'])});
-                        }
+              if(originalScheduleParameters['id'].runtimeType != Null)
+                buttonCancel,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
 
-                        int currentId = 0;
+                  if(originalScheduleParameters['id'].runtimeType != Null)...[
+                    buttonDelete,
+                  ]
+                  else...[
+                    buttonCancel,
+                  ],
 
-                        if(tableau_id.length > 0){
-                          currentId = tableau_id.reduce((value, element) => value > element ? value : element);
-                          currentId++;
-                        }
+                  SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.40,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Si le formulaire est valider...
+                          if (_formKey.currentState!.validate()) {
+                            // Si le tableau n'est pas vide, incrementer l'id le plus elever de 1, sinon, mettre 0
+                            List tableau_id = [];
+                            if(listeHoraires.isNotEmpty){
+                              listeHoraires.forEach((x) => {if(x['id'] != null) tableau_id.add(x['id'])});
+                            }
 
-                        if(currentScheduleParameters["color"].runtimeType == Color){
-                          currentScheduleParameters["color"] = currentScheduleParameters['color'].value;
-                        }
+                            int currentId = 0;
 
-                        if(currentScheduleParameters["color_frontend"].runtimeType == Color){
-                          currentScheduleParameters["color_frontend"] = currentScheduleParameters['color_frontend'].value;
-                        }
+                            if(tableau_id.length > 0){
+                              currentId = tableau_id.reduce((value, element) => value > element ? value : element);
+                              currentId++;
+                            }
 
-                        Map<String, dynamic> eventToAdd = {
-                          'id': originalScheduleParameters['id'] ?? currentId,
-                          'name': '${listControllers["name"]?.text}',
-                          'description': '${listControllers["description"]?.text}',
-                          'day_beginning': _infoDate["day_beginning"],
-                          'month_beginning': _infoDate["month_beginning"],
-                          'year_beginning': _infoDate["year_beginning"],
-                          'day_end': _infoDate["day_end"],
-                          'month_end': _infoDate["month_end"],
-                          'year_end': _infoDate["year_end"],
-                          'permanent': isOpenPermanent,
-                          'color': currentScheduleParameters['color'],
-                          'color_frontend': Color(currentScheduleParameters['color']).computeLuminance() > 0.5 ? Colors.black.value : Colors.white.value ,
-                          'repetition': currentScheduleParameters["repetition"]
-                        };
+                            if(currentScheduleParameters["color"].runtimeType == Color){
+                              currentScheduleParameters["color"] = currentScheduleParameters['color'].value;
+                            }
 
-                        // print(eventToAdd['month_end'].runtimeType);
+                            if(currentScheduleParameters["color_frontend"].runtimeType == Color){
+                              currentScheduleParameters["color_frontend"] = currentScheduleParameters['color_frontend'].value;
+                            }
 
-                        // Si nous sommes en modification, supprimer du tableau deja loader l'evenement avec notre item present
-                        if(listeHoraires.isNotEmpty && originalScheduleParameters['id'].runtimeType != Null){
-                          listeHoraires.removeWhere((e) => e['id'] == originalScheduleParameters['id']);
-                        }
+                            Map<String, dynamic> eventToAdd = {
+                              'id': originalScheduleParameters['id'] ?? currentId,
+                              'name': '${listControllers["name"]?.text}',
+                              'description': '${listControllers["description"]?.text}',
+                              'day_beginning': _infoDate["day_beginning"],
+                              'month_beginning': _infoDate["month_beginning"],
+                              'year_beginning': _infoDate["year_beginning"],
+                              'day_end': _infoDate["day_end"],
+                              'month_end': _infoDate["month_end"],
+                              'year_end': _infoDate["year_end"],
+                              'permanent': isOpenPermanent,
+                              'color': currentScheduleParameters['color'],
+                              'color_frontend': Color(currentScheduleParameters['color']).computeLuminance() > 0.5 ? Colors.black.value : Colors.white.value ,
+                              'repetition': currentScheduleParameters["repetition"]
+                            };
 
-                        // Ajouter le nouvel evenement au tableau local
-                        listeHoraires.add(eventToAdd);
+                            // print(eventToAdd['month_end'].runtimeType);
 
-                        // Appeler la methode de la classe static pour envoyer nos modifications dans le fichier local json et dans la base de donnee
-                        FileUtils.modifyFile(eventToAdd, collection: 'Horaires', mode: (originalScheduleParameters['id'].runtimeType == Null ? 'ajouter' : 'modifier'), id: originalScheduleParameters['id'], fileName: 'horaires.json');
+                            // Si nous sommes en modification, supprimer du tableau deja loader l'evenement avec notre item present
+                            if(listeHoraires.isNotEmpty && originalScheduleParameters['id'].runtimeType != Null){
+                              listeHoraires.removeWhere((e) => e['id'] == originalScheduleParameters['id']);
+                            }
 
-                        // Faire apparaitre un snackbar pour dire que le tout a fonctionner
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Ajout de l\'évènement')),
-                        );
-                        Navigator.pop(context);
-                      }
-                    },
+                            // Ajouter le nouvel evenement au tableau local
+                            listeHoraires.add(eventToAdd);
 
-                    child: Text( (originalScheduleParameters['id'].runtimeType == Null ? 'Ajouter' : 'Modifier')),
-                  )
-              ),
+                            // Appeler la methode de la classe static pour envoyer nos modifications dans le fichier local json et dans la base de donnee
+                            FileUtils.modifyFile(
+                                itemToAdd: eventToAdd,
+                                collection: 'Horaires',
+                                mode: (originalScheduleParameters['id'].runtimeType == Null ? OperationType.addition : OperationType.modification),
+                                id: originalScheduleParameters['id'],
+                                fileName: 'horaires.json'
+                            );
+
+                            // Faire apparaitre un snackbar pour dire que le tout a fonctionner
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Ajout de l\'évènement')),
+                            );
+                            Navigator.pop(context);
+                          }
+                        },
+
+                        child: Text( (originalScheduleParameters['id'].runtimeType == Null ? 'Ajouter' : 'Modifier')),
+                      )
+                  ),
+                ],
+              )
             ],
           )
         ],
