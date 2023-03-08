@@ -24,8 +24,10 @@ class RefreshData {
     if(collection != Collections.all) {
       await getDataCol(collection: collection.name);
     } else {
-      for(String item in Collections.values.map((e) => e.toString())){
-        await getDataCol(collection: item);
+      for(String item in Collections.values.map((e) => e.name.toString())){
+        if(item != 'all'){
+          await getDataCol(collection: item);
+        }
       }
     }
   }
@@ -42,12 +44,19 @@ class RefreshData {
 
     print(result_3.length);
 
+    print(collection);
+
     if(collection == 'Calendrier'){
-      FileUtils.saveToFile(data: jsonEncode(result_3));
+      await FileUtils.saveToFile(data: jsonEncode(result_3));
+      tableaux_evenements = jsonDecode(await FileUtils.readFromFile());
     } else {
-      FileUtils.saveToFile(data: jsonEncode(result_3), fileName: '${collection.toLowerCase()}.json');
+      await FileUtils.saveToFile(data: jsonEncode(result_3), fileName: '${collection.toLowerCase()}.json');
+      if(collection == 'Checklists'){
+        listeChecklists = jsonDecode(await FileUtils.readFromFile(fileName: 'checklists.json'));
+      } else if (collection == 'Horaires') {
+        listeHoraires = jsonDecode(await FileUtils.readFromFile(fileName: 'horaires.json'));
+      }
     }
-    tableaux_evenements = jsonDecode(await FileUtils.readFromFile());
   }
 
   /*static void get getDataCal async{
