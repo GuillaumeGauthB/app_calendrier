@@ -1,8 +1,8 @@
 import 'dart:convert'; // pour convertir en JSON
 import 'dart:io'; // pour ecriture de fichiers
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_calendrier_2/widgets/refresh_data.dart';
 import 'package:path_provider/path_provider.dart'; // pour trouver la location du dossier
-import 'package:firebase_core/firebase_core.dart';
 
 import '../res/checklists.dart';
 import '../res/events.dart';
@@ -36,6 +36,7 @@ class FileUtils {
             }
           ]
       ));
+      await RefreshData.getData(collection: Collections.Calendrier);
       stringToReturn += 'evenements';
     }
 
@@ -45,6 +46,7 @@ class FileUtils {
           'emptySettingsTemplate': 'Empty Settings'
         }
       ), fileName: 'settings.json');
+      // RefreshData.getData(collection: Collections.Calendrier);
       stringToReturn += '__settings';
     }
 
@@ -56,6 +58,7 @@ class FileUtils {
             }
           ]
       ), fileName: 'horaires.json');
+      await RefreshData.getData(collection: Collections.Horaires);
       stringToReturn += '__horaires';
     }
 
@@ -67,6 +70,7 @@ class FileUtils {
             }
           ]
       ), fileName: 'checklists.json');
+      await RefreshData.getData(collection: Collections.Checklists);
       stringToReturn += '__checklists';
     }
 

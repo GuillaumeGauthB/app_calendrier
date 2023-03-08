@@ -6,6 +6,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../res/settings.dart';
 import '../utils/file_utils.dart';
 
+enum Collections {
+  Calendrier,
+  Checklists,
+  Horaires,
+  all
+}
+
 class RefreshData {
   static List<String> itemsColl = [
     'Calendrier',
@@ -13,17 +20,17 @@ class RefreshData {
     'Checklists'
   ];
 
-  static void getData({String? collection}) {
-    if(collection != null && collection.isNotEmpty) {
-      getDataCol(collection: collection);
+  static Future<void> getData({Collections collection = Collections.all}) async {
+    if(collection != Collections.all) {
+      await getDataCol(collection: collection.name);
     } else {
-      for(String item in itemsColl){
-        getDataCol(collection: item);
+      for(String item in Collections.values.map((e) => e.toString())){
+        await getDataCol(collection: item);
       }
     }
   }
 
-  static void getDataCol({required String collection}) async {
+  static Future<void> getDataCol({required String collection}) async {
     // Get docs from collection reference
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection(collection).get();
 
