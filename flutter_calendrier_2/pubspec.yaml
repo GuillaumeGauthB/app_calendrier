@@ -44,7 +44,7 @@ dependencies:
   datepicker_dropdown: ^0.0.7+2
   path_provider: ^2.0.11
   flutter_hooks: ^0.18.5+1
-  shared_preferences: ^2.0.17
+  # shared_preferences: ^2.0.17
   get: ^4.6.5
   sliding_up_panel: ^2.0.0+1
   flutter_colorpicker: ^1.0.3

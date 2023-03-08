@@ -6,6 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../utils/file_utils.dart';
 import '../res/events.dart';
 import '../res/settings.dart';
+import './widgets/refresh_data.dart';
 import 'widgets/MyApp.dart';
 
 /*Future<void> main() async {
@@ -20,14 +21,16 @@ var file;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   // dark theme
-  isDarkTheme = await SharedPreferencesValues().getTheme;
+  // isDarkTheme = await SharedPreferencesValues().getTheme;
   // tableau des evenements
   //await FileUtils.saveToFile('{\'hihiha\': \'hihiha\'}');
   await FileUtils.listInit;
+
+  RefreshData.getData();
   //print(tableaux_evenements.runtimeType);
   //testJSON.runtimeType = tableaux_evenements.runtimeType;
   //print(tableaux_evenements);
-  await Firebase.initializeApp();
   runApp(MyApp());
 }
